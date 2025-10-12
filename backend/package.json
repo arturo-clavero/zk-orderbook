@@ -1,0 +1,7 @@
+{
+  "name": "@zkdex/backend",
+  "version": "1.0.0",
+  "dependencies": {
+    "@zkdex/shared": "workspace:*"
+  }
+}

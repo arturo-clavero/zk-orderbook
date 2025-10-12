@@ -1,0 +1,7 @@
+{
+  "name": "@zkdex/contracts",
+  "version": "1.0.0",
+  "dependencies": {
+    "@zkdex/shared": "workspace:*"
+  }
+}

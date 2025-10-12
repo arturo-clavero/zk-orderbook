@@ -1,0 +1,17 @@
+**/node_modules/
+**/.env*
+
+#backend
+
+# contracts
+contracts/lib
+contracts/out
+
+#circuits
+circuits/**/target
+
+#frontend
+
+#shared
+
+

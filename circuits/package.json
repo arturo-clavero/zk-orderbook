@@ -1,0 +1,8 @@
+{
+  "name": "@zkdex/circuits",
+  "version": "1.0.0",
+  "dependencies": {
+    "@zkdex/shared": "workspace:*"
+  }
+}
+
