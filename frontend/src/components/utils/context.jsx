@@ -6,13 +6,15 @@ export function ContextProvider({ children }) {
   const [state, setState] = useState("");
 
   return (
-    <AppContext.Provider value={{
-      state,
-      setState,
-    }}>
-    {children}
-  </AppContext.Provider>
-);
+    <AppContext.Provider
+      value={{
+        state,
+        setState,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 }
 
 export function getContext() {
