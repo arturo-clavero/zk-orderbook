@@ -1,3 +1,1 @@
-export default function OrdersPage() {
-
-}
+export default function OrdersPage() {}

@@ -1,3 +1,1 @@
-export default function ActivityPage() {
-
-}
+export default function ActivityPage() {}

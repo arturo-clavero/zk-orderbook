@@ -29,12 +29,10 @@ export default function NavBar() {
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box
-        
           component="img"
           src="/vite.svg" //TODO: replace logo
           alt="DEX Logo"
-          sx={{ width: 36, height: 36, mr: 1
- }}
+          sx={{ width: 36, height: 36, mr: 1 }}
         />
         <Typography variant="h6" sx={{ fontWeight: 700, color: "white" }}>
           ZkDEX
@@ -48,7 +46,8 @@ export default function NavBar() {
             component={Link}
             to={item.path}
             sx={{
-              color: location.pathname === item.path ? "secondary.main" : "white",
+              color:
+                location.pathname === item.path ? "secondary.main" : "white",
               fontWeight: location.pathname === item.path ? 700 : 500,
               textTransform: "none",
             }}
