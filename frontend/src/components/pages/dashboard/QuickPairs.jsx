@@ -29,8 +29,17 @@ const pairs = [
 
 export default function QuickPairs() {
   return (
-    <Box sx={{ mt:6, p: 3, border: 1, borderColor: "divider", borderRadius: 2, bgcolor: "background.paper", boxShadow: 2 }}>
-      
+    <Box
+      sx={{
+        mt: 6,
+        p: 3,
+        border: 1,
+        borderColor: "divider",
+        borderRadius: 2,
+        bgcolor: "background.paper",
+        boxShadow: 2,
+      }}
+    >
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
         Quick Pairs
       </Typography>
@@ -52,7 +61,12 @@ export default function QuickPairs() {
           alignItems="center"
           sx={{ mb: 1, px: 1 }}
         >
-          <Stack direction="row" spacing={1} sx={{ flex: 2 }} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ flex: 2 }}
+            alignItems="center"
+          >
             <Avatar src={pair.icon} sx={{ width: 24, height: 24 }} />
             <Typography variant="body1">{pair.symbol}</Typography>
           </Stack>
@@ -64,9 +78,15 @@ export default function QuickPairs() {
           <Typography sx={{ flex: 1 }}>{pair.inOrders}</Typography>
 
           <Stack direction="row" spacing={1} sx={{ flex: 3 }}>
-            <Button variant="outlined" size="small">Deposit</Button>
-            <Button variant="contained" size="small" color="primary">Trade</Button>
-            <Button variant="outlined" size="small" color="secondary">Withdraw</Button>
+            <Button variant="outlined" size="small">
+              Deposit
+            </Button>
+            <Button variant="contained" size="small" color="primary">
+              Trade
+            </Button>
+            <Button variant="outlined" size="small" color="secondary">
+              Withdraw
+            </Button>
           </Stack>
         </Stack>
       ))}

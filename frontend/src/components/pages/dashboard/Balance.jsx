@@ -1,4 +1,11 @@
-import { Box, Typography, Stack, Avatar, LinearProgress, Tooltip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  Avatar,
+  LinearProgress,
+  Tooltip,
+} from "@mui/material";
 
 const tokens = [
   { symbol: "ETH", amount: 3.5, color: "#627EEA" },
@@ -35,9 +42,7 @@ export default function Balance() {
               title={`${token.amount} ${token.symbol} (${percentage.toFixed(1)}%)`}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Avatar
-                  sx={{ bgcolor: token.color, width: 24, height: 24 }}
-                >
+                <Avatar sx={{ bgcolor: token.color, width: 24, height: 24 }}>
                   {token.symbol[0]}
                 </Avatar>
 
@@ -59,7 +64,10 @@ export default function Balance() {
                   />
                 </Box>
 
-                <Typography variant="body2" sx={{ minWidth: 60, textAlign: "right" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ minWidth: 60, textAlign: "right" }}
+                >
                   {token.amount}
                 </Typography>
               </Box>

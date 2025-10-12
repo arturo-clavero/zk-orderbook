@@ -1,6 +1,6 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-
+import WalletConnect from "./WalletConnect.jsx";
 export default function NavBar() {
   const location = useLocation();
 
@@ -19,7 +19,7 @@ export default function NavBar() {
         zIndex: 1300,
         width: "100%",
         px: { xs: 2, sm: 4 },
-        py: 1.5,
+        py: 2,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -30,11 +30,14 @@ export default function NavBar() {
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box
           component="img"
-          src="/vite.svg" //TODO: replace logo
+          src="/l3.png" // replace logo
           alt="DEX Logo"
-          sx={{ width: 36, height: 36, mr: 1 }}
+          sx={{ width: 46, height: 30, mr: 0 }}
         />
-        <Typography variant="h6" sx={{ fontWeight: 700, color: "white" }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 900, color: "text.primary" }}
+        >
           ZkDEX
         </Typography>
       </Box>
@@ -47,7 +50,9 @@ export default function NavBar() {
             to={item.path}
             sx={{
               color:
-                location.pathname === item.path ? "secondary.main" : "white",
+                location.pathname === item.path
+                  ? "success.main"
+                  : "text.primary",
               fontWeight: location.pathname === item.path ? 700 : 500,
               textTransform: "none",
             }}
@@ -56,16 +61,7 @@ export default function NavBar() {
           </Button>
         ))}
       </Stack>
-
-      <Box>
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{ textTransform: "none" }}
-        >
-          Connect Wallet
-        </Button>
-      </Box>
+      <WalletConnect />
     </Box>
   );
 }

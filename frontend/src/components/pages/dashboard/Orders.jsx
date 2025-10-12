@@ -1,4 +1,12 @@
-import { Box, Typography, Stack, Avatar, Button, Divider, Chip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  Avatar,
+  Button,
+  Divider,
+  Chip,
+} from "@mui/material";
 
 // Example orders
 const latestOrders = [
@@ -70,7 +78,12 @@ export default function Orders() {
           sx={{ mb: 1, px: 1 }}
         >
           {/* Pair */}
-          <Stack direction="row" spacing={1} sx={{ flex: 2 }} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ flex: 2 }}
+            alignItems="center"
+          >
             <Avatar src={order.icon} sx={{ width: 24, height: 24 }} />
             <Typography variant="body1">{order.pair}</Typography>
           </Stack>
@@ -94,8 +107,8 @@ export default function Orders() {
               order.status === "Filled"
                 ? "success"
                 : order.status === "Pending"
-                ? "warning"
-                : "info"
+                  ? "warning"
+                  : "info"
             }
             size="small"
             sx={{ flex: 1 }}
@@ -103,7 +116,11 @@ export default function Orders() {
 
           {/* Actions */}
           <Stack direction="row" spacing={1} sx={{ flex: 1 }}>
-            <Button variant="outlined" size="small" disabled={order.status === "Filled"}>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={order.status === "Filled"}
+            >
               Cancel
             </Button>
             <Button variant="text" size="small">
