@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator trading_client {
+  provider = "prisma-client-js"
+}
+
+datasource trading {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trader {
+  id           String        @id @default(uuid())
+  address      String        @unique
+  // kycStatus Boolean @default(false)
+  accounts     Account[]
+  orders       Order[]
+  transactions Transaction[]
+}
+
+model Account {
+  id         String  @id @default(uuid())
+  traderId   String
+  trader     Trader  @relation(fields: [traderId], references: [id])
+  currency   String
+  locked     BigInt  @default(0)
+  available  BigInt  @default(0)
+  merkleLeaf String?
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  traderId      String
+  trader        Trader   @relation(fields: [traderId], references: [id])
+  sell_currency String
+  buy_currency  String
+  amount        BigInt
+  price         BigInt
+  created       DateTime @default(now())
+  order_status  String
+  proof         String?
+  newRoot       String?
+}
+
+model Transaction {
+  id         String   @id @default(uuid())
+  type       String
+  traderId   String
+  trader     Trader   @relation(fields: [traderId], references: [id])
+  token      String
+  amount     Float
+  proof      String?
+  merkleLeaf String?
+  txHash     String?
+  status     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
