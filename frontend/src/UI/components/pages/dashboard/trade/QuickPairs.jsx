@@ -16,6 +16,12 @@ import { getContext } from "../../../utils/context.jsx";
 const titleFontSize = 12;
 const titleFontWeight = 500;
 
+const safeNumber = (value) => {
+  if (value === undefined || value === null) return 0;
+  if (isNaN(value) || !isFinite(value)) return 0;
+  return value;
+};
+
 export default function QuickPairs() {
   const { tokens, tokenPairs } = useTokens();
   const [visible, setVisible] = useState(true);
@@ -92,10 +98,13 @@ export default function QuickPairs() {
           {Object.entries(tokenPairs).map(([key, pair], idx) => {
             const token1 = pair.token1;
             const token2 = pair.token2;
-            const price = pair.price.toFixed(4);
-            const priceChange = (price / pair.price24hAgo - 1).toFixed(4);
-            const twap1min = pair.twap1min.toFixed(4);
-            const twap10min = pair.twap10min.toFixed(4);
+            const price = safeNumber(pair.price).toFixed(4);
+            const change = safeNumber(
+              pair.price24hAgo !== 0 ? pair.price / pair.price24hAgo - 1 : 0
+            ).toFixed(4);
+            const priceChange = change > 0 ? `+${change} %` : change < 0 ? `${change} %` : '~';
+            const twap1min = safeNumber(pair.twap1min).toFixed(4);
+            const twap10min = safeNumber(pair.twap10min).toFixed(4);
             return (
               <Stack
                 key={idx}
@@ -124,7 +133,7 @@ export default function QuickPairs() {
                 </Typography>
 
                 <Typography
-                  sx={{ flex: 1, color: priceChange > 0 ? "green" : "red" }}
+                  sx={{ flex: 1, color: priceChange[0] == "+"? "green" : priceChange[0] =="-" ? "red" : "white" }}
                 >
                   {priceChange ? `${priceChange}` : "N/A"}
                 </Typography>

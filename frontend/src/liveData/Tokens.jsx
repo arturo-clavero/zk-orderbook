@@ -8,8 +8,7 @@ import {
   setTokensParam,
   parsePriceUpdatesStream,
   fetchDataFallback,
-} from "./utils.jsx";
-import { LocalConvenienceStoreOutlined } from "@mui/icons-material";
+} from "./tokenUtils.jsx";
 const connection = new HermesClient("https://hermes.pyth.network", {});
 
 export function useTokens() {
@@ -47,22 +46,16 @@ export function useTokens() {
   // fetch historic data every 1 min
   useEffect(() => {
     async function fetchPeriodic() {
-      count += 1;
       const results = { ...nullResults };
-      results.twap1min = await fetchDataFallback(standard, "TWAP");
-      results.twap10min = await fetchDataFallback(standard * 10, "TWAP");
-      results.price24hAgo = await fetchDataFallback(
-        standard * 24 * 60,
-        "24HAGO"
-      );
+      results.twap1min = await fetchDataFallback(60, "TWAP");
+      results.twap10min = await fetchDataFallback(600, "TWAP");
+      results.price24hAgo = await fetchDataFallback(60 * 24 * 60, "24HAGO");
       console.log("RESULTS", results);
       setTokensParam(setTokens, setTokenPairs, results);
     }
     fetchPeriodic();
-    const interval = setInterval(fetchPeriodic, standard * 1000);
+    const interval = setInterval(fetchPeriodic, 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-  // console.log("tokens: ", tokens);
-  // console.log("token pairs: ", tokenPairs);
   return { tokens, tokenPairs };
 }

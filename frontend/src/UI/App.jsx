@@ -29,10 +29,8 @@ export default function App() {
             mb: { xs: 5, sm: 7 },
             px: { xs: 1, sm: 1, md: 2 },
             width: "100%",
-            // mx: "auto",
             display: "flex",
             justifyContent: "center",
-            // bgcolor: "yellow"
           }}
         >
           <Routes>
