@@ -11,6 +11,8 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { getContext } from "../utils/context.jsx";
 import { ethers } from "ethers";
 import { useState } from "react";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 export default function WalletConnect() {
   const {
@@ -27,7 +29,11 @@ export default function WalletConnect() {
 
   const shortenAddress = (addr) => {
     if (!addr) return "";
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`.toLowerCase();
+    let str = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+    console.log("str: ", str);
+    const strShort = str.toLowerCase();
+    console.log("low: ", strShort);
+    return strShort;
   };
 
   const copyAddress = async () => {
@@ -79,7 +85,6 @@ export default function WalletConnect() {
     setWalletAddress("");
     handleWalletClose();
     setState("");
-
   };
 
   const switchWallet = async () => {
@@ -93,26 +98,23 @@ export default function WalletConnect() {
         console.log("in)", accounts);
         let i;
         for (i = 0; i < accounts.length; i++) {
-            console.log(i, "/", accounts.length);
-            if (accounts[i].toLowerCase() === walletAddress.toLowerCase()) {
+          console.log(i, "/", accounts.length);
+          if (accounts[i].toLowerCase() === walletAddress.toLowerCase()) {
             console.log("found at: ", i);
             if (i + 1 < accounts.length) i += 1;
             else i = 0;
             console.log("i: ", i);
             break;
-          }
-          else if (i == accounts.length - 1) {
+          } else if (i == accounts.length - 1) {
             i = 0;
             break;
           }
         }
-        
+
         setWalletAddress(accounts[i]);
         handleWalletClose();
         setState("");
-      }
-      else 
-        console.log("only one wallet")
+      } else console.log("only one wallet");
     } catch (err) {
       console.error("Switch wallet failed:", err);
     }
@@ -124,17 +126,25 @@ export default function WalletConnect() {
         <>
           <Box
             sx={{
+              mr: 5,
               textTransform: "none",
               fontWeight: 600,
               "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
             }}
           >
             <Button
+              variant="contained"
               sx={{
-                color: "#fff",
+                textTransform: "none",
+                bgcolor: "secondary.main",
+                color: "secondary.contrastText",
+                "&:hover": {
+                  bgcolor: "secondary.light",
+                },
               }}
               onClick={handleWalletClick}
-              startIcon={<AccountBalanceWalletIcon sx={{ color: "#fff" }} />}
+              startIcon={<LogoutIcon sx={{ color: "info.main" }} />}
+              //   startIcon={<SwapHorizIcon sx={{ color: "#ff" }} />}
             >
               {shortenAddress(walletAddress)}
               <Tooltip title={tooltipText}>
@@ -156,6 +166,7 @@ export default function WalletConnect() {
             anchorEl={walletMenuAnchor}
             open={Boolean(walletMenuAnchor)}
             onClose={handleWalletClose}
+            sx={{ mt: 0.5 }}
             anchorOrigin={{
               vertical: "bottom",
               horizontal: "right",
@@ -172,19 +183,21 @@ export default function WalletConnect() {
       ) : (
         <Button
           onClick={connectWallet}
-          startIcon={<AccountBalanceWalletIcon sx={{ color: "#fff" }} />}
-
+          startIcon={
+            <AccountBalanceWalletIcon sx={{ color: "success.main" }} />
+          }
           variant="contained"
           sx={{
+            mr: 5,
             textTransform: "none",
-            bgcolor: "secondary.main", 
+            bgcolor: "secondary.main",
             color: "secondary.contrastText",
             "&:hover": {
               bgcolor: "secondary.light",
             },
           }}
         >
-          Connect Wallet
+          Wallet
         </Button>
       )}
     </>

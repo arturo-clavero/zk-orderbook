@@ -6,6 +6,7 @@ import Dashboard from "./components/pages/dashboard/Dashboard.jsx";
 import OrdersPage from "./components/pages/orders/OrdersPage.jsx";
 import ActivityPage from "./components/pages/activity/ActivityPage.jsx";
 import { Box } from "@mui/material";
+import HideScrollbarsGlobal from "./components/utils/HideScrollBar.jsx";
 export default function App() {
   return (
     <ContextProvider>
@@ -16,6 +17,7 @@ export default function App() {
           minHeight: "100vh",
         }}
       >
+        <HideScrollbarsGlobal />
         <NavBar />
         <Box
           component="main"
