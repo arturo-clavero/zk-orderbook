@@ -68,7 +68,7 @@ export default function QuickPairs() {
                 fontSize: titleFontSize,
               }}
             >
-              24H Change (%)
+              24H Change
             </Typography>
             <Typography
               sx={{
@@ -77,7 +77,7 @@ export default function QuickPairs() {
                 fontSize: titleFontSize,
               }}
             >
-              Spread
+              TWAP (10min)
             </Typography>
             <Typography
               sx={{
@@ -86,50 +86,16 @@ export default function QuickPairs() {
                 fontSize: titleFontSize,
               }}
             >
-              Liquidity
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              24H Volume
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              Volatility
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              Health Score
+              TWAP (1min)
             </Typography>
           </Stack>
-          <Divider sx={{ mb: 3 }} />
-
           {Object.entries(tokenPairs).map(([key, pair], idx) => {
             const token1 = pair.token1;
             const token2 = pair.token2;
             const price = pair.price.toFixed(4);
-            const priceChange = 0;
-            // const priceChange = pair.price > 0 ? `+${pair.price}%` : `${pair.price}%` ;
-            const spread = 0;
-            const liquidity = `0%`;
-            const volume = 0;
-            const volatility = 0;
-            const healthScore = 40;
-            // const healthScore = 100 - (spread -> {0.5 to max}  -> {0- 25}) - (volume -> {0 - 1M} -> {25 -> 0})
+            const priceChange = (price / pair.price24hAgo - 1).toFixed(4);
+            const twap1min = pair.twap1min.toFixed(4);
+            const twap10min = pair.twap10min.toFixed(4);
             return (
               <Stack
                 key={idx}
@@ -163,31 +129,10 @@ export default function QuickPairs() {
                   {priceChange ? `${priceChange}` : "N/A"}
                 </Typography>
                 <Typography sx={{ flex: 1 }}>
-                  {spread ? `${spread}` : "N/A"}
+                  {twap1min ? `${twap1min}` : "N/A"}
                 </Typography>
                 <Typography sx={{ flex: 1 }}>
-                  {liquidity ? `${liquidity}` : "N/A"}
-                </Typography>
-                <Typography sx={{ flex: 1 }}>
-                  {volume ? `${volume}` : "N/A"}
-                </Typography>
-                <Typography sx={{ flex: 1 }}>
-                  {volatility ? `${volatility}` : "N/A"}
-                </Typography>
-                <Typography
-                  sx={{
-                    flex: 1,
-                    color:
-                      healthScore > 85
-                        ? "green"
-                        : healthScore > 65
-                          ? "orange"
-                          : healthScore > 50
-                            ? "yellow"
-                            : "red",
-                  }}
-                >
-                  {healthScore ? `~${healthScore}%` : "N/A"}
+                  {twap10min ? `${twap10min}` : "N/A"}
                 </Typography>
               </Stack>
             );

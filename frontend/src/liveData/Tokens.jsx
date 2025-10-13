@@ -14,8 +14,6 @@ const connection = new HermesClient("https://hermes.pyth.network", {});
 
 export function useTokens() {
   const [tokens, setTokens] = useState(() => initializeTokens());
-  // const [tokenPairs, setTokenPairs] = useState({});
-
   const [tokenPairs, setTokenPairs] = useState(() =>
     initializeTokenPairs(tokens)
   );
@@ -30,9 +28,7 @@ export function useTokens() {
       eventSource.onmessage = (event) => {
         let results = { ...nullResults };
         const r = parsePriceUpdatesStream(event);
-        // console.log("results ", r);
         results.priceNow = r;
-        // console.log("results map: ", results);
         setTokensParam(setTokens, setTokenPairs, results);
       };
       eventSource.onerror = (error) => {
@@ -48,32 +44,24 @@ export function useTokens() {
     };
   }, []);
 
-  //fetch historic data every 1 min / 10 min / 24hrs
-  // useEffect(() => {
-  //   let count = 0;
-  //   let standard = 60; //1 min
-
-  //   async function fetchPeriodic() {
-  //     count += 1;
-  //     const results = { ...nullResults };
-  //     results.twap1min = await fetchDataFallback(standard, "TWAP");
-
-  //     if (count % 10 == 0)
-  //       results.twap10min = await fetchDataFallback(standard * 10, "TWAP");
-
-  //     if (count % (24 * 60) == 0) {
-  //       results.price24hAgo = await fetchDataFallback(
-  //         standard * 24 * 60,
-  //         "24HAGO"
-  //       );
-  //       count = 0;
-  //     }
-  //     setTokensParam(setTokens, setTokenPairs, results);
-  //   }
-  //   fetchPeriodic();
-  //   const interval = setInterval(fetchPeriodic, standard * 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  // fetch historic data every 1 min
+  useEffect(() => {
+    async function fetchPeriodic() {
+      count += 1;
+      const results = { ...nullResults };
+      results.twap1min = await fetchDataFallback(standard, "TWAP");
+      results.twap10min = await fetchDataFallback(standard * 10, "TWAP");
+      results.price24hAgo = await fetchDataFallback(
+        standard * 24 * 60,
+        "24HAGO"
+      );
+      console.log("RESULTS", results);
+      setTokensParam(setTokens, setTokenPairs, results);
+    }
+    fetchPeriodic();
+    const interval = setInterval(fetchPeriodic, standard * 1000);
+    return () => clearInterval(interval);
+  }, []);
   // console.log("tokens: ", tokens);
   // console.log("token pairs: ", tokenPairs);
   return { tokens, tokenPairs };
