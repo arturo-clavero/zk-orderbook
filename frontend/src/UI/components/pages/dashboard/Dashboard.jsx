@@ -1,5 +1,5 @@
-import Balance from "./Balance.jsx";
-import QuickPairs from "./QuickPairs.jsx";
+import Balance from "./balance/Balance.jsx";
+import QuickPairs from "./trade/QuickPairs.jsx";
 import Orders from "./Orders.jsx";
 import { Box } from "@mui/material";
 

@@ -1,14 +1,16 @@
 import { Box, Typography, Stack, LinearProgress, Avatar } from "@mui/material";
-import { InfoBox } from "../../utils/reusable.jsx";
-import { getContext } from "../../utils/context.jsx";
+import { InfoBox } from "../../../utils/reusable.jsx";
+import { getContext } from "../../../utils/context.jsx";
 import PortfolioDistribution from "./PortfolioDistribution.jsx";
 export default function Balance() {
-  const { tokens } = getContext();
+  const { tokens, walletConnected } = getContext();
 
   const totalBalance = tokens.reduce((acc, t) => acc + t.amount, 0);
   const mainToken = tokens[0];
 
   return (
+    // {walletConnected} ? <></> : 
+
     <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 3 }}>
       {/* Total Balance */}
       <InfoBox>

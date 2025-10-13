@@ -43,9 +43,9 @@ export default function PortfolioDistribution({ tokens = [] }) {
         borderRadius: 10,
         bgcolor: "background.paper",
         boxShadow: 3,
-        flexDirection: "row",
-        alignItems: "center",
       }}
+      justifyContent={"center"}
+        alignItems= "center"
       direction="row"
       spacing={3}
     >
