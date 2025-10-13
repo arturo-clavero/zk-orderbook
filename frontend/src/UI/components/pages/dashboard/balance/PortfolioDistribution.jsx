@@ -33,7 +33,9 @@ export default function PortfolioDistribution({ tokens = [] }) {
       setAnimationProgress(eased);
       if (start < 1) requestAnimationFrame(animate);
     };
-    requestAnimationFrame(animate);
+    setTimeout(() => {
+      requestAnimationFrame(animate);
+    }, 1900);
   }, []);
 
   return (
@@ -45,7 +47,7 @@ export default function PortfolioDistribution({ tokens = [] }) {
         boxShadow: 3,
       }}
       justifyContent={"center"}
-        alignItems= "center"
+      alignItems="center"
       direction="row"
       spacing={3}
     >

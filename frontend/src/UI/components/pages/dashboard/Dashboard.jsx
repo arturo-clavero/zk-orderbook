@@ -6,7 +6,13 @@ import { Box } from "@mui/material";
 export default function Dashboard() {
   return (
     <>
-      <Box sx={{ mt: 5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
         <Balance />
         <QuickPairs />
         <Orders />

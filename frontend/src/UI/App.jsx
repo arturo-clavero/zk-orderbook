@@ -9,7 +9,6 @@ import { Box } from "@mui/material";
 import HideScrollbarsGlobal from "./components/utils/HideScrollBar.jsx";
 
 export default function App() {
-
   return (
     <ContextProvider>
       <Box
@@ -26,11 +25,12 @@ export default function App() {
           sx={{
             flex: 1,
             mt: { xs: 10, sm: 12 },
-            mb: { xs: 6, sm: 8 },
+            mb: { xs: 5, sm: 7 },
             px: { xs: 2, sm: 3, md: 4 },
-            width: "100%",
-            maxWidth: 1000,
+            width: "80%",
             mx: "auto",
+            display: "flex",
+            justifyContent: "center",
           }}
         >
           <Routes>

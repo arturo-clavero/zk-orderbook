@@ -47,7 +47,6 @@ export default function Footer() {
       <Box
         component="footer"
         sx={{
-          mt: 8,
           py: 3,
           borderTop: 1,
           borderColor: "divider",
@@ -59,7 +58,6 @@ export default function Footer() {
           spacing={10}
           justifyContent="center"
           alignItems="center"
-          sx={{ mb: 2 }}
         >
           <Box
             sx={{
@@ -141,13 +139,13 @@ export default function Footer() {
           </Box>
         </Stack>
 
-        <Typography
+        {/* <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ mt: 2, display: "block" }}
+          sx={{ mt: 1, display: "block" }}
         >
           Some notes to keep in mind ...
-        </Typography>
+        </Typography> */}
       </Box>
     </Element>
   );

@@ -51,12 +51,10 @@ export default function Orders() {
         boxShadow: 2,
       }}
     >
-      {/* Section title */}
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
         Latest Orders
       </Typography>
 
-      {/* Header row */}
       <Stack direction="row" spacing={2} sx={{ mb: 1, px: 1 }}>
         <Typography sx={{ flex: 2, fontWeight: 600 }}>Pair</Typography>
         <Typography sx={{ flex: 1, fontWeight: 600 }}>Type</Typography>
@@ -68,7 +66,6 @@ export default function Orders() {
       </Stack>
       <Divider sx={{ mb: 1 }} />
 
-      {/* Order rows */}
       {latestOrders.map((order, idx) => (
         <Stack
           key={idx}
@@ -77,7 +74,6 @@ export default function Orders() {
           alignItems="center"
           sx={{ mb: 1, px: 1 }}
         >
-          {/* Pair */}
           <Stack
             direction="row"
             spacing={1}
