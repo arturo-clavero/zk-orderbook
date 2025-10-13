@@ -4,8 +4,8 @@ import WalletConnect from "./WalletConnect.jsx";
 
 //TESTING
 import { useState } from "react";
-const min = 7;
-const max = 9;
+const min = 0;
+const max = 12;
 const exceptionIcon = 8;
 function setFaviconWithBackground(src, now) {
   if (now == exceptionIcon) {

@@ -1,4 +1,11 @@
-import { Box, Button, Typography, IconButton, Stack, Collapse } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  IconButton,
+  Stack,
+  Collapse,
+} from "@mui/material";
 import {
   ExpandMore,
   ExpandLess,
@@ -66,7 +73,6 @@ export const ButtonLight = ({
     {title}
   </Button>
 );
-
 
 export function ExpandableTitle({
   title,

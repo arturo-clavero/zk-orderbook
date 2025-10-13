@@ -16,6 +16,7 @@ export default function App() {
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
+          width: "100%",
         }}
       >
         <HideScrollbarsGlobal />
@@ -26,11 +27,12 @@ export default function App() {
             flex: 1,
             mt: { xs: 10, sm: 12 },
             mb: { xs: 5, sm: 7 },
-            px: { xs: 2, sm: 3, md: 4 },
-            width: "80%",
-            mx: "auto",
+            px: { xs: 1, sm: 1, md: 2 },
+            width: "100%",
+            // mx: "auto",
             display: "flex",
             justifyContent: "center",
+            // bgcolor: "yellow"
           }}
         >
           <Routes>

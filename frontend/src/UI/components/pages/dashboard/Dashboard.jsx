@@ -8,9 +8,11 @@ export default function Dashboard() {
     <>
       <Box
         sx={{
+          // bgcolor: "orange",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          width: "100%",
         }}
       >
         <Balance />
