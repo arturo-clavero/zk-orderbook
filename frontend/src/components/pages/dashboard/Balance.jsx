@@ -1,80 +1,68 @@
-import {
-  Box,
-  Typography,
-  Stack,
-  Avatar,
-  LinearProgress,
-  Tooltip,
-} from "@mui/material";
-
-const tokens = [
-  { symbol: "ETH", amount: 3.5, color: "#627EEA" },
-  { symbol: "USDC", amount: 1200, color: "#2775CA" },
-  { symbol: "WBTC", amount: 0.25, color: "#F7931A" },
-  { symbol: "DAI", amount: 500, color: "#F5AC37" },
-];
-
+import { Box, Typography, Stack, LinearProgress, Avatar } from "@mui/material";
+import { InfoBox } from "../../utils/reusable.jsx";
+import { getContext } from "../../utils/context.jsx";
+import PortfolioDistribution from "./PortfolioDistribution.jsx";
 export default function Balance() {
+  const { tokens } = getContext();
+
   const totalBalance = tokens.reduce((acc, t) => acc + t.amount, 0);
+  const mainToken = tokens[0];
 
   return (
-    <Box
-      sx={{
-        mt: 2,
-        p: 3,
-        border: 1,
-        borderColor: "divider",
-        borderRadius: 2,
-        bgcolor: "background.paper",
-        boxShadow: 2,
-      }}
-    >
-      <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-        Total Balance: {totalBalance.toFixed(2)}
-      </Typography>
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 3 }}>
+      {/* Total Balance */}
+      <InfoBox>
+        <Typography
+          variant="subtitle2"
+          sx={{ color: "text.secondary", mb: 0.5 }}
+        >
+          Total Balance
+        </Typography>
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          $ {totalBalance.toFixed(2)}
+        </Typography>
+      </InfoBox>
 
-      <Stack spacing={2}>
-        {tokens.map((token, idx) => {
-          const percentage = (token.amount / totalBalance) * 100;
-          return (
-            <Tooltip
-              key={idx}
-              title={`${token.amount} ${token.symbol} (${percentage.toFixed(1)}%)`}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Avatar sx={{ bgcolor: token.color, width: 24, height: 24 }}>
-                  {token.symbol[0]}
-                </Avatar>
+      {/* Main Token Balance */}
+      <InfoBox>
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ mt: 1, mb: 2 }}
+        >
+          <Avatar
+            sx={{
+              bgcolor: mainToken.color,
+              width: 24,
+              height: 24,
+              fontSize: 18,
+            }}
+          >
+            {mainToken.symbol[0]}
+          </Avatar>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: "text.secondary", mb: 0.5 }}
+          >
+            {mainToken.symbol} Balance
+          </Typography>
+        </Stack>
+        <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {(mainToken.amount * mainToken.price).toFixed(2)} USD
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 500, color: "text.secondary" }}
+          >
+            {mainToken.amount.toFixed(2)} {mainToken.symbol}
+          </Typography>
+        </Box>
+      </InfoBox>
 
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {token.symbol}
-                  </Typography>
-                  <LinearProgress
-                    variant="determinate"
-                    value={percentage}
-                    sx={{
-                      height: 8,
-                      borderRadius: 4,
-                      bgcolor: "grey.300",
-                      "& .MuiLinearProgress-bar": {
-                        bgcolor: token.color,
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Typography
-                  variant="body2"
-                  sx={{ minWidth: 60, textAlign: "right" }}
-                >
-                  {token.amount}
-                </Typography>
-              </Box>
-            </Tooltip>
-          );
-        })}
-      </Stack>
-    </Box>
+      {/* Portfolio Distribution */}
+      <PortfolioDistribution tokens={tokens} />
+    </Stack>
   );
 }

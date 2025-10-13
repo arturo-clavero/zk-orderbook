@@ -23,8 +23,12 @@ export default function App() {
           component="main"
           sx={{
             flex: 1,
-            mt: 8,
-            px: 2,
+            mt: { xs: 10, sm: 12 },
+            mb: { xs: 6, sm: 8 },
+            px: { xs: 2, sm: 3, md: 4 },
+            width: "100%",
+            maxWidth: 1000,
+            mx: "auto",
           }}
         >
           <Routes>
