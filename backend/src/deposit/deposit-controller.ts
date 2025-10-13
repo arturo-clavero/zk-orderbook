@@ -8,8 +8,22 @@ import { prisma } from '../lib/prisma-trading-database/prisma-trading';
 export class DepositController {
   @Post()
   async handleDeposit(@Body() dataFrontend: any) {
+    const { traderId, token, amount } = dataFrontend;
+    let searchForTrader = await prisma.trader.findUnique({
+      where: {
+        address: traderId,
+      },
+    });
+    if (!searchForTrader) {
+      searchForTrader = await prisma.trader.create({
+        data: { address: traderId },
+      });
+      return {
+        success: false,
+        message: 'account was created for you need to verify kyc',
+      };
+    }
     try {
-      const { traderId, token, amount } = dataFrontend;
       //kyc if it will be time
       if (!traderId || !token || !amount) {
         return {
@@ -48,7 +62,7 @@ export class DepositController {
         txHash: fakeTxHash,
         status: updatedDeposit.status,
         data: {
-          traderId: updatedDeposit.traderId,
+          // traderId: updatedDeposit.traderId,
           token: updatedDeposit.token,
           amount: updatedDeposit.amount.toString(),
         },
