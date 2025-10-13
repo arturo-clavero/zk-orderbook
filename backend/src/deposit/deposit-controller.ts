@@ -9,6 +9,13 @@ export class DepositController {
   @Post()
   async handleDeposit(@Body() dataFrontend: any) {
     const { traderId, token, amount } = dataFrontend;
+    if (!traderId || !token || !amount) {
+      return {
+        success: false,
+        message: 'Missing data',
+      };
+    }
+    // Create/check if trader exists
     let searchForTrader = await prisma.trader.findUnique({
       where: {
         address: traderId,
@@ -18,25 +25,33 @@ export class DepositController {
       searchForTrader = await prisma.trader.create({
         data: { address: traderId },
       });
+    }
+    // Creat/check if acount exists
+    let account = await prisma.account.findFirst({
+      where: {
+        traderId: searchForTrader.id,
+        currency: token,
+      },
+    });
+    if (!account) {
+      account = await prisma.account.create({
+        data: { currency: token, traderId: searchForTrader.id },
+      });
+      console.log('account was created', account);
       return {
         success: false,
-        message: 'account was created for you need to verify kyc',
+        message:
+          'account was created for you need to verify kyc,deposit will not be successfull',
       };
     }
     try {
       //kyc if it will be time
-      if (!traderId || !token || !amount) {
-        return {
-          success: false,
-          message: 'Missing data',
-        };
-      }
       console.log('received from frontend', dataFrontend);
       // to db
       const deposit = await prisma.transaction.create({
         data: {
           type: 'deposit',
-          traderId,
+          traderId: searchForTrader.id,
           token,
           amount: Number(dataFrontend.amount),
           status: 'Pending',

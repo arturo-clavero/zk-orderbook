@@ -30,6 +30,8 @@ model Account {
   locked     BigInt  @default(0)
   available  BigInt  @default(0)
   merkleLeaf String?
+  
+  @@unique([traderId, currency]) //compound IDs&unique constraints
 }
 
 model Order {
