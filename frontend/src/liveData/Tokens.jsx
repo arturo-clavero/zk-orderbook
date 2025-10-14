@@ -50,7 +50,6 @@ export function useTokens() {
       results.twap1min = await fetchDataFallback(60, "TWAP");
       results.twap10min = await fetchDataFallback(600, "TWAP");
       results.price24hAgo = await fetchDataFallback(60 * 24 * 60, "24HAGO");
-      console.log("RESULTS", results);
       setTokensParam(setTokens, setTokenPairs, results);
     }
     fetchPeriodic();

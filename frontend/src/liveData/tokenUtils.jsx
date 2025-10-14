@@ -113,7 +113,6 @@ export async function fetchDataFallback(time, type) {
 async function fetchData(time, type) {
   try {
     const priceIds = tokenDefs.map((t) => t.feed.slice(2));
-    console.log("priceids: ", priceIds);
     const idsQuery = priceIds.map((id) => `ids[]=${id}`).join("&");
     let url;
     if (type == "TWAP")
@@ -132,7 +131,6 @@ async function fetchData(time, type) {
     if (!data.parsed || data.parsed.length === 0) {
       throw new Error("No TWAP data found");
     }
-    console.log("data.parsed: ", data.parsed);
     const result = data.parsed;
     const resultMap = new Map();
     for (let i = 0; i < result.length; i++) {
@@ -145,7 +143,6 @@ async function fetchData(time, type) {
       const realPrice = price * Math.pow(10, expo);
       resultMap.set(feed, realPrice);
     }
-    console.log("result map: ", resultMap);
     return resultMap;
   } catch (err) {
     console.error("Hermes fetch failed:", err);

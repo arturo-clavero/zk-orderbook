@@ -12,7 +12,7 @@ import { SwapHorizRounded } from "@mui/icons-material";
 import { ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 import { useState } from "react";
 import { getContext } from "../../../utils/context.jsx";
-
+import { SortableHeader } from "../../../utils/Sorting.jsx";
 const titleFontSize = 12;
 const titleFontWeight = 500;
 
@@ -23,9 +23,48 @@ const safeNumber = (value) => {
 };
 
 export default function QuickPairs() {
-  const { tokens, tokenPairs } = useTokens();
+  const { tokenPairs } = useTokens();
   const [visible, setVisible] = useState(true);
   const { walletConnected } = getContext();
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+
+  const sortedPairs = Object.entries(tokenPairs).sort(([k1, p1], [k2, p2]) => {
+    if (!sortConfig.key) return 0;
+
+    const a =
+      sortConfig.key === "pair"
+        ? `${p1.token1.symbol}/${p1.token2.symbol}`
+        : sortConfig.key === "price"
+          ? safeNumber(p1.price)
+          : sortConfig.key === "change"
+            ? p1.price24hAgo !== 0
+              ? p1.price / p1.price24hAgo - 1
+              : 0
+            : sortConfig.key === "twap10"
+              ? safeNumber(p1.twap10min)
+              : sortConfig.key === "twap1"
+                ? safeNumber(p1.twap1min)
+                : 0;
+
+    const b =
+      sortConfig.key === "pair"
+        ? `${p2.token1.symbol}/${p2.token2.symbol}`
+        : sortConfig.key === "price"
+          ? safeNumber(p2.price)
+          : sortConfig.key === "change"
+            ? p2.price24hAgo !== 0
+              ? p2.price / p2.price24hAgo - 1
+              : 0
+            : sortConfig.key === "twap10"
+              ? safeNumber(p2.twap10min)
+              : sortConfig.key === "twap1"
+                ? safeNumber(p2.twap1min)
+                : 0;
+
+    if (a < b) return sortConfig.direction === "asc" ? -1 : 1;
+    if (a > b) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
 
   return (
     <Box>
@@ -51,58 +90,54 @@ export default function QuickPairs() {
           <Stack direction="row" spacing={1} sx={{ px: 1 }}>
             <Typography
               sx={{
-                flex: 2,
+                flex: 1,
                 fontWeight: titleFontWeight,
                 fontSize: titleFontSize,
               }}
             >
               Pair
             </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              Price
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              24H Change
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              TWAP (10min)
-            </Typography>
-            <Typography
-              sx={{
-                flex: 1,
-                fontWeight: titleFontWeight,
-                fontSize: titleFontSize,
-              }}
-            >
-              TWAP (1min)
-            </Typography>
+
+            <SortableHeader
+              label="Price"
+              sortKey="price"
+              sortConfig={sortConfig}
+              setSortConfig={setSortConfig}
+              flex={1}
+            />
+            <SortableHeader
+              label="24H Change"
+              sortKey="change"
+              sortConfig={sortConfig}
+              setSortConfig={setSortConfig}
+              flex={1}
+            />
+            <SortableHeader
+              label="TWAP (10min)"
+              sortKey="twap10"
+              sortConfig={sortConfig}
+              setSortConfig={setSortConfig}
+              flex={1}
+            />
+            <SortableHeader
+              label="TWAP (1min)"
+              sortKey="twap1"
+              sortConfig={sortConfig}
+              setSortConfig={setSortConfig}
+              flex={1}
+            />
           </Stack>
-          {Object.entries(tokenPairs).map(([key, pair], idx) => {
+          <Divider sx={{ mb: 2, mt: 2 }} />
+
+          {sortedPairs.map(([key, pair], idx) => {
             const token1 = pair.token1;
             const token2 = pair.token2;
             const price = safeNumber(pair.price).toFixed(4);
             const change = safeNumber(
               pair.price24hAgo !== 0 ? pair.price / pair.price24hAgo - 1 : 0
             ).toFixed(4);
-            const priceChange = change > 0 ? `+${change} %` : change < 0 ? `${change} %` : '~';
+            const priceChange =
+              change > 0 ? `+${change} %` : change < 0 ? `${change} %` : "~";
             const twap1min = safeNumber(pair.twap1min).toFixed(4);
             const twap10min = safeNumber(pair.twap10min).toFixed(4);
             return (
@@ -116,7 +151,7 @@ export default function QuickPairs() {
                 <Stack
                   direction="row"
                   spacing={1}
-                  sx={{ flex: 2 }}
+                  sx={{ flex: 1 }}
                   alignItems="center"
                 >
                   <Avatar
@@ -133,7 +168,15 @@ export default function QuickPairs() {
                 </Typography>
 
                 <Typography
-                  sx={{ flex: 1, color: priceChange[0] == "+"? "green" : priceChange[0] =="-" ? "red" : "white" }}
+                  sx={{
+                    flex: 1,
+                    color:
+                      priceChange[0] == "+"
+                        ? "green"
+                        : priceChange[0] == "-"
+                          ? "red"
+                          : "white",
+                  }}
                 >
                   {priceChange ? `${priceChange}` : "N/A"}
                 </Typography>
