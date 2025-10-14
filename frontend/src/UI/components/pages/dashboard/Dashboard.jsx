@@ -1,7 +1,8 @@
 import Balance from "./balance/Balance.jsx";
 import QuickPairs from "./trade/QuickPairs.jsx";
-import Orders from "./Orders.jsx";
+import Orders from "./orders/Orders.jsx";
 import { Box } from "@mui/material";
+import Chart from "./chart/Chart.jsx";
 
 export default function Dashboard() {
   return (
@@ -17,6 +18,7 @@ export default function Dashboard() {
       >
         <Balance />
         <QuickPairs />
+        <Chart />
         <Orders />
       </Box>
     </>
