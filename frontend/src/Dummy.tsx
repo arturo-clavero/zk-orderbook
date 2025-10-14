@@ -2,32 +2,61 @@
 
 import { useState } from 'react';
 import axios from 'axios';
+import { ethers } from 'ethers';
+declare var window: any
 
 export default function DepositForm() {
   const [formData, setFormData] = useState({
     traderId: '',
-    token: 'USDC',
+    token: 'PYUSD',
     amount: '',
   });
   const [loading, setLoading] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // 🦊 Connect to MetaMask
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert('Please install MetaMask!');
+      return;
+    }
+
+    try {
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      const address = accounts[0];
+      setWalletAddress(address);
+      setWalletConnected(true);
+      setFormData(prev => ({ ...prev, traderId: address }));
+      console.log('🦊 Connected wallet:', address);
+    } catch (err) {
+      console.error('❌ Wallet connection failed:', err);
+      setError('Failed to connect wallet');
+    }
+  };
+
+  // 📤 Handle Deposit Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!walletConnected) {
+      setError('Please connect your MetaMask wallet first!');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
       const response = await axios.post('http://localhost:4000/deposit', formData);
-      
       console.log('✅ Deposit successful:', response.data);
       setResult(response.data);
-      
-      // Reset form
-      setFormData({ traderId: '', token: 'USDC', amount: '' });
-      
+      setFormData({ traderId: walletAddress || '', token: 'PYUSD', amount: '' });
     } catch (err: any) {
       console.error('❌ Deposit failed:', err);
       setError(err.response?.data?.error || 'Something went wrong');
@@ -46,36 +75,32 @@ export default function DepositForm() {
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Deposit Funds</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* User ID */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            User ID
-          </label>
-          <input
-            type="text"
-            name="traderId"
-            value={formData.traderId}
-            onChange={handleChange}
-            placeholder="Enter user ID"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
 
+      {/* 🦊 Wallet Connection */}
+      {!walletConnected ? (
+        <button
+          onClick={connectWallet}
+          className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600"
+        >
+          Connect MetaMask
+        </button>
+      ) : (
+        <div className="mb-4 p-3 border border-green-200 bg-green-50 rounded-lg text-sm text-green-800">
+          ✅ Connected: <span className="font-mono">{walletAddress}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Token */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Token
-          </label>
+          <label className="block text-sm font-medium mb-2">Token</label>
           <select
             name="token"
             value={formData.token}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="USDC">USDC</option>
+            <option value="PYUSD">PYUSD</option>
             <option value="USDT">USDT</option>
             <option value="ETH">ETH</option>
           </select>
@@ -83,9 +108,7 @@ export default function DepositForm() {
 
         {/* Amount */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Amount
-          </label>
+          <label className="block text-sm font-medium mb-2">Amount</label>
           <input
             type="number"
             name="amount"
@@ -99,17 +122,16 @@ export default function DepositForm() {
           />
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !walletConnected}
           className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {loading ? 'Processing...' : 'Deposit'}
         </button>
       </form>
 
-      {/* Success Message */}
+      {/* ✅ Success */}
       {result && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h3 className="font-semibold text-green-800 mb-2">✅ Deposit Successful!</h3>
@@ -122,7 +144,7 @@ export default function DepositForm() {
         </div>
       )}
 
-      {/* Error Message */}
+      {/* ❌ Error */}
       {error && (
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <h3 className="font-semibold text-red-800 mb-2">❌ Error</h3>
@@ -132,84 +154,3 @@ export default function DepositForm() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-// import axios from "axios";
-
-
-// export default function Dummy() {
-
-//   const [value, setValue] = useState({traderId: "", token: "", ammount: ""});
-
-//   const handleSubmit = async (e: any) => {
-//     e.preventDefault();
-//     try {
-//       const res = await axios.post("/api/deposit", value);
-//       console.log("this value will go to the backend", res.data);
-//     } catch(err) {
-//       console.error("Error occured: ", err);
-//     }
-// } 
-  
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <input
-//         placeholder="User ID"
-//         value={value.traderId}
-//         onChange={(e) => setValue({ ...value, traderId: e.target.value })}
-//       />
-//       <input
-//         placeholder="Token"
-//         value={value.token}
-//         onChange={(e) => setValue({ ...value, token: e.target.value })}
-//       />
-//       <input
-//         placeholder="Ammount"
-//         value={value.ammount}
-//         onChange={(e) => setValue({ ...value, ammount: e.target.value })}
-//       />
-//       <button type="submit">Deposit</button>
-//     </form>
-//   );
-// };
-
-// // export default Dummy;
