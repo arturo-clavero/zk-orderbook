@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import { getContext } from "../utils/context.jsx";
+import { useMyContext } from "../utils/context.jsx";
 import { ethers } from "ethers";
 import { useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -23,7 +23,7 @@ export default function WalletConnect() {
     walletMenuAnchor,
     setWalletMenuAnchor,
     setState,
-  } = getContext();
+  } = useMyContext();
 
   const [tooltipText, setTooltipText] = useState("Copy Address");
 

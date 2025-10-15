@@ -1,6 +1,6 @@
 import { Box, Typography, Stack, Collapse, Avatar } from "@mui/material";
 import { InfoBox } from "../../../utils/reusable.jsx";
-import { getContext } from "../../../utils/context.jsx";
+import { useMyContext } from "../../../utils/context.jsx";
 import PortfolioDistribution from "./PortfolioDistribution.jsx";
 import { ExpandableTitle } from "../../../utils/reusable.jsx";
 import { useState, useEffect } from "react";
@@ -10,7 +10,7 @@ const x = a;
 const y = a;
 const z = a;
 export default function Balance() {
-  const { tokens, walletConnected } = getContext();
+  const { tokens, walletConnected } = useMyContext();
 
   const totalBalance = tokens.reduce((acc, t) => acc + t.amount, 0);
   const mainToken = tokens[0];

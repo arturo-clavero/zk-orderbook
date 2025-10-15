@@ -19,7 +19,7 @@ function setFaviconWithBackground(src, now) {
     const canvas = document.createElement("canvas");
     canvas.width = 64;
     canvas.height = 64;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.useMyContext("2d");
     ctx.fillStyle = "#333"; // dark bg
     ctx.beginPath();
     ctx.arc(32, 32, 32, 0, Math.PI * 2);
