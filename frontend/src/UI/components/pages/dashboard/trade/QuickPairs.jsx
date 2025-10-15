@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useMyContext } from "../../../utils/context.jsx";
 import { SortableHeader } from "../../../utils/Sorting.jsx";
 import SearchIcon from "@mui/icons-material/Search";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
 
 const titleFontSize = 12;
 const titleFontWeight = 500;
@@ -28,8 +29,13 @@ const safeNumber = (value) => {
 export default function QuickPairs() {
   const { tokenPairs } = useTokens();
 
-  const { walletConnected, setChartPair, setSwitched } = useMyContext();
-  const [visible, setVisible] = useState(true);
+  const {
+    walletConnected,
+    setChartPair,
+    setSwitched,
+    marketVisible,
+    setMarketVisible,
+  } = useMyContext();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -87,18 +93,13 @@ export default function QuickPairs() {
   const switchPair = (pair) => {
     setSwitched(false);
     setChartPair(pair);
+    setMarketVisible(false);
   };
 
   return (
     <Box>
-      {/* <ExpandableTitle
-        title="Quick Pairs"
-        initiallyExpanded={true}
-        onToggle={(expanded) => setVisible(expanded)}
-        visible={walletConnected}
-      > */}
-      {visible && (
-        <>
+      {marketVisible && (
+        <ClickAwayListener onClickAway={() => setMarketVisible(false)}>
           <Box
             sx={{
               width: "100%",
@@ -237,9 +238,8 @@ export default function QuickPairs() {
               );
             })}
           </Box>
-        </>
+        </ClickAwayListener>
       )}
-      {/* </ExpandableTitle> */}
     </Box>
   );
 }

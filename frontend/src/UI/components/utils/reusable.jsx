@@ -75,7 +75,7 @@ export const ButtonLight = ({
 );
 
 export function ExpandableTitle({
-  title,
+  title = "",
   initiallyExpanded = true,
   onToggle,
   color = "text.primary",
@@ -90,29 +90,33 @@ export function ExpandableTitle({
 
   return (
     <Box>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        sx={{ cursor: "pointer", ml: 7, mb: 1, userSelect: "none" }}
-        onClick={handleToggle}
-      >
-        <Typography variant="subtitle1" sx={{ color: color, fontWeight: 600 }}>
-          {title}
-        </Typography>
-        <IconButton
-          size="small"
-          sx={{
-            transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
-            transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)", // smooth easing
-            color: color,
-          }}
+      {title && title.length > 0 ? (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{ cursor: "pointer", ml: 7, mb: 1, userSelect: "none" }}
+          onClick={handleToggle}
         >
-          <KeyboardArrowDown />
-        </IconButton>
-      </Stack>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: color, fontWeight: 600 }}
+          >
+            {title}
+          </Typography>
+          <IconButton
+            size="small"
+            sx={{
+              transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)", // smooth easing
+              color: color,
+            }}
+          >
+            <KeyboardArrowDown />
+          </IconButton>
+        </Stack>
+      ) : null}
 
-      {/* Smooth collapse for children */}
       <Collapse
         in={expanded}
         timeout={1200} // animation duration

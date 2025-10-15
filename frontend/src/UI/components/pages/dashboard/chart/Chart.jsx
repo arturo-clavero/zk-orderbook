@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
 import { useMyContext } from "../../../utils/context.jsx";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import QuickPairs from "../trade/QuickPairs.jsx";
 
 let tvScriptLoadingPromise;
 
@@ -18,7 +19,8 @@ export default function Chart({
   containerId = "tradingview-widget",
 }) {
   const containerRef = useRef();
-  const { chartPair, switched, setSwitched } = useMyContext();
+  const { chartPair, switched, setSwitched, setMarketVisible, marketVisible } =
+    useMyContext();
   //     const tokenA = switched ? chartPair?.token2 : chartPair?.token1;
   // const tokenB = switched ? chartPair?.token1 : chartPair?.token2;
   // const symbol = chartPair
@@ -39,6 +41,11 @@ export default function Chart({
   const token2Icon = chartPair?.token2.icon || "/assets/default.png";
 
   const symbolIcon = !switched ? token1Icon : token2Icon;
+
+  const overlay = marketVisible
+    ? "rgba(10, 15, 28, 0.8)"
+    : "rgba(18, 36, 70, 0.3)";
+
   useEffect(() => {
     if (!chartPair) return;
     [token1Icon, token2Icon].forEach((url) => {
@@ -96,11 +103,31 @@ export default function Chart({
   }, [symbol, defaultInterval, width, height, containerId]);
 
   return (
-    <>
-      <Box sx={{ top: 10, left: 10, display: "flex", gap: 1 }}>
+    <Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          //   backgroundColor: "rgb(13, 27, 42)",
+          borderRadius: 2,
+          boxShadow: 2,
+          width: 250,
+        }}
+      >
         <Button
           variant="contained"
-          size="small"
+          size="medium"
+          sx={{
+            px: 2.5,
+            py: 1.5,
+            fontSize: "0.95rem",
+            borderRadius: 2,
+            color: "secondary.contrastText",
+            "&:hover": {
+              bgcolor: "secondary.light",
+            },
+          }}
           startIcon={
             <img
               src={symbolIcon}
@@ -108,19 +135,38 @@ export default function Chart({
               style={{ width: 20, height: 20, borderRadius: "50%" }}
             />
           }
+          onClick={() => setMarketVisible((prev) => !prev)}
         >
           {symbolName || "Loading..."}
         </Button>
         <Button
-          variant="outlined"
-          size="small"
+          variant="contained"
+          size="medium"
           onClick={() => setSwitched((prev) => !prev)}
-          startIcon={<SwapHorizIcon />}
+          sx={{
+            px: 1.5,
+            minWidth: "48px",
+            borderRadius: 2,
+            bgcolor: "rgba(255,255,255,0.1)", // subtle separation but same color scheme
+            "&:hover": {
+              bgcolor: "rgba(255,255,255,0.2)",
+            },
+          }}
         >
-          Switch
+          <SwapHorizIcon />
         </Button>
       </Box>
       <Box sx={{ position: "relative", width, height }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 10,
+          }}
+        >
+          <QuickPairs />
+        </Box>
         <Box
           ref={containerRef}
           id={containerId}
@@ -135,11 +181,14 @@ export default function Chart({
             width: "100%",
             height: "100%",
             pointerEvents: "none",
-            backgroundColor: "rgba(18, 36, 70, 0.3)", // match
+            backgroundColor: overlay,
+            // backgroundColor: "rgba(0, 0, 0, 0.8)", // match
+
+            // backgroundColor: "rgba(18, 36, 70, 0.3)", // match
             // backgroundColor: "rgba(40, 60, 90, 0.2)", // lighter blue
           }}
         ></Box>
       </Box>
-    </>
+    </Box>
   );
 }

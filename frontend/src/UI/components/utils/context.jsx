@@ -34,6 +34,7 @@ export function ContextProvider({ children }) {
   const str = `${pairDefs[0][0]}/${pairDefs[0][1]}`;
   const [chartPair, setChartPair] = useState(tokenPairs[str]);
   const [switched, setSwitched] = useState(false);
+  const [marketVisible, setMarketVisible] = useState(false);
 
   return (
     <AppContext.Provider
@@ -51,6 +52,8 @@ export function ContextProvider({ children }) {
         setChartPair,
         switched,
         setSwitched,
+        marketVisible,
+        setMarketVisible,
       }}
     >
       {children}

@@ -17,7 +17,6 @@ export default function Dashboard() {
         }}
       >
         <Balance />
-        <QuickPairs />
         <Chart />
         <Orders />
       </Box>
