@@ -12,7 +12,6 @@ import { useMyContext } from "../utils/context.jsx";
 import { ethers } from "ethers";
 import { useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 export default function WalletConnect() {
   const {
@@ -144,7 +143,6 @@ export default function WalletConnect() {
               }}
               onClick={handleWalletClick}
               startIcon={<LogoutIcon sx={{ color: "info.main" }} />}
-              //   startIcon={<SwapHorizIcon sx={{ color: "#ff" }} />}
             >
               {shortenAddress(walletAddress)}
               <Tooltip title={tooltipText}>

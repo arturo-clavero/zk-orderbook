@@ -27,10 +27,11 @@ export default function App() {
             flex: 1,
             mt: { xs: 10, sm: 12 },
             mb: { xs: 5, sm: 7 },
-            px: { xs: 1, sm: 1, md: 2 },
+            px: { xs: 1, sm: 1, md: 5 }, //LAYOUT TODO
             width: "100%",
             display: "flex",
             justifyContent: "center",
+            maxWidth: 1500, //LAYOUT TODO
           }}
         >
           <Routes>

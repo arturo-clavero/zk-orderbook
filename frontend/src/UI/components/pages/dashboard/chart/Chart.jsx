@@ -2,17 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
 import { useMyContext } from "../../../utils/context.jsx";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import QuickPairs from "../trade/QuickPairs.jsx";
+import QuickPairs from "./QuickPairs.jsx";
 
 let tvScriptLoadingPromise;
 
 export default function Chart({
-  //   defaultSymbol = "PYTH:SOLUSD/PYTH:PYUSDUSD",
-  //  defaultSymbol = "PYTH:PYUSDUSD/PYTH:SOLUSD",
-
-  // defaultSymbol = "PYTH:SOLUSD",//223.87901000
-  //   defaultSymbol = "PYTH:PYUSDUSD",//0.999999
-
   defaultInterval = "D",
   width = "100%",
   height = 500,
@@ -21,11 +15,6 @@ export default function Chart({
   const containerRef = useRef();
   const { chartPair, switched, setSwitched, setMarketVisible, marketVisible } =
     useMyContext();
-  //     const tokenA = switched ? chartPair?.token2 : chartPair?.token1;
-  // const tokenB = switched ? chartPair?.token1 : chartPair?.token2;
-  // const symbol = chartPair
-  //   ? `PYTH:${tokenA.symbol}USD/PYTH:${tokenB.symbol}USD`
-  //   : "";
   const symbol = chartPair
     ? switched == false
       ? `PYTH:${chartPair.token1.symbol}USD/PYTH:${chartPair.token2.symbol}USD`
@@ -53,7 +42,6 @@ export default function Chart({
       img.src = url;
     });
   }, [chartPair, token1Icon, token2Icon]);
-  // const symbolIcon = tokenA?.icon || "/assets/default.png";
 
   const createWidget = () => {
     if (!containerRef.current) return;
@@ -103,13 +91,12 @@ export default function Chart({
   }, [symbol, defaultInterval, width, height, containerId]);
 
   return (
-    <Box>
+    <Box sx={{ flex: 1 }}>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           gap: 2,
-          //   backgroundColor: "rgb(13, 27, 42)",
           borderRadius: 2,
           boxShadow: 2,
           width: 250,
@@ -147,7 +134,7 @@ export default function Chart({
             px: 1.5,
             minWidth: "48px",
             borderRadius: 2,
-            bgcolor: "rgba(255,255,255,0.1)", // subtle separation but same color scheme
+            bgcolor: "rgba(255,255,255,0.1)",
             "&:hover": {
               bgcolor: "rgba(255,255,255,0.2)",
             },
@@ -163,6 +150,7 @@ export default function Chart({
             top: 0,
             left: 0,
             zIndex: 10,
+            minWidth: "650px",
           }}
         >
           <QuickPairs />
@@ -182,10 +170,6 @@ export default function Chart({
             height: "100%",
             pointerEvents: "none",
             backgroundColor: overlay,
-            // backgroundColor: "rgba(0, 0, 0, 0.8)", // match
-
-            // backgroundColor: "rgba(18, 36, 70, 0.3)", // match
-            // backgroundColor: "rgba(40, 60, 90, 0.2)", // lighter blue
           }}
         ></Box>
       </Box>

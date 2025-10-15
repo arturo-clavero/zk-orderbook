@@ -1,14 +1,69 @@
-import { Box, Typography, Stack, Collapse, Avatar } from "@mui/material";
-import { InfoBox } from "../../../utils/reusable.jsx";
+import { Box, Typography, Stack, Collapse, Avatar, Button } from "@mui/material";
+import { InfoBox, ButtonLight } from "../../../utils/reusable.jsx";
 import { useMyContext } from "../../../utils/context.jsx";
 import PortfolioDistribution from "./PortfolioDistribution.jsx";
 import { ExpandableTitle } from "../../../utils/reusable.jsx";
 import { useState, useEffect } from "react";
+import deposit from "../../../../../actions/deposit.js";
+import withdraw from "../../../../../actions/withdraw.js";
 
 const a = 3000;
 const x = a;
 const y = a;
 const z = a;
+
+function TokenBalance({ token }) {
+  return (
+    <Stack direction="column">
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        sx={{ mt: 1, mb: 2 }}
+      >
+        <Avatar
+          sx={{
+            bgcolor: token.color,
+            width: 20,
+            height: 20,
+            fontSize: 18,
+          }}
+        >
+          {token.symbol[0]}
+        </Avatar>
+        <Typography variant="caption" sx={{ color: "text.secondary", mb: 0.5 }}>
+          {token.symbol} Balance
+        </Typography>
+      </Stack>
+      <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          {(token.amount * token.price).toFixed(2)} USD
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 500, color: "text.secondary" }}
+        >
+          {token.amount.toFixed(2)} {token.symbol}
+        </Typography>
+      </Box>
+      {/* </Collapse> */}
+    </Stack>
+  );
+}
+
+function Actions() {
+  return (
+    <Stack direction="row" spacing={3} sx={{ mt: 1 }}>
+      <ButtonLight title="Deposit" size="small" onClick={()=> deposit()} />
+        {/* Deposit
+      </ButtonLight> */}
+      <ButtonLight title="Withdraw" size="small" onClick={()=>withdraw()}/>
+        {/* Withdraw
+      </ButtonLight> */}
+    </Stack>
+  );
+}
+
 export default function Balance() {
   const { tokens, walletConnected } = useMyContext();
 
@@ -26,7 +81,7 @@ export default function Balance() {
   }, [walletConnected]);
   if (!walletConnected) return null;
   return (
-    <Box>
+    <Box sx={{mb: 10, flexShrink: 1}}>
       <ExpandableTitle
         title="My Balance"
         initiallyExpanded={true}
@@ -34,64 +89,30 @@ export default function Balance() {
       />
       {visible && (
         <Collapse in={reveal} timeout={a}>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{}}>
-            {/* Total Balance */}
-
-            <InfoBox>
-              {/* <Collapse in={reveal} timeout={x}> */}
-
+          {" "}
+          <Stack direction={{ xs: "row", sm: "column" }} 
+          spacing={3}
+ 
+           >
+            <InfoBox spacing={3}>
+              <Box>
               <Typography
                 variant="subtitle2"
                 sx={{ color: "text.secondary", mb: 0.5 }}
               >
                 Total Balance
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 $ {totalBalance.toFixed(2)}
               </Typography>
-              {/* </Collapse> */}
-            </InfoBox>
-
-            {/* Main Token Balance */}
-
-            <InfoBox>
-              {/* <Collapse in={reveal} timeout={y}> */}
-
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ mt: 1, mb: 2 }}
-              >
-                <Avatar
-                  sx={{
-                    bgcolor: mainToken.color,
-                    width: 24,
-                    height: 24,
-                    fontSize: 18,
-                  }}
-                >
-                  {mainToken.symbol[0]}
-                </Avatar>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ color: "text.secondary", mb: 0.5 }}
-                >
-                  {mainToken.symbol} Balance
-                </Typography>
-              </Stack>
-              <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  {(mainToken.amount * mainToken.price).toFixed(2)} USD
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ fontWeight: 500, color: "text.secondary" }}
-                >
-                  {mainToken.amount.toFixed(2)} {mainToken.symbol}
-                </Typography>
               </Box>
-              {/* </Collapse> */}
+            {/* </InfoBox> */}
+            {/* <InfoBox spacing={2}> */}
+              <Stack direction="row" spacing={3}>
+              <TokenBalance token={mainToken} />
+              <TokenBalance token={mainToken} />
+              </Stack>
+              <Actions/>
             </InfoBox>
 
             {/* <Collapse in={reveal} timeout={z}> */}

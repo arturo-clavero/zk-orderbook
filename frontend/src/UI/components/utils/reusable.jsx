@@ -16,16 +16,24 @@ import {
 
 import { useState } from "react";
 
-export const InfoBox = ({ title, children, bgImage }) => (
+export const InfoBox = ({
+  title,
+  flex = 1,
+  direction = "column",
+  spacing = 0,
+  children,
+  bgImage,
+}) => (
   <Box
     sx={{
-      flex: 1,
+      flexShrink: flex,
       p: 3,
       borderRadius: 10, // rounder corners
       bgcolor: "background.paper",
-      boxShadow: 3,
+      boxShadow: 1,
       display: "flex",
-      flexDirection: "column",
+      gap: spacing,
+      flexDirection: direction,
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
