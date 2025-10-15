@@ -28,7 +28,7 @@ export const InfoBox = ({
     sx={{
       flexShrink: flex,
       p: 3,
-      borderRadius: 10, // rounder corners
+      borderRadius: 2,
       bgcolor: "background.paper",
       boxShadow: 1,
       display: "flex",
@@ -84,18 +84,22 @@ export const ButtonLight = ({
 
 export function ExpandableTitle({
   title = "",
+  shrinkTitle = undefined,
   initiallyExpanded = true,
   onToggle,
   color = "text.primary",
   children,
+  isVisible = true,
 }) {
+  if (shrinkTitle == undefined)
+    shrinkTitle = title;
   const [expanded, setExpanded] = useState(initiallyExpanded);
 
   const handleToggle = () => {
     setExpanded(!expanded);
     if (onToggle) onToggle(!expanded);
   };
-
+  const finalTitle = isVisible? title : shrinkTitle;
   return (
     <Box>
       {title && title.length > 0 ? (
@@ -103,14 +107,14 @@ export function ExpandableTitle({
           direction="row"
           alignItems="center"
           spacing={1}
-          sx={{ cursor: "pointer", ml: 7, mb: 1, userSelect: "none" }}
+          sx={{ cursor: "pointer", mb: 1, userSelect: "none" }}
           onClick={handleToggle}
         >
           <Typography
             variant="subtitle1"
             sx={{ color: color, fontWeight: 600 }}
           >
-            {title}
+            {finalTitle}
           </Typography>
           <IconButton
             size="small"
