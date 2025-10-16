@@ -7,14 +7,24 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+
 import { useState } from "react";
-import { useMyContext } from "../../../utils/context.jsx";
-import { safeNumber } from "../../../utils/math.jsx";
+import { useMyContext } from "../../utils/context.jsx";
+import { safeNumber } from "../../utils/math.jsx";
 export default function TradeForm() {
-  const { chartPair, switched } = useMyContext();
-  const mainToken = chartPair? switched == false ? chartPair.token1 : chartPair.token2: null;
-  const quoteToken = chartPair? switched == false ? chartPair.token2 : chartPair.token1: null;
-  
+  const { chartPair, setSwitched, switched } = useMyContext();
+  const mainToken = chartPair
+    ? switched == false
+      ? chartPair.token1
+      : chartPair.token2
+    : null;
+  const quoteToken = chartPair
+    ? switched == false
+      ? chartPair.token2
+      : chartPair.token1
+    : null;
+
   const [tradeType, setTradeType] = useState("spot"); // could be spot/market
   const [side, setSide] = useState("buy"); // buy/sell
   const [price, setPrice] = useState(0);
@@ -27,17 +37,26 @@ export default function TradeForm() {
   const handleSide = (newSide) => {
     setSide(newSide);
   };
-const lastPrice = (safeNumber(mainToken.price) / safeNumber(quoteToken.price)).toFixed(4);
+  const lastPrice = (
+    safeNumber(mainToken.price) / safeNumber(quoteToken.price)
+  ).toFixed(4);
 
-const mainChange = mainToken.price24hAgo ? mainToken.price / mainToken.price24hAgo - 1 : 0;
-const quoteChange = quoteToken.price24hAgo ? quoteToken.price / quoteToken.price24hAgo - 1 : 0;
-const change = ((1 + mainChange) / (1 + quoteChange) - 1).toFixed(4);
+  const mainChange = mainToken.price24hAgo
+    ? mainToken.price / mainToken.price24hAgo - 1
+    : 0;
+  const quoteChange = quoteToken.price24hAgo
+    ? quoteToken.price / quoteToken.price24hAgo - 1
+    : 0;
+  const change = ((1 + mainChange) / (1 + quoteChange) - 1).toFixed(4);
 
-const last24 = change > 0 ? `+${change} %` : change < 0 ? `${change} %` : "~";
+  const last24 = change > 0 ? `+${change} %` : change < 0 ? `${change} %` : "~";
 
-const twap1m = (safeNumber(mainToken.twap1min) / safeNumber(quoteToken.twap1min)).toFixed(4);
-const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10min)).toFixed(4);
-
+  const twap1m = (
+    safeNumber(mainToken.twap1min) / safeNumber(quoteToken.twap1min)
+  ).toFixed(4);
+  const twap10m = (
+    safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10min)
+  ).toFixed(4);
 
   const availableBalance = mainToken?.amount || 0;
   const total = price * amount;
@@ -46,6 +65,7 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
   return (
     <Box
       sx={{
+        height: 500,
         p: 2,
         borderRadius: 2,
         bgcolor: "background.paper",
@@ -56,23 +76,39 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
         gap: 2,
       }}
     >
-      {/* Header: Pair Info */}
       <Box>
         <Typography variant="subtitle2" color="text.secondary">
           Trading Pair
         </Typography>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {chartPair
-            ? `${mainToken.symbol} / ${quoteToken.symbol}`
-            : "Select Pair"}
-        </Typography>
+        <Stack display="flex" direction="row" spacing={2}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {chartPair
+              ? `${mainToken.symbol} / ${quoteToken.symbol}`
+              : "Select Pair"}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setSwitched((prev) => !prev)}
+            sx={{
+              // px: 0.5,
+              minWidth: "2px",
+              borderRadius: 2,
+              bgcolor: "rgba(255,255,255,0)",
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.2)",
+              },
+            }}
+          >
+            <SwapHorizIcon />
+          </Button>
+        </Stack>
         <Typography variant="caption" color="text.secondary">
-          Last price: ${lastPrice} | 24h Change: {last24}  
+          Last price: ${lastPrice} | 24h Change: {last24}
           {/* <br />Twap 1m: ${twap1m} | Twap 10m: ${twap10m} */}
         </Typography>
       </Box>
 
-      {/* Trade Type */}
       <ToggleButtonGroup
         value={tradeType}
         exclusive
@@ -84,10 +120,9 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
         <ToggleButton value="market">Market</ToggleButton>
       </ToggleButtonGroup>
 
-      {/* Buy/Sell Switch */}
       <Stack direction="row" spacing={1}>
         <Button
-          variant={side === "buy" ? "contained" : "outlined"}
+          variant={"outlined"}
           color="success"
           fullWidth
           onClick={() => handleSide("buy")}
@@ -95,7 +130,7 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
           Buy
         </Button>
         <Button
-          variant={side === "sell" ? "contained" : "outlined"}
+          variant={"outlined"}
           color="error"
           fullWidth
           onClick={() => handleSide("sell")}
@@ -104,7 +139,6 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
         </Button>
       </Stack>
 
-      {/* Price & Amount */}
       <Stack spacing={1}>
         <TextField
           label={`Price (${quoteToken?.symbol})`}
@@ -132,13 +166,11 @@ const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10m
         />
       </Stack>
 
-      {/* Info / Fees */}
       <Typography variant="caption" color="text.secondary">
         Available: {availableBalance} {mainToken?.symbol} | Fee:{" "}
         {fee.toFixed(2)} {quoteToken?.symbol}
       </Typography>
 
-      {/* Execute Trade */}
       <Button
         variant="contained"
         color={side === "buy" ? "success" : "error"}

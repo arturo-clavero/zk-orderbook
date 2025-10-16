@@ -20,7 +20,7 @@ function setFaviconWithBackground(src, now) {
     canvas.width = 64;
     canvas.height = 64;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#333"; // dark bg
+    ctx.fillStyle = "#333";
     ctx.beginPath();
     ctx.arc(32, 32, 32, 0, Math.PI * 2);
     ctx.fill();
@@ -105,7 +105,7 @@ export default function NavBar() {
         </Typography>
       </Box>
 
-      <Stack
+      {/* <Stack
         direction="row"
         spacing={2}
         sx={{ flexGrow: 1, justifyContent: "center" }}
@@ -129,7 +129,7 @@ export default function NavBar() {
             {item.name}
           </Button>
         ))}
-      </Stack>
+      </Stack> */}
 
       <WalletConnect />
     </Box>

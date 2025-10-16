@@ -11,10 +11,10 @@ import {
   MenuItem,
   Avatar,
 } from "@mui/material";
-import { useTokens } from "../../../../../liveData/Tokens.jsx";
-import deposit from "../../../../../actions/deposit.js";
-import withdraw from "../../../../../actions/withdraw.js";
-import { useMyContext } from "../../../utils/context.jsx";
+import { useTokens } from "../../../../liveData/Tokens.jsx";
+import deposit from "../../../../actions/deposit.js";
+import withdraw from "../../../../actions/withdraw.js";
+import { useMyContext } from "../../utils/context.jsx";
 
 export default function ModalDepositWithdraw({
   open,

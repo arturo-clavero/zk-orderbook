@@ -9,16 +9,22 @@ export default function Dashboard() {
     <>
       <Box
         sx={{
-          // bgcolor: "orange",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           width: "100%",
+          height: "100%",
         }}
       >
-        <Stack display="flex" direction="row" spacing={4}>
+        <Stack
+          display="flex"
+          direction="row"
+          spacing={4}
+          alignItems="end"
+          height="100%"
+        >
           <Balance />
-          <Chart />
+          <Chart width="100%" height={500} />
           <Trade />
         </Stack>
         <Orders />

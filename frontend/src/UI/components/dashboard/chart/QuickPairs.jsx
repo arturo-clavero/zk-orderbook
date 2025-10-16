@@ -7,17 +7,15 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
-import { useTokens } from "../../../../../liveData/Tokens.jsx";
+import { useTokens } from "../../../../liveData/Tokens.jsx";
 import { useState } from "react";
-import { useMyContext } from "../../../utils/context.jsx";
-import { SortableHeader } from "../../../utils/Sorting.jsx";
+import { useMyContext } from "../../utils/context.jsx";
+import { SortableHeader } from "../../utils/Sorting.jsx";
 import SearchIcon from "@mui/icons-material/Search";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-import { safeNumber } from "../../../utils/math.jsx";
+import { safeNumber } from "../../utils/math.jsx";
 const titleFontSize = 12;
 const titleFontWeight = 500;
-
-
 
 export default function QuickPairs() {
   const { tokenPairs } = useTokens();

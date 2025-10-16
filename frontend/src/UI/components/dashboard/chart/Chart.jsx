@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
-import { useMyContext } from "../../../utils/context.jsx";
+import { useMyContext } from "../../utils/context.jsx";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import QuickPairs from "./QuickPairs.jsx";
 
