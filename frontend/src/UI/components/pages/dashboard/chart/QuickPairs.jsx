@@ -13,15 +13,11 @@ import { useMyContext } from "../../../utils/context.jsx";
 import { SortableHeader } from "../../../utils/Sorting.jsx";
 import SearchIcon from "@mui/icons-material/Search";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-
+import { safeNumber } from "../../../utils/math.jsx";
 const titleFontSize = 12;
 const titleFontWeight = 500;
 
-const safeNumber = (value) => {
-  if (value === undefined || value === null) return 0;
-  if (isNaN(value) || !isFinite(value)) return 0;
-  return value;
-};
+
 
 export default function QuickPairs() {
   const { tokenPairs } = useTokens();
@@ -117,12 +113,14 @@ export default function QuickPairs() {
                 variant="outlined"
                 size="small"
                 sx={{ flex: 1 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  htmlInput: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
             </Stack>

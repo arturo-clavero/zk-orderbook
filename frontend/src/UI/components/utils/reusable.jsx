@@ -91,15 +91,14 @@ export function ExpandableTitle({
   children,
   isVisible = true,
 }) {
-  if (shrinkTitle == undefined)
-    shrinkTitle = title;
+  if (shrinkTitle == undefined) shrinkTitle = title;
   const [expanded, setExpanded] = useState(initiallyExpanded);
 
   const handleToggle = () => {
     setExpanded(!expanded);
     if (onToggle) onToggle(!expanded);
   };
-  const finalTitle = isVisible? title : shrinkTitle;
+  const finalTitle = isVisible ? title : shrinkTitle;
   return (
     <Box>
       {title && title.length > 0 ? (

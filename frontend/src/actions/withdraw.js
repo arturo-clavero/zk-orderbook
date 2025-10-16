@@ -1,4 +1,4 @@
-export default function withdraw(account, amount) {
+export default async function withdraw(account, amount) {
   //proof deposit is clean
   //create wallet
   //from wallet:

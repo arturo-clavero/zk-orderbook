@@ -29,9 +29,7 @@ export default function WalletConnect() {
   const shortenAddress = (addr) => {
     if (!addr) return "";
     let str = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-    console.log("str: ", str);
     const strShort = str.toLowerCase();
-    console.log("low: ", strShort);
     return strShort;
   };
 
@@ -94,15 +92,11 @@ export default function WalletConnect() {
         method: "eth_requestAccounts",
       });
       if (accounts.length > 1) {
-        console.log("in)", accounts);
         let i;
         for (i = 0; i < accounts.length; i++) {
-          console.log(i, "/", accounts.length);
           if (accounts[i].toLowerCase() === walletAddress.toLowerCase()) {
-            console.log("found at: ", i);
             if (i + 1 < accounts.length) i += 1;
             else i = 0;
-            console.log("i: ", i);
             break;
           } else if (i == accounts.length - 1) {
             i = 0;
@@ -113,7 +107,7 @@ export default function WalletConnect() {
         setWalletAddress(accounts[i]);
         handleWalletClose();
         setState("");
-      } else console.log("only one wallet");
+      }
     } catch (err) {
       console.error("Switch wallet failed:", err);
     }

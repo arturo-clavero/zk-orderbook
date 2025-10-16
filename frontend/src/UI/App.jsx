@@ -31,7 +31,8 @@ export default function App() {
             width: "100%",
             display: "flex",
             justifyContent: "center",
-            maxWidth: 1500, //LAYOUT TODO
+            alignContent: "center",
+            margin: "auto",
           }}
         >
           <Routes>

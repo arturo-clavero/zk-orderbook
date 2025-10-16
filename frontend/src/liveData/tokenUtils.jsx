@@ -100,7 +100,6 @@ export async function fetchDataFallback(time, type) {
       if (time + offset < 0) break;
       const result = await fetchData(time + offset, type);
       if (result !== undefined) {
-        console.log("Using offset (seconds):", offset);
         return result;
       }
     }

@@ -16,7 +16,7 @@ export default function Dashboard() {
           width: "100%",
         }}
       >
-        <Stack  display="flex" direction="row" spacing={4}>
+        <Stack display="flex" direction="row" spacing={4}>
           <Balance />
           <Chart />
           <Trade />

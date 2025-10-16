@@ -1,14 +1,38 @@
 import { createContext, useState, useContext } from "react";
 import { useTokens } from "../../../liveData/Tokens";
 import { pairDefs } from "../../../liveData/tokenDefs";
+import { useWebSocketData } from "../../../liveData/useWebSocketData";
+
 const AppContext = createContext();
 
-const tokens = [
-  { symbol: "ETH", amount: 350, color: "#627EEA" },
-  { symbol: "USDC", amount: 1200, color: "#2775CA" },
-  { symbol: "WBTC", amount: 250, color: "#F7931A" },
-  { symbol: "DAI", amount: 500, color: "#F5AC37" },
-];
+function updateOrders(newOrders, orders, setOrders) {}
+
+function initializeBalance(tokens) {
+  const balance = {};
+  Object.values(tokens).forEach((t) => {
+    balance[t.symbol] = 1; //test delete!
+  });
+  console.log("init balanec: ", balance);
+  return balance;
+}
+
+function updateBalances(newBalance, balance, setBalance) {
+  const updated = { ...balance };
+
+  if (Array.isArray(newBalance)) {
+    // e.g. [{symbol: "ETH", amount: 1}, {symbol: "USDC", amount: 2}]
+    newBalance.forEach((t) => {
+      updated[t.symbol] = t.amount;
+    });
+  } else if (typeof newBalance === "object" && newBalance !== null) {
+    // e.g. { ETH: 1, USDC: 5 }
+    Object.entries(newBalance).forEach(([symbol, amount]) => {
+      updated[symbol] = amount;
+    });
+  }
+
+  setBalance(updated);
+}
 
 export function preloadIcons(tokenPairs) {
   const urls = new Set();
@@ -29,12 +53,25 @@ export function ContextProvider({ children }) {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [walletMenuAnchor, setWalletMenuAnchor] = useState(null);
-  const { tokenPairs } = useTokens();
+  const { tokenPairs, tokens } = useTokens();
   preloadIcons(tokenPairs);
   const str = `${pairDefs[0][0]}/${pairDefs[0][1]}`;
   const [chartPair, setChartPair] = useState(tokenPairs[str]);
   const [switched, setSwitched] = useState(false);
   const [marketVisible, setMarketVisible] = useState(false);
+  const [depositWithdrawLoading, setDepositWithdrawLoading] = useState(false);
+  const [balance, setBalance] = useState(() => initializeBalance(tokens));
+  const [orders, setOrders] = useState(null);
+
+  useWebSocketData({
+    walletConnected,
+    walletAddress,
+    onMessage: (data) => {
+      if (data.type === "balances")
+        updateBalances(data.balances, balance, setBalance);
+      if (data.type === "orders") updateOrders(data.orders, orders, setOrders);
+    },
+  });
 
   return (
     <AppContext.Provider
@@ -47,13 +84,18 @@ export function ContextProvider({ children }) {
         setWalletMenuAnchor,
         state,
         setState,
-        tokens,
         chartPair,
         setChartPair,
         switched,
         setSwitched,
         marketVisible,
         setMarketVisible,
+        depositWithdrawLoading,
+        setDepositWithdrawLoading,
+        balance,
+        setBalance,
+        orders,
+        setOrders,
       }}
     >
       {children}

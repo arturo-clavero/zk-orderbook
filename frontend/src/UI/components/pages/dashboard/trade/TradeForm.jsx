@@ -1,12 +1,20 @@
-import { Box, Typography, Stack, TextField, Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  TextField,
+  Button,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
 import { useState } from "react";
 import { useMyContext } from "../../../utils/context.jsx";
-
+import { safeNumber } from "../../../utils/math.jsx";
 export default function TradeForm() {
-  const { chartPair, tokens } = useMyContext();
-  const mainToken = chartPair?.token1;
-  const quoteToken = chartPair?.token2;
-
+  const { chartPair, switched } = useMyContext();
+  const mainToken = chartPair? switched == false ? chartPair.token1 : chartPair.token2: null;
+  const quoteToken = chartPair? switched == false ? chartPair.token2 : chartPair.token1: null;
+  
   const [tradeType, setTradeType] = useState("spot"); // could be spot/market
   const [side, setSide] = useState("buy"); // buy/sell
   const [price, setPrice] = useState(0);
@@ -19,6 +27,17 @@ export default function TradeForm() {
   const handleSide = (newSide) => {
     setSide(newSide);
   };
+const lastPrice = (safeNumber(mainToken.price) / safeNumber(quoteToken.price)).toFixed(4);
+
+const mainChange = mainToken.price24hAgo ? mainToken.price / mainToken.price24hAgo - 1 : 0;
+const quoteChange = quoteToken.price24hAgo ? quoteToken.price / quoteToken.price24hAgo - 1 : 0;
+const change = ((1 + mainChange) / (1 + quoteChange) - 1).toFixed(4);
+
+const last24 = change > 0 ? `+${change} %` : change < 0 ? `${change} %` : "~";
+
+const twap1m = (safeNumber(mainToken.twap1min) / safeNumber(quoteToken.twap1min)).toFixed(4);
+const twap10m = (safeNumber(mainToken.twap10min) / safeNumber(quoteToken.twap10min)).toFixed(4);
+
 
   const availableBalance = mainToken?.amount || 0;
   const total = price * amount;
@@ -43,10 +62,13 @@ export default function TradeForm() {
           Trading Pair
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {chartPair ? `${mainToken.symbol} / ${quoteToken.symbol}` : "Select Pair"}
+          {chartPair
+            ? `${mainToken.symbol} / ${quoteToken.symbol}`
+            : "Select Pair"}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          Last Price: ${price.toFixed(2) || 0} | 24h High: $0 | 24h Low: $0 | Volume: 0
+          Last price: ${lastPrice} | 24h Change: {last24}  
+          {/* <br />Twap 1m: ${twap1m} | Twap 10m: ${twap10m} */}
         </Typography>
       </Box>
 
@@ -102,13 +124,18 @@ export default function TradeForm() {
           label={`Total (${quoteToken?.symbol})`}
           size="small"
           value={total.toFixed(2)}
-          InputProps={{ readOnly: true }}
+          slotProps={{
+            htmlInput: {
+              readOnly: true,
+            },
+          }}
         />
       </Stack>
 
       {/* Info / Fees */}
       <Typography variant="caption" color="text.secondary">
-        Available: {availableBalance} {mainToken?.symbol} | Fee: {fee.toFixed(2)} {quoteToken?.symbol}
+        Available: {availableBalance} {mainToken?.symbol} | Fee:{" "}
+        {fee.toFixed(2)} {quoteToken?.symbol}
       </Typography>
 
       {/* Execute Trade */}

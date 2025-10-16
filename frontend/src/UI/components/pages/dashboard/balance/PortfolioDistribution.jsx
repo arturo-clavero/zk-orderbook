@@ -9,13 +9,12 @@ function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-export default function PortfolioDistribution({ tokens = [] }) {
-  if (!tokens || !Array.isArray(tokens) || tokens.length === 0) return null;
-
-  const totalBalance = tokens.reduce(
-    (acc, t) => acc + t.amount * (t.price || 1),
-    0
-  );
+export default function PortfolioDistribution({
+  totalBalance,
+  balance,
+  tokens = {},
+}) {
+  if (!tokens || typeof tokens != "object") return null;
 
   const circleSpacing = 12;
   const strokeWidth = 6;
@@ -47,12 +46,14 @@ export default function PortfolioDistribution({ tokens = [] }) {
       >
         <Box sx={{ position: "relative", width: 150, height: 150 }}>
           <svg width={150} height={150} viewBox="0 0 150 150">
-            {tokens.map((token, idx) => {
-              const tokenValue = token.amount * (token.price || 1);
+            {Object.values(tokens).map((token, idx) => {
+              const tokenValue = balance[token.symbol] * (token.price || 1);
               const percentage = tokenValue / totalBalance;
               const radius = baseRadius + idx * circleSpacing;
               const circumference = 2 * Math.PI * radius;
               const dashArray = circumference * percentage * animationProgress;
+              const dashLength = circumference * percentage * animationProgress;
+              const gapLength = circumference - dashLength;
 
               const color =
                 hovered === idx
@@ -82,7 +83,7 @@ export default function PortfolioDistribution({ tokens = [] }) {
                     fill="transparent"
                     stroke={color}
                     strokeWidth={strokeWidth}
-                    strokeDasharray={`${dashArray} ${circumference}`}
+                    strokeDasharray={`${dashLength} ${gapLength}`}
                     strokeDashoffset={circumference}
                     strokeLinecap="round"
                     transform={`rotate(${(startAngle * 180) / Math.PI} ${center} ${center})`}
@@ -94,9 +95,14 @@ export default function PortfolioDistribution({ tokens = [] }) {
           </svg>
         </Box>
 
-        <Stack direction="column" spacing={1} flexWrap="wrap" justifyContent="center">
-          {tokens.map((token, idx) => {
-            const tokenValue = token.amount * (token.price || 1);
+        <Stack
+          direction="column"
+          spacing={1}
+          flexWrap="wrap"
+          justifyContent="center"
+        >
+          {Object.values(tokens).map((token, idx) => {
+            const tokenValue = balance[token.symbol] * (token.price || 1);
             const percentage = (tokenValue / totalBalance) * 100;
             const color =
               hovered === idx
