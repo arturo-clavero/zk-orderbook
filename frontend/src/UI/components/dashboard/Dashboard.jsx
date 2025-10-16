@@ -9,19 +9,23 @@ export default function Dashboard() {
     <>
       <Box
         sx={{
+          // bgcolor: "yellow",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          gap: 5,
           width: "100%",
           height: "100%",
         }}
       >
         <Stack
+          // bgcolor="green"
           display="flex"
           direction="row"
-          spacing={4}
+          spacing={5}
           alignItems="end"
           height="100%"
+          width="100%"
         >
           <Balance />
           <Chart width="100%" height={500} />

@@ -24,9 +24,9 @@ export default function App() {
           sx={{
             flex: 1,
             mt: { xs: 10, sm: 12 },
-            mb: { xs: 5, sm: 7 },
             px: { xs: 1, sm: 1, md: 5 }, //LAYOUT TODO
             width: "100%",
+            height: "100%",
             display: "flex",
             justifyContent: "center",
             alignContent: "center",

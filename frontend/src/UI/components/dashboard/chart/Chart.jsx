@@ -94,10 +94,12 @@ export default function Chart({
     <Box sx={{ flex: 1 }}>
       <Box
         sx={{
+          border: 1,
+          borderColor: "divider",
+          bgcolor: "primary.main",
           display: "flex",
           alignItems: "center",
           gap: 2,
-          borderRadius: 2,
           boxShadow: 2,
           width: 250,
         }}
@@ -106,13 +108,16 @@ export default function Chart({
           variant="contained"
           size="medium"
           sx={{
+            borderRadius: 0,
             px: 2.5,
             py: 1.5,
             fontSize: "0.95rem",
-            borderRadius: 2,
             color: "secondary.contrastText",
+            boxShadow: "none",
             "&:hover": {
-              bgcolor: "secondary.light",
+              // bgcolor: "secondary.light",
+              bgcolor: "primary.main", // keep same as normal
+              boxShadow: "none",
             },
           }}
           startIcon={
@@ -134,10 +139,10 @@ export default function Chart({
             px: 1.5,
             minWidth: "48px",
             borderRadius: 2,
-            bgcolor: "rgba(255,255,255,0.1)",
             "&:hover": {
               bgcolor: "rgba(255,255,255,0.2)",
             },
+            boxShadow: "none",
           }}
         >
           <SwapHorizIcon />

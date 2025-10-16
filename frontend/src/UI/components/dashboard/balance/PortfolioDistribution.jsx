@@ -39,10 +39,10 @@ export default function PortfolioDistribution({
     <Stack
       alignItems="center"
       direction={{ xs: "column", sm: "row" }}
-      spacing={1}
+      spacing={0}
     >
       <Box sx={{ position: "relative", width: 150, height: 150 }}>
-        <svg width={150} height={150} viewBox="0 0 150 150">
+        <svg width={150} height={150} viewBox="20 10 130 130">
           {Object.values(tokens).map((token, idx) => {
             const tokenValue = balance[token.symbol] * (token.price || 1);
             const percentage = tokenValue / totalBalance;

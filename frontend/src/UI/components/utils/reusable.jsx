@@ -42,6 +42,7 @@ export function ExpandableTitle({
   color = "text.secondary",
   children,
   isVisible = true,
+  TitleBox = <Box></Box>,
 }) {
   if (shrinkTitle === undefined) shrinkTitle = title;
   const [expanded, setExpanded] = useState(initiallyExpanded);
@@ -54,37 +55,38 @@ export function ExpandableTitle({
 
   return (
     <Box>
-      {title && title.length > 0 && (
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{
-            cursor: "pointer",
-            userSelect: "none",
-            mb: 0.5,
-          }}
-          onClick={handleToggle}
-        >
-          <Typography
+      {/* { && title.length > 0 &title& ( */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        sx={{
+          cursor: "pointer",
+          userSelect: "none",
+          mb: 0.5,
+        }}
+        onClick={handleToggle}
+      >
+        {TitleBox}
+        {/* <Typography
             variant="subtitle2"
             sx={{ fontWeight: 700, color: color }}
           >
             {finalTitle}
-          </Typography>
-          <IconButton
-            size="small"
-            sx={{
-              transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
-              transition: "transform 0.3s ease",
-              color: color,
-              p: 0,
-            }}
-          >
-            <KeyboardArrowDown />
-          </IconButton>
-        </Stack>
-      )}
+          </Typography> */}
+        <IconButton
+          size="small"
+          sx={{
+            transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
+            transition: "transform 0.3s ease",
+            color: color,
+            p: 0,
+          }}
+        >
+          <KeyboardArrowDown />
+        </IconButton>
+      </Stack>
+      {/* )} */}
 
       <Collapse in={expanded} timeout={300}>
         {children}

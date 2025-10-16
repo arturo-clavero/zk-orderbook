@@ -62,6 +62,7 @@ export function ContextProvider({ children }) {
   const [depositWithdrawLoading, setDepositWithdrawLoading] = useState(false);
   const [balance, setBalance] = useState(() => initializeBalance(tokens));
   const [orders, setOrders] = useState(null);
+  const [tradeStatus, setTradeStatus] = useState("OPEN");
 
   useWebSocketData({
     walletConnected,
@@ -96,6 +97,8 @@ export function ContextProvider({ children }) {
         setBalance,
         orders,
         setOrders,
+        tradeStatus,
+        setTradeStatus,
       }}
     >
       {children}
