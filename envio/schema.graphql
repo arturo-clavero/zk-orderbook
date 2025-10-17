@@ -1,0 +1,7 @@
+type Deposit_Deposit {
+  id: ID!
+  user: String!
+  token: String!
+  amount: BigInt!
+}
+

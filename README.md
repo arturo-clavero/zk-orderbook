@@ -110,5 +110,20 @@ pnpm prisma studio --schema ./src/lib/prisma-trading-database/schema.prisma
     studio: Opens Prisma Studio for both databases simultaneously on different ports (5555 for the user database and 5556 for the post database) for visual data management.
 
   ```
+  ## Envio commands
+  ``` bash
+  Run code generation to update types and generated code:
+
+    $ pnpm codegen
+      or
+    $ pnpx envio codegen
+
+Restart your indexer to apply the new configuration:
+
+    $ pnpm dev
+      or
+    $ pnpx envio start
+```
+
 ```
 
