@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { ethers } from 'ethers';
+import  vaultAbi  from './contracts/deposit.json';
+
 declare var window: any
 
 export default function DepositForm() {
@@ -17,7 +19,7 @@ export default function DepositForm() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // 🦊 Connect to MetaMask
+  // Connect to MetaMask
   const connectWallet = async () => {
     if (!window.ethereum) {
       alert('Please install MetaMask!');
@@ -39,7 +41,7 @@ export default function DepositForm() {
     }
   };
 
-  // 📤 Handle Deposit Submit
+  // Handle Deposit Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -53,11 +55,44 @@ export default function DepositForm() {
     setResult(null);
 
     try {
-      const response = await axios.post('http://localhost:4000/deposit', formData);
-      console.log('✅ Deposit successful:', response.data);
-      setResult(response.data);
+      //ADDRESSES for the token contracts are in .env
+      const address = process.env.REACT_APP_VAULT_ADDRESS!;
+      const pyusd = process.env.REACT_APP_PYUSD_ADDRESS!;
+      const usdt = process.env.REACT_APP_USDT_ADDRESS!;
+      console.log("the address is ", address);
+  
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(address, vaultAbi, signer);
+      const token = formData.token;
+      const tokenAddress = token === "PYUSD" ? pyusd : usdt;
+      const erc20Abi = [
+        "function approve(address spender, uint256 amount) public returns(bool)"
+      ];
+      const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, signer);
+
+      const amount = ethers.parseUnits(formData.amount, 18);
+      const approveTx = await tokenContract.approve(address, amount);
+      await approveTx.wait();
+      let tx;
+
+      if (token === "ETH"){
+        console.log("tx is ", tx);
+        tx = await contract.depositEth({value: ethers.parseUnits(formData.amount, 18)});
+      }
+      else if (token === "PYUSD") {
+        tx = await contract.depositErc(pyusd, ethers.parseUnits(formData.amount, 18));
+        console.log("tx is ", tx);
+      } else if (token === "USDT") {
+        tx = await contract.depositErc(usdt, ethers.parseUnits(formData.amount, 6));
+        console.log("tx is ", tx);
+      }
+      if (!tx) throw new Error("transaction was not created");
+      await tx.wait();
+
+      setResult(`if deposit successful you will see the hash: ${tx.hash}`, );
       setFormData({ traderId: walletAddress || '', token: 'PYUSD', amount: '' });
-    } catch (err: any) {
+    }catch (err: any) {
       console.error('❌ Deposit failed:', err);
       setError(err.response?.data?.error || 'Something went wrong');
     } finally {
@@ -76,7 +111,6 @@ export default function DepositForm() {
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Deposit Funds</h2>
 
-      {/* 🦊 Wallet Connection */}
       {!walletConnected ? (
         <button
           onClick={connectWallet}
@@ -115,7 +149,7 @@ export default function DepositForm() {
             value={formData.amount}
             onChange={handleChange}
             placeholder="0.00"
-            step="0.01"
+            step="0.0001"
             min="0"
             required
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -131,7 +165,7 @@ export default function DepositForm() {
         </button>
       </form>
 
-      {/* ✅ Success */}
+      {/*  Success */}
       {result && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h3 className="font-semibold text-green-800 mb-2">✅ Deposit Successful!</h3>
@@ -144,7 +178,7 @@ export default function DepositForm() {
         </div>
       )}
 
-      {/* ❌ Error */}
+      {/*  Error */}
       {error && (
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <h3 className="font-semibold text-red-800 mb-2">❌ Error</h3>
