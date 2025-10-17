@@ -20,6 +20,7 @@ export function initializeTokens() {
 export function initializeTokenPairs(tokens) {
   return pairDefs.reduce((acc, [s1, s2]) => {
     acc[`${s1}/${s2}`] = {
+      symbol: `${s1}/${s2}`,
       token1: tokens[s1] || {
         symbol: s1,
         price: 0,
@@ -72,8 +73,9 @@ export function setTokensParam(setTokens, setTokenPairs, result) {
       pairDefs.forEach(([s1, s2]) => {
         const token1 = updatedTokens[s1];
         const token2 = updatedTokens[s2];
-
-        updatedPairs[`${s1}/${s2}`] = {
+        const pairSymbol = `${s1}/${s2}`;
+        updatedPairs[pairSymbol] = {
+          symbol: pairSymbol,
           token1,
           token2,
           price: token2?.price ? token1.price / token2.price : 0,

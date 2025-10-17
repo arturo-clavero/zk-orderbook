@@ -24,6 +24,7 @@ export default function TradeInputs({
   setSlippage,
   publicRouterFallback,
   setPublicRouterFallback,
+  walletConnected,
 }) {
   const mainBalance = balance[mainToken.symbol] || 0;
   const quoteBalance = balance[quoteToken.symbol] || 0;
@@ -59,6 +60,7 @@ export default function TradeInputs({
         />
       )}
 
+
       <TextField
         label={`Amount (${mainToken?.symbol})`}
         size="small"
@@ -67,12 +69,21 @@ export default function TradeInputs({
         onChange={(e) => handleNumeric(e.target.value, setAmount)}
         error={invalidSell}
         helperText={
-          invalidSell
+          invalidSell && walletConnected
             ? mainBalance > 0
               ? `Can only sell ${mainBalance} ${mainToken.symbol}`
               : `No ${mainToken.symbol} to sell`
             : ""
         }
+        // helperText={
+        //   invalidSell 
+        //   ? walletConnected
+        //     ? mainBalance > 0
+        //       ? `Can only sell ${mainBalance} ${mainToken.symbol}`
+        //       : `No ${mainToken.symbol} to sell`
+        //   : "Connect your wallet"
+        //     : ""
+        // }
         sx={textFieldBase}
       />
 
@@ -82,8 +93,10 @@ export default function TradeInputs({
         value={totalPrice.toFixed(6)}
         slotProps={{ input: { readOnly: true } }}
         tabIndex={-1}
-        error={invalidBuy}
-        helperText={invalidBuy ? `Not enough ${quoteToken.symbol}` : ""}
+        error={invalidBuy }
+        helperText={invalidBuy && walletConnected ? `Not enough ${quoteToken.symbol}` :""}
+
+        // helperText={invalidBuy? walletConnected ? `Not enough ${quoteToken.symbol}` :`Connect your wallet`:""}
         sx={textFieldBase}
       />
 
@@ -94,11 +107,6 @@ export default function TradeInputs({
         />
       )}
 
-      <Typography variant="caption" color="text.secondary">
-        Available: {side === "buy" ? quoteBalance : mainBalance}{" "}
-        {side === "buy" ? quoteToken.symbol : mainToken.symbol} | Fee:{" "}
-        {fee.toFixed(2)} {quoteToken.symbol}
-      </Typography>
     </Stack>
   );
 }

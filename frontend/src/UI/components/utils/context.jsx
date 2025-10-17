@@ -63,6 +63,21 @@ export function ContextProvider({ children }) {
   const [balance, setBalance] = useState(() => initializeBalance(tokens));
   const [orders, setOrders] = useState(null);
   const [tradeStatus, setTradeStatus] = useState("OPEN");
+  const [animateWallet, setAnimateWallet] = useState(false);
+    const [subtleAnimateWallet, setSubtleAnimateWallet] = useState(true);
+const [animationWalletLock, setAnimationWalletLock] = useState(false); 
+
+ const handleWalletPopAnimation = () => {
+    if (!animationWalletLock) {
+      console.log("Trigger click animation");
+      setAnimationWalletLock(true);
+      setAnimateWallet(true);
+      setTimeout(() => {
+        setAnimateWallet(false);
+        setAnimationWalletLock(false);
+      }, 1200);
+    }
+  };
 
   useWebSocketData({
     walletConnected,
@@ -99,6 +114,13 @@ export function ContextProvider({ children }) {
         setOrders,
         tradeStatus,
         setTradeStatus,
+        animateWallet,
+        setAnimateWallet,
+        subtleAnimateWallet,
+        setSubtleAnimateWallet,
+        animationWalletLock, 
+        setAnimationWalletLock,
+        handleWalletPopAnimation
       }}
     >
       {children}

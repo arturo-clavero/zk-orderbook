@@ -5,13 +5,20 @@ import { useCreateOrder } from "../../../../actions/trade.js";
 import TradeHeader from "./TradeHeader.jsx";
 import TradeTypeSelector from "./TradeTypeSelector.jsx";
 import TradeSideSelector from "./TradeSideSelector.jsx";
+import TradeDetails from "./TradeDetails.jsx";
 import TradeInputs from "./TradeInputs.jsx";
 import TradeButton from "./TradeButton.jsx";
 import ToastAlert from "./ToastAlert.jsx";
 
 export default function TradeForm() {
-  const { chartPair, setSwitched, switched, balance, tradeStatus } =
-    useMyContext();
+  const {
+    chartPair,
+    setSwitched,
+    switched,
+    balance,
+    tradeStatus,
+    walletConnected,
+  } = useMyContext();
   const createOrder = useCreateOrder();
 
   const mainToken = switched ? chartPair?.token2 : chartPair?.token1;
@@ -32,8 +39,11 @@ export default function TradeForm() {
       ? numPrice * numAmount
       : (mainToken.price / quoteToken.price) * numAmount * (1 + slippage);
 
-  const invalidBuy = totalPrice > balance[quoteToken.symbol] && side === "buy";
-  const invalidSell = amount > balance[mainToken.symbol] && side === "sell";
+  // const invalidBuy = (totalPrice > balance[quoteToken.symbol] || !walletConnected) && side === "buy";
+  // const invalidSell = (amount > balance[mainToken.symbol] || ! walletConnected) && side === "sell";
+
+  const invalidBuy = (totalPrice > balance[quoteToken.symbol] ) && side === "buy";
+  const invalidSell = (amount > balance[mainToken.symbol] ) && side === "sell";
 
   useEffect(() => {
     if (tradeStatus === "ORDER_OPEN")
@@ -74,6 +84,13 @@ export default function TradeForm() {
       />
       <TradeTypeSelector tradeType={tradeType} setTradeType={setTradeType} />
       <TradeSideSelector side={side} setSide={setSide} />
+      <TradeDetails
+        side={side}
+        walletConnected={walletConnected}
+        balance={balance}
+        quoteToken={quoteToken}
+        mainToken={mainToken}
+      />
       <TradeInputs
         tradeType={tradeType}
         side={side}
@@ -91,6 +108,7 @@ export default function TradeForm() {
         setSlippage={setSlippage}
         publicRouterFallback={publicRouterFallback}
         setPublicRouterFallback={setPublicRouterFallback}
+        walletConnected={walletConnected}
       />
       <TradeButton
         side={side}
@@ -104,6 +122,7 @@ export default function TradeForm() {
         slippage={slippage}
         publicRouterFallback={publicRouterFallback}
         createOrder={createOrder}
+        walletConnected={walletConnected}
       />
       <ToastAlert toast={toast} setToast={setToast} />
     </Box>

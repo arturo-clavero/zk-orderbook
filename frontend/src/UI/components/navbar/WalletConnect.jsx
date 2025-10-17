@@ -12,6 +12,26 @@ import { useMyContext } from "../utils/context.jsx";
 import { ethers } from "ethers";
 import { useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { keyframes } from "@mui/material/styles";
+import { useEffect } from "react";
+
+
+const subtlePop = keyframes`
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  25% { transform: scale(1.05); box-shadow: 0 0 12px rgba(47,194,157,0.6); }
+  50% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  75% { transform: scale(1.05); box-shadow: 0 0 12px rgba(47,194,157,0.6); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+
+`;
+const clickPop = keyframes`
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(47,194,157,0); background-color: #2fc29d; }
+  20% { transform: scale(1.1); box-shadow: 0 0 16px rgba(47,194,157,0.8); background-color: #00ffe0; }
+  40% { transform: scale(1); box-shadow: 0 0 0 rgba(47,194,157,0); background-color: #2fc29d; }
+  60% { transform: scale(1.1); box-shadow: 0 0 16px rgba(47,194,157,0.8); background-color: #00ffe0; }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(47,194,157,0); background-color: #2fc29d; }
+`
+
 
 export default function WalletConnect() {
   const {
@@ -22,7 +42,32 @@ export default function WalletConnect() {
     walletMenuAnchor,
     setWalletMenuAnchor,
     setState,
+    animateWallet,
+    setAnimateWallet,
+    subtleAnimateWallet,
+    setSubtleAnimateWallet,
+    animationWalletLock,
+    setAnimationWalletLock
   } = useMyContext();
+
+  useEffect(() => {
+    if (!walletConnected) {
+      const interval = setInterval(() => {
+        if (!animationWalletLock) {
+          console.log("Trigger subtle animation");
+          setAnimationWalletLock(true);
+          setSubtleAnimateWallet(true);
+          setTimeout(() => {
+            setSubtleAnimateWallet(false);
+            setAnimationWalletLock(false); 
+          }, 1200); 
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    } else {
+      setSubtleAnimateWallet(false);
+    }
+  }, [walletConnected, animationWalletLock]);
 
   const [tooltipText, setTooltipText] = useState("Copy Address");
 
@@ -176,7 +221,9 @@ export default function WalletConnect() {
         <Button
           onClick={connectWallet}
           startIcon={
-            <AccountBalanceWalletIcon sx={{ color: "success.main" }} />
+            <AccountBalanceWalletIcon sx={{
+        color: animateWallet ? "#ffffff" : "success.main",
+      }}/>
           }
           variant="contained"
           sx={{
@@ -187,7 +234,13 @@ export default function WalletConnect() {
             "&:hover": {
               bgcolor: "secondary.light",
             },
-          }}
+    animation: animateWallet
+      ? `${clickPop} 1.2s ease-out`
+      : subtleAnimateWallet
+      ? `${subtlePop} 1.2s ease-in-out`
+      : "none",
+  }}
+  onAnimationEnd={() => setAnimateWallet(false)}
         >
           Wallet
         </Button>
