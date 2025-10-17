@@ -29,21 +29,25 @@ fn verifyProof(
     assert(hash == root);
 }
 
-fn verifyExclusionProof(
+
+
+fn verifyUpdateProof(
     leafIdx: u32,
     leafKey: u64,
     leafNextIdx: u32,
     leafNextKey: u64,
-    leafValue: Field,
-    root: Field,
-    siblings: [Field; MAX_DEPTH],
-    excludedKey: u64
-) {
-    verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, leafValue, root, siblings);
-    assert(excludedKey > leafKey);
-    if leafNextIdx > 0 {
-        assert(excludedKey < leafNextKey);
-    }
+    ogLeafValue: Field,
+    newLeafValue: Field,
+    rootBefore: Field,
+    rootAfter: Field,
+    siblings: [Field; MAX_DEPTH]
+)
+{
+    assert(leafIdx != 0);
+    verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, ogLeafValue, rootBefore, siblings);
+    verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, newLeafValue, rootAfter, siblings);
+
+
 }
 
 fn verifyInsertionProof(
@@ -61,6 +65,8 @@ fn verifyInsertionProof(
     siblingsAfterOg: [Field; MAX_DEPTH],
     siblingsAfterNew: [Field; MAX_DEPTH]
 ) {
+    assert(ogLeafIdx == 0);
+
     // 1) All three proofs must be individually valid
     verifyProof(ogLeafIdx, ogLeafKey, ogLeafNextIdx, ogLeafNextKey, ogLeafValue, rootBefore, siblingsBefore);
     verifyProof(ogLeafIdx, ogLeafKey, newLeafIdx, newLeafKey, ogLeafValue, rootAfter, siblingsAfterOg);
@@ -126,6 +132,23 @@ fn verifyInsertionProof(
 
 }
 
+
+fn verifyExclusionProof(
+    leafIdx: u32,
+    leafKey: u64,
+    leafNextIdx: u32,
+    leafNextKey: u64,
+    leafValue: Field,
+    root: Field,
+    siblings: [Field; MAX_DEPTH],
+    excludedKey: u64
+) {
+    verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, leafValue, root, siblings);
+    assert(excludedKey > leafKey);
+    if leafNextIdx > 0 {
+        assert(excludedKey < leafNextKey);
+    }
+}
 #[test]
 fn test_verifyProof() {
     // Values from javascript test case

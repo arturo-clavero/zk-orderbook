@@ -1,0 +1,9 @@
+[package]
+name = "deposit"
+type = "bin"
+authors = [""]
+
+[dependencies]
+indexed_merkle = { path = "../indexed-merkle" }
+balance = { path = "../balance" }
+

@@ -10,7 +10,7 @@ export class IndexedMerkleTree {
     const {items} = this;
     if(typeof key !== 'bigint' || key < 1n) throw new Error('invalid_key');
     if(typeof value !== 'bigint' || value < 0n) throw new Error('invalid_value');
-    if(items.find(x => x.key === key)) throw new Error('duplicate_key');
+    if(items.find(x => x.key === key)) return this.updateItem(key, value);
 
     // Find previous key
     let prevKey = 0n;
@@ -52,6 +52,55 @@ export class IndexedMerkleTree {
       siblingsBefore: exProof.siblings,
       siblingsAfterOg: updatedPrevProof.siblings,
       siblingsAfterNew: newItemProof.siblings,
+      isFirst: true,
+    };
+  }
+
+  updateItem(key, value) {
+    const {items} = this;
+    if(typeof key !== 'bigint' || key < 1n) throw new Error('invalid_key');
+    if(typeof value !== 'bigint' || value < 0n) throw new Error('invalid_value');
+    if(!items.find(x => x.key === key)) throw new Error('new key');
+
+    const exProof = this.generateProof(key);
+    // Update Value
+
+    for(let i = 1; i < items.length; i++) {
+        if (key == items[i].key)
+        {
+          if (items[i].value == value) throw new Error("same value");
+          items[i].value = value;
+          break;
+      }
+    }
+    const updateProof = this.generateProof(key);
+
+    // return {
+    //   leafIdx: exProof.leafIdx,
+    //   leafKey: exProof.leaf.key,
+    //   leafNextIdx: exProof.leaf.nextIdx,
+    //   leafNextKey: exProof.leaf.nextKey,
+    //   ogLeafValue: exProof.leaf.value,
+    //   newLeafValue: updateProof.leaf.value,
+    //   rootBefore: exProof.root,
+    //   rootAfter: updateProof.root,
+    //   siblings: exProof.siblings,
+    // };
+    return {
+      ogLeafIdx: exProof.leafIdx,
+      ogLeafKey: exProof.leaf.key,
+      ogLeafNextIdx: exProof.leaf.nextIdx,
+      ogLeafNextKey: exProof.leaf.nextKey,
+      ogLeafValue: exProof.leaf.value,
+      newLeafIdx: updateProof.leafIdx,
+      newLeafKey: updateProof.leaf.key,
+      newLeafValue: updateProof.leaf.value,
+      rootBefore: exProof.root,
+      rootAfter: updateProof.root,
+      siblingsBefore: exProof.siblings,
+      siblingsAfterOg: updateProof.siblings,
+      siblingsAfterNew: updateProof.siblings,
+      isFirst: false,
     };
   }
 
@@ -121,6 +170,20 @@ export class IndexedMerkleTree {
 
     return hash === proof.root;
   }
+
+  verifyUpdate({
+    leafIdx, leafKey, leafNextIdx, leafNextKey, ogLeafValue,
+    newLeafValue, rootBefore, rootAfter, siblings
+  }){
+    this.verifyProof({
+      leafIdx, leafKey, leafNextIdx, leafNextKey, leafValue: ogLeafValue, root: rootBefore, siblings
+    })
+    this.verifyProof({
+      leafIdx, leafKey, leafNextIdx, leafNextKey, leafValue: newLeafValue, root: rootAfter, siblings
+    })
+
+  }
+
 
   verifyInsertionProof({
       ogLeafIdx, ogLeafKey, ogLeafNextIdx, ogLeafNextKey, ogLeafValue,

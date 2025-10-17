@@ -1,0 +1,7 @@
+[package]
+name = "assertBalance"
+type = "bin"
+authors = [""]
+
+[dependencies]
+indexed_merkle = { path = "../indexed-merkle" }
