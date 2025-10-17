@@ -10,54 +10,81 @@ import {
   TextField,
   MenuItem,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import { useTokens } from "../../../../liveData/Tokens.jsx";
-import deposit from "../../../../actions/deposit.js";
-import withdraw from "../../../../actions/withdraw.js";
 import { useMyContext } from "../../utils/context.jsx";
+import { textFieldBase } from "../trade/styles.js";
+import { clickableStyle } from "../trade/TradeDetails.jsx";
+import useDeposit from "../../../../actions/deposit.js";
+import useWithdraw from "../../../../actions/withdraw.js";
+import { handleNumeric } from "../../utils/reusable.jsx";
+import { format } from "../../utils/math.jsx";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+
 
 export default function ModalDepositWithdraw({
   open,
   close,
-  type = "deposit",
+  _type = "deposit",
 }) {
   const { tokens } = useTokens();
-  const { chartPair, switched } = useMyContext();
-
-  const currToken =
-    chartPair && switched === false
-      ? chartPair.token1
-      : chartPair
-        ? chartPair.token2
-        : Object.values(tokens)[0];
-
+  const {
+    chartPair,
+    switched,
+    balance,
+    dwStatus,
+    setToast,
+    walletAddress,
+  } = useMyContext();
+  const currToken = switched === false ? chartPair.token1: chartPair.token2;
+  const [type, setType] = useState(_type);
   const [selectedToken, setSelectedToken] = useState(currToken?.symbol || "");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
 
+  const invalidAmount = type == "withdraw" && amount > balance[selectedToken];
   useEffect(() => {
     setSelectedToken(currToken?.symbol || "");
   }, [currToken]);
 
   const onClose = () => {
     close();
-
-    setAmount("");
+    setAmount(0);
   };
 
-  const handleConfirm = async () => {
-    if (!amount || !selectedToken) return;
-    if (type == "deposit") await deposit(selectedToken, parseFloat(amount));
-    else await withdraw(selectedToken, parseFloat(amount));
+  const handleConfirm = type == "deposit" ? useDeposit() : useWithdraw();
 
-    onClose();
-  };
+  const available = balance[selectedToken] || 0;
+  const loading = [
+    "LOADING",
+    "SIGN",
+    "PROOF_GEN",
+    "OPEN_METAMASK",
+    "VERIFY_TX",
+  ].includes(dwStatus);
 
-  const available = tokens[selectedToken]?.amount || 0;
+  useEffect(() => {
+    if (dwStatus === "SUCCESS")
+      setToast({
+        open: true,
+        type: "success",
+        msg: `${type} created successfully!`,
+      });
+    else if (dwStatus === "ERROR")
+      setToast({
+        open: true,
+        type: "error",
+        msg: `❌ $(type) failed. Please try again.`,
+      });
+  }, [dwStatus]);
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(event, reason) => {
+        if (dwStatus !== "OPEN") return;
+        onClose();
+      }}
       maxWidth="xs"
       fullWidth
       slotProps={{
@@ -77,6 +104,21 @@ export default function ModalDepositWithdraw({
         sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
       >
         {type === "deposit" ? "Deposit Tokens" : "Withdraw Tokens"}
+        <Button
+          variant="contained"
+          size="small"
+          disabled={dwStatus != "OPEN"}
+          onClick={() => setType(type == "deposit" ? "withdraw" : "deposit")}
+          sx={{
+            ml: 2,
+            minWidth: "2px",
+            borderRadius: 2,
+            bgcolor: "rgba(255,255,255,0)",
+            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+          }}
+        >
+          <SwapHorizIcon />
+        </Button>
       </DialogTitle>
 
       <DialogContent>
@@ -135,18 +177,12 @@ export default function ModalDepositWithdraw({
             id="SelectAmount"
             label="Amount"
             type="number"
-            value={amount}
+            value={format(amount)  == 0 ? "" : format(amount)} 
+            error={invalidAmount}
+            helperText={invalidAmount ? "Insufficient Balance" : ""}
             onChange={(e) => {
-              let value = Number(e.target.value);
-
-              if (value < 0) value = 0;
-
-              if (type === "withdraw") {
-                const max = tokens[selectedToken]?.amount || 0;
-                if (value > max) value = max;
-              }
-
-              setAmount(value);
+              const val = e.target.value;
+              handleNumeric(val === "" ? 0 : val, setAmount);
             }}
             fullWidth
             slotProps={{
@@ -158,24 +194,23 @@ export default function ModalDepositWithdraw({
                     : undefined,
               },
             }}
-            sx={{
-              "& .MuiInputBase-root": {
-                background: "rgba(255,255,255,0.05)",
-                borderRadius: "12px",
-                color: "white",
-              },
-              "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.6)" },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "rgba(255,255,255,0.1)",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "rgba(255,255,255,0.3)",
-              },
-            }}
+            sx={textFieldBase}
           />
-
           <Typography variant="caption" color="rgba(255,255,255,0.7)">
-            Available: {available} {selectedToken}
+            Balance: {available} {selectedToken}{" "}
+            {type === "withdraw" && (
+              <>
+                {" | "}
+                <Typography
+                  component="span"
+                  variant="caption"
+                  sx={clickableStyle}
+                  onClick={() => setAmount(balance[selectedToken])}
+                >
+                  SET MAX{" "}
+                </Typography>
+              </>
+            )}
           </Typography>
         </Stack>
       </DialogContent>
@@ -188,19 +223,22 @@ export default function ModalDepositWithdraw({
           pb: 2,
         }}
       >
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          sx={{
-            flex: 1,
-            borderColor: "rgba(255,255,255,0.3)",
-            color: "rgba(255,255,255,0.7)",
-            fontWeight: "bold",
-            borderRadius: "12px",
-          }}
-        >
-          Cancel
-        </Button>
+        {dwStatus == "OPEN" && (
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{
+              flex: 1,
+              borderColor: "rgba(255,255,255,0.3)",
+              color: "rgba(255,255,255,0.7)",
+              fontWeight: "bold",
+              borderRadius: "12px",
+            }}
+          >
+            Cancel
+          </Button>
+        )}
+
         <Button
           color="success"
           variant="contained"
@@ -212,10 +250,34 @@ export default function ModalDepositWithdraw({
             "&:hover": {
               background: "linear-gradient(90deg, #1d4ed8, #4338ca)",
             },
+            "&.Mui-disabled": {
+              background: "text.secondary",
+              color: "#f3f4f6",
+              cursor: "not-allowed",
+              backgroundImage: "none",
+            },
           }}
-          onClick={handleConfirm}
+          onClick={async () =>
+            await handleConfirm(type, amount, selectedToken, walletAddress)
+          }
+          disabled={invalidAmount || amount == 0 || dwStatus != "OPEN"}
         >
-          {type === "deposit" ? "Deposit" : "Withdraw"}
+          {/* {type === "deposit" ? "Deposit" : "Withdraw"} */}
+          {loading && (
+            <CircularProgress size={20} sx={{ color: "white", mr: 1 }} />
+          )}
+          {dwStatus === "OPEN" &&
+            `${type === "deposit" ? "Deposit" : "Withdraw"}`}
+          {dwStatus === "LOADING" && "Submitting..."}
+          {dwStatus === "PROOF_GEN" && "Generating Proof..."}
+
+          {dwStatus === "SIGN" && "Sign Order..."}
+          {dwStatus === "OPEN_METAMASK" && "Open MetaMask..."}
+
+          {dwStatus === "VERIFY_TX" && `Verifying ${type} ...`}
+          {dwStatus === "SUCCESS" && "sucess"}
+
+          {dwStatus === "ERROR" && "Order Failed ❌"}
         </Button>
       </DialogActions>
     </Dialog>

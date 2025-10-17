@@ -1,13 +1,9 @@
-import {
-  Stack,
-  TextField,
-  Typography,
-  FormControlLabel,
-  Switch,
-} from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 import { textFieldBase } from "./styles.js";
 import TradeAmmFallback from "./TradeAmmFallback.jsx";
-import TradeDetails from "./TradeDetails.jsx";
+import { handleNumeric } from "../../utils/reusable.jsx";
+import { format } from "../../utils/math.jsx";
+import { useMyContext } from "../../utils/context.jsx";
 
 export default function TradeInputs({
   tradeType,
@@ -17,27 +13,17 @@ export default function TradeInputs({
   setPrice,
   amount,
   setAmount,
-  totalPrice,
-  invalidBuy,
-  invalidSell,
-  mainBalance,
-  quoteBalance,
   slippage,
   setSlippage,
   publicRouterFallback,
   setPublicRouterFallback,
-  walletConnected,
-  lastPrice,
-  maxAvailable,
 }) {
-  const fee = totalPrice * 0.001;
+  const { walletConnected, balance } = useMyContext();
 
-  const handleNumeric = (val, setter) => {
-    if (!/^\d*\.?\d*$/.test(val)) return;
-    if (val.length > 1 && val[0] === "0" && val[1] !== ".")
-      val = val.replace(/^0+/, "");
-    setter(val);
-  };
+  const totalPrice = price * amount;
+  const mainBalance = balance[mainToken.symbol];
+  const invalidSell = mainBalance < amount;
+  const invalidBuy = balance[quoteToken.symbol] < totalPrice;
 
   return (
     <Stack spacing={1.5}>
@@ -47,7 +33,7 @@ export default function TradeInputs({
           size="small"
           type="number"
           value={(slippage * 100).toFixed(2)}
-          onChange={(e) => setSlippage(Number(e.target.value) / 100)}
+          onChange={(e) => handleNumeric(Number(e.target.value) / 100, setSlippage)}
           slotProps={{ input: { min: 0, step: 0.1 } }}
           sx={textFieldBase}
         />
@@ -56,8 +42,12 @@ export default function TradeInputs({
           label={`Price (${quoteToken?.symbol})`}
           size="small"
           type="number"
-          value={price || 0}
-          onChange={(e) => handleNumeric(e.target.value, setPrice)}
+        value={format(price)  == 0 ? "" : format(price)}
+
+         onChange={(e) => {
+              const val = e.target.value;
+              handleNumeric(val === "" ? 0 : val, setPrice);
+            }}
           sx={textFieldBase}
         />
       )}
@@ -66,8 +56,12 @@ export default function TradeInputs({
         label={`Amount (${mainToken?.symbol})`}
         size="small"
         type="number"
-        value={amount || 0}
-        onChange={(e) => handleNumeric(e.target.value, setAmount)}
+        value={format(amount)  == 0 ? "" : format(amount)}
+
+         onChange={(e) => {
+              const val = e.target.value;
+              handleNumeric(val === "" ? 0 : val, setAmount);
+            }}
         error={invalidSell}
         helperText={
           invalidSell && walletConnected
@@ -76,29 +70,19 @@ export default function TradeInputs({
               : `No ${mainToken.symbol} to sell`
             : ""
         }
-        // helperText={
-        //   invalidSell
-        //   ? walletConnected
-        //     ? mainBalance > 0
-        //       ? `Can only sell ${mainBalance} ${mainToken.symbol}`
-        //       : `No ${mainToken.symbol} to sell`
-        //   : "Connect your wallet"
-        //     : ""
-        // }
         sx={textFieldBase}
       />
 
       <TextField
         label={`Total (${quoteToken?.symbol})`}
         size="small"
-        value={totalPrice.toFixed(6)}
+        value={format(totalPrice) || 0}
         slotProps={{ input: { readOnly: true } }}
         tabIndex={-1}
         error={invalidBuy}
         helperText={
           invalidBuy && walletConnected ? `Not enough ${quoteToken.symbol}` : ""
         }
-        // helperText={invalidBuy? walletConnected ? `Not enough ${quoteToken.symbol}` :`Connect your wallet`:""}
         sx={textFieldBase}
       />
 

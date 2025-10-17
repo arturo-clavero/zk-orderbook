@@ -26,16 +26,17 @@ export function useCreateOrder() {
     try {
       setTradeStatus("LOADING");
       const orderFloatPriority = {
-        side,
-        price: parseFloat(price),
-        amount: parseFloat(amount),
-        chartPair,
-        mainToken,
-        quoteToken,
-        tradeType,
+        tradeType, // spot | market
+        side, // buy | sell
+        price: parseFloat(price), // price per 1 token
+        amount: parseFloat(amount), // n of tokens
+        chartPair, // remains ETH/PYUSD (if eth/pyusd or pyusd/eth)
+        mainToken, //1s token, (if eth/pyusd -> eth, if pyusd/eth -> pyusd)
+        quoteToken, //2nd token, (if eth/pyusd -> pyusd, if pyusd/eth -> eth)
         ...(tradeType === "market" && {
-          slippage: parseFloat(slippage),
-          ammFallback,
+          //market trades
+          slippage: parseFloat(slippage), // percent (0.05)-> 5 %; user is willing to have a max price = market price * 1.05% (1 + slippage); market price is calc with oracles in real time
+          ammFallback, // true or false -> if true we will use a relayer and swap with uniswap if no matching orders on the dex book, market orders should be settled inmediately
         }),
         timestamp: Date.now(),
         user: walletAddress,
@@ -45,8 +46,8 @@ export function useCreateOrder() {
         tradeType,
 
         side,
-        price: price.toString(),
-        amount: amount.toString(),
+        price: Number(price).toString(),
+        amount: Number(amount).toString(),
         chartPair,
         mainToken,
         quoteToken,

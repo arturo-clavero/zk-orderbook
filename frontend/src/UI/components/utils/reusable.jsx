@@ -94,3 +94,10 @@ export function ExpandableTitle({
     </Box>
   );
 }
+
+export const handleNumeric = (val, setter) => {
+  if (!/^\d*\.?\d*$/.test(val)) return;
+  if (val.length > 1 && val[0] === "0" && val[1] !== ".")
+    val = val.replace(/^0+/, "");
+  setter(val);
+};

@@ -11,7 +11,7 @@ export function TokenBalance({ token, balance, style }) {
   return (
     <Stack
       sx={{ px: style == 1 ? 1 : 0 }}
-      spacing={1}
+      spacing={0.5}
       alignItems="start"
       minWidth={100}
     >
@@ -21,20 +21,20 @@ export function TokenBalance({ token, balance, style }) {
           alt={token.symbol}
           sx={{
             bgcolor: token.color || "primary.main",
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             fontSize: 12,
           }}
         >
           {token.symbol[0]}
         </Avatar>
-        <Typography variant="subtitle2" color="text.secondary">
+        <Typography variant="subtitle2" color="text.primary" fontWeight={600}>
           {token.symbol}
         </Typography>
       </Stack>
-      <Box sx={{ pl: style == 1 ? 2 : 0 }}>
+      <Box sx={{ pl: style == 1 ? 2 : 0.75 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          ${price.toFixed(2)}
+          {`$ ${price.toFixed(2)}`}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {balance[token.symbol].toFixed(2)} {token.symbol}

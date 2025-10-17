@@ -3,8 +3,11 @@ import Chart from "./chart/Chart.jsx";
 import Trade from "./trade/TradeForm.jsx";
 import Orders from "./orders/Orders.jsx";
 import { Box, Stack } from "@mui/material";
+import { useMyContext } from "../utils/context.jsx";
+import ToastAlert from "../utils/ToastAlert.jsx";
 
 export default function Dashboard() {
+  const { toast, setToast } = useMyContext();
   return (
     <>
       <Box
@@ -32,6 +35,7 @@ export default function Dashboard() {
           <Trade />
         </Stack>
         <Orders />
+        <ToastAlert toast={toast} setToast={setToast} />
       </Box>
     </>
   );

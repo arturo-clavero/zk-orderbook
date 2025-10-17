@@ -63,9 +63,11 @@ export function ContextProvider({ children }) {
   const [balance, setBalance] = useState(() => initializeBalance(tokens));
   const [orders, setOrders] = useState(null);
   const [tradeStatus, setTradeStatus] = useState("OPEN");
+  const [dwStatus, setDwStatus] = useState("OPEN");
   const [animateWallet, setAnimateWallet] = useState(false);
   const [subtleAnimateWallet, setSubtleAnimateWallet] = useState(true);
   const [animationWalletLock, setAnimationWalletLock] = useState(false);
+  const [toast, setToast] = useState({ open: false, type: "success", msg: "" });
 
   const handleWalletPopAnimation = () => {
     if (!animationWalletLock) {
@@ -114,6 +116,8 @@ export function ContextProvider({ children }) {
         setOrders,
         tradeStatus,
         setTradeStatus,
+        dwStatus,
+        setDwStatus,
         animateWallet,
         setAnimateWallet,
         subtleAnimateWallet,
@@ -121,6 +125,8 @@ export function ContextProvider({ children }) {
         animationWalletLock,
         setAnimationWalletLock,
         handleWalletPopAnimation,
+        toast,
+        setToast,
       }}
     >
       {children}

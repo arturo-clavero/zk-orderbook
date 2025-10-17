@@ -6,22 +6,21 @@ import {
   Typography,
 } from "@mui/material";
 import { useMyContext } from "../../utils/context";
+import { useCreateOrder } from "../../../../actions/trade";
 
 export default function TradeButton({
+  tradeType,
   side,
-  tradeStatus,
-  mainToken,
   price,
   amount,
-  chartPair,
+  mainToken,
   quoteToken,
-  tradeType,
   slippage,
   publicRouterFallback,
-  createOrder,
-  walletConnected,
 }) {
-  const { handleWalletPopAnimation } = useMyContext();
+  const createOrder = useCreateOrder();
+  const { chartPair, tradeStatus, walletConnected, handleWalletPopAnimation } =
+    useMyContext();
   const loading = ["LOADING", "SIGN", "PROOF_GEN", "OPEN_METAMASK"].includes(
     tradeStatus
   );
@@ -68,7 +67,7 @@ export default function TradeButton({
           {tradeStatus === "OPEN_METAMASK" && "Open MetaMask..."}
 
           {tradeStatus === "PROOF_GEN" && "Generating Proof..."}
-          {tradeStatus === "ORDER_OPEN" && "Order Created ✅"}
+          {tradeStatus === "ORDER_OPEN" && "Order Created"}
           {tradeStatus === "ERROR" && "Order Failed ❌"}
         </Button>
         {!walletConnected && (

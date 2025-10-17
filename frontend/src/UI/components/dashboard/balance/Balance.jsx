@@ -90,22 +90,26 @@ export default function Balance() {
                     ${totalBalance.toFixed(2)}
                   </Typography>
                 </Box>
-
-                <Stack
-                  direction="row"
-                  spacing={3}
-                  justifyContent="space-between"
-                >
-                  <TokenBalance
-                    style={style}
-                    token={mainToken}
-                    balance={balance}
-                  />
-                  <TokenBalance
-                    style={style}
-                    token={secondToken}
-                    balance={balance}
-                  />
+                <Stack spacing={0.5}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Balance Per Token :
+                  </Typography>
+                  <Stack
+                    direction="row"
+                    spacing={3}
+                    justifyContent="space-between"
+                  >
+                    <TokenBalance
+                      style={style}
+                      token={mainToken}
+                      balance={balance}
+                    />
+                    <TokenBalance
+                      style={style}
+                      token={secondToken}
+                      balance={balance}
+                    />
+                  </Stack>
                 </Stack>
 
                 <Actions />
