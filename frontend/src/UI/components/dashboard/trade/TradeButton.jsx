@@ -22,16 +22,17 @@ export default function TradeButton({
   walletConnected,
 }) {
   const { handleWalletPopAnimation } = useMyContext();
-  const loading = ["LOADING", "SIGN", "PROOF_GEN", "OPEN_METAMASK"].includes(tradeStatus);
+  const loading = ["LOADING", "SIGN", "PROOF_GEN", "OPEN_METAMASK"].includes(
+    tradeStatus
+  );
   return (
-          <Box sx={{ position: "relative" }}>
-
-    <Stack spacing={1}>
-      {!walletConnected && (
-        <Typography variant="caption" color="error">
-          Please connect your wallet to trade
-        </Typography>
-      )}
+    <Box sx={{ position: "relative" }}>
+      <Stack spacing={1}>
+        {!walletConnected && (
+          <Typography variant="caption" color="error">
+            Please connect your wallet to trade
+          </Typography>
+        )}
         <Button
           variant="contained"
           color={side === "buy" ? "success" : "error"}
@@ -43,7 +44,8 @@ export default function TradeButton({
             amount == 0 ||
             !walletConnected
           }
-          onClick={async () =>   await createOrder(
+          onClick={async () =>
+            await createOrder(
               side,
               price,
               amount,
@@ -79,8 +81,7 @@ export default function TradeButton({
             }}
           />
         )}
-            </Stack>
-
-      </Box>
+      </Stack>
+    </Box>
   );
 }

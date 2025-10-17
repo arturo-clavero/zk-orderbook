@@ -25,7 +25,7 @@ export function useCreateOrder() {
 
     try {
       setTradeStatus("LOADING");
-      const orderFloatPriority= {
+      const orderFloatPriority = {
         side,
         price: parseFloat(price),
         amount: parseFloat(amount),
@@ -33,7 +33,7 @@ export function useCreateOrder() {
         mainToken,
         quoteToken,
         tradeType,
-         ...(tradeType === "market" && {
+        ...(tradeType === "market" && {
           slippage: parseFloat(slippage),
           ammFallback,
         }),
@@ -42,15 +42,15 @@ export function useCreateOrder() {
       };
 
       const orderStringPriority = {
-                tradeType,
+        tradeType,
 
-      side,
+        side,
         price: price.toString(),
         amount: amount.toString(),
         chartPair,
         mainToken,
         quoteToken,
-         ...(tradeType === "market" && {
+        ...(tradeType === "market" && {
           slippage: slippage.toString(),
           ammFallback,
         }),
@@ -62,22 +62,26 @@ export function useCreateOrder() {
       console.log("order for sign: ", orderStringPriority);
 
       //sign!
-      setTradeStatus("SIGN")
-setTimeout(() => {
-  setTradeStatus(prev => (prev === "SIGN" ? "OPEN_METAMASK" : prev));
-}, 5000);    
+      setTradeStatus("SIGN");
+      setTimeout(() => {
+        setTradeStatus((prev) => (prev === "SIGN" ? "OPEN_METAMASK" : prev));
+      }, 5000);
       const signature = await signOrder(orderStringPriority, walletAddress);
 
       //proof gen!
       setTradeStatus("PROOF_GEN");
       await new Promise((res) => setTimeout(res, 1500));
       // await backend.send("new_order", { orderFloatPiority, signature });
-      
+
       //new order!
-      console.log("Order created:", orderFloatPriority, "Signature:", signature);
+      console.log(
+        "Order created:",
+        orderFloatPriority,
+        "Signature:",
+        signature
+      );
       setTradeStatus("ORDER_OPEN");
       setTimeout(() => setTradeStatus("OPEN"), 2500);
-
     } catch (err) {
       console.error("Order creation failed:", err);
       setTradeStatus("ERROR");
@@ -96,7 +100,7 @@ async function signOrder(order, userAddress) {
       console.log("Wallet not authorized. Ask user to connect first.");
       throw new Error("Wallet not connected");
     }
- // Build EIP712 typed data dynamically
+    // Build EIP712 typed data dynamically
     const orderFields = [
       { name: "tradeType", type: "string" },
       { name: "side", type: "string" },
@@ -131,15 +135,14 @@ async function signOrder(order, userAddress) {
       },
     };
 
-const signature = await ethereum.request({
-  method: "eth_signTypedData_v4",
-  params: [userAddress, JSON.stringify(msgParams)],
-});
+    const signature = await ethereum.request({
+      method: "eth_signTypedData_v4",
+      params: [userAddress, JSON.stringify(msgParams)],
+    });
 
     return signature;
   } catch (err) {
     console.error("Signature failed:", err);
     throw err;
   }
-
 }

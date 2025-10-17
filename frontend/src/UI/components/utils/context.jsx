@@ -64,10 +64,10 @@ export function ContextProvider({ children }) {
   const [orders, setOrders] = useState(null);
   const [tradeStatus, setTradeStatus] = useState("OPEN");
   const [animateWallet, setAnimateWallet] = useState(false);
-    const [subtleAnimateWallet, setSubtleAnimateWallet] = useState(true);
-const [animationWalletLock, setAnimationWalletLock] = useState(false); 
+  const [subtleAnimateWallet, setSubtleAnimateWallet] = useState(true);
+  const [animationWalletLock, setAnimationWalletLock] = useState(false);
 
- const handleWalletPopAnimation = () => {
+  const handleWalletPopAnimation = () => {
     if (!animationWalletLock) {
       console.log("Trigger click animation");
       setAnimationWalletLock(true);
@@ -118,9 +118,9 @@ const [animationWalletLock, setAnimationWalletLock] = useState(false);
         setAnimateWallet,
         subtleAnimateWallet,
         setSubtleAnimateWallet,
-        animationWalletLock, 
+        animationWalletLock,
         setAnimationWalletLock,
-        handleWalletPopAnimation
+        handleWalletPopAnimation,
       }}
     >
       {children}

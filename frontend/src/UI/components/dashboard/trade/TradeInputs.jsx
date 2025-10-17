@@ -7,9 +7,10 @@ import {
 } from "@mui/material";
 import { textFieldBase } from "./styles.js";
 import TradeAmmFallback from "./TradeAmmFallback.jsx";
+import TradeDetails from "./TradeDetails.jsx";
+
 export default function TradeInputs({
   tradeType,
-  side,
   mainToken,
   quoteToken,
   price,
@@ -19,15 +20,16 @@ export default function TradeInputs({
   totalPrice,
   invalidBuy,
   invalidSell,
-  balance,
+  mainBalance,
+  quoteBalance,
   slippage,
   setSlippage,
   publicRouterFallback,
   setPublicRouterFallback,
   walletConnected,
+  lastPrice,
+  maxAvailable,
 }) {
-  const mainBalance = balance[mainToken.symbol] || 0;
-  const quoteBalance = balance[quoteToken.symbol] || 0;
   const fee = totalPrice * 0.001;
 
   const handleNumeric = (val, setter) => {
@@ -54,18 +56,17 @@ export default function TradeInputs({
           label={`Price (${quoteToken?.symbol})`}
           size="small"
           type="number"
-          value={price || ""}
+          value={price || 0}
           onChange={(e) => handleNumeric(e.target.value, setPrice)}
           sx={textFieldBase}
         />
       )}
 
-
       <TextField
         label={`Amount (${mainToken?.symbol})`}
         size="small"
         type="number"
-        value={amount || ""}
+        value={amount || 0}
         onChange={(e) => handleNumeric(e.target.value, setAmount)}
         error={invalidSell}
         helperText={
@@ -76,7 +77,7 @@ export default function TradeInputs({
             : ""
         }
         // helperText={
-        //   invalidSell 
+        //   invalidSell
         //   ? walletConnected
         //     ? mainBalance > 0
         //       ? `Can only sell ${mainBalance} ${mainToken.symbol}`
@@ -93,9 +94,10 @@ export default function TradeInputs({
         value={totalPrice.toFixed(6)}
         slotProps={{ input: { readOnly: true } }}
         tabIndex={-1}
-        error={invalidBuy }
-        helperText={invalidBuy && walletConnected ? `Not enough ${quoteToken.symbol}` :""}
-
+        error={invalidBuy}
+        helperText={
+          invalidBuy && walletConnected ? `Not enough ${quoteToken.symbol}` : ""
+        }
         // helperText={invalidBuy? walletConnected ? `Not enough ${quoteToken.symbol}` :`Connect your wallet`:""}
         sx={textFieldBase}
       />
@@ -106,7 +108,6 @@ export default function TradeInputs({
           setPublicRouterFallback={setPublicRouterFallback}
         />
       )}
-
     </Stack>
   );
 }

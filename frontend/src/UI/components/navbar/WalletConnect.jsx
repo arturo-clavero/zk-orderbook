@@ -15,7 +15,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { keyframes } from "@mui/material/styles";
 import { useEffect } from "react";
 
-
 const subtlePop = keyframes`
   0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
   25% { transform: scale(1.05); box-shadow: 0 0 12px rgba(47,194,157,0.6); }
@@ -30,8 +29,7 @@ const clickPop = keyframes`
   40% { transform: scale(1); box-shadow: 0 0 0 rgba(47,194,157,0); background-color: #2fc29d; }
   60% { transform: scale(1.1); box-shadow: 0 0 16px rgba(47,194,157,0.8); background-color: #00ffe0; }
   100% { transform: scale(1); box-shadow: 0 0 0 rgba(47,194,157,0); background-color: #2fc29d; }
-`
-
+`;
 
 export default function WalletConnect() {
   const {
@@ -47,7 +45,7 @@ export default function WalletConnect() {
     subtleAnimateWallet,
     setSubtleAnimateWallet,
     animationWalletLock,
-    setAnimationWalletLock
+    setAnimationWalletLock,
   } = useMyContext();
 
   useEffect(() => {
@@ -59,8 +57,8 @@ export default function WalletConnect() {
           setSubtleAnimateWallet(true);
           setTimeout(() => {
             setSubtleAnimateWallet(false);
-            setAnimationWalletLock(false); 
-          }, 1200); 
+            setAnimationWalletLock(false);
+          }, 1200);
         }
       }, 5000);
       return () => clearInterval(interval);
@@ -221,9 +219,11 @@ export default function WalletConnect() {
         <Button
           onClick={connectWallet}
           startIcon={
-            <AccountBalanceWalletIcon sx={{
-        color: animateWallet ? "#ffffff" : "success.main",
-      }}/>
+            <AccountBalanceWalletIcon
+              sx={{
+                color: animateWallet ? "#ffffff" : "success.main",
+              }}
+            />
           }
           variant="contained"
           sx={{
@@ -234,13 +234,13 @@ export default function WalletConnect() {
             "&:hover": {
               bgcolor: "secondary.light",
             },
-    animation: animateWallet
-      ? `${clickPop} 1.2s ease-out`
-      : subtleAnimateWallet
-      ? `${subtlePop} 1.2s ease-in-out`
-      : "none",
-  }}
-  onAnimationEnd={() => setAnimateWallet(false)}
+            animation: animateWallet
+              ? `${clickPop} 1.2s ease-out`
+              : subtleAnimateWallet
+                ? `${subtlePop} 1.2s ease-in-out`
+                : "none",
+          }}
+          onAnimationEnd={() => setAnimateWallet(false)}
         >
           Wallet
         </Button>
