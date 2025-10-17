@@ -16,7 +16,9 @@ export function useCreateOrder() {
     amount,
     mainToken,
     quoteToken,
-    tradeType
+    tradeType, 
+    slippage, 
+    ammFallback,
   ) => {
     if (tradeStatus !== "OPEN") return;
 
@@ -30,6 +32,8 @@ export function useCreateOrder() {
         mainToken,
         quoteToken,
         tradeType,
+        slippage,
+        ammFallback,
         timestamp: Date.now(),
         user: walletAddress,
       };
