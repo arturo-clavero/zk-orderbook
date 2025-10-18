@@ -3,5 +3,6 @@ type Deposit_Deposit {
   user: String!
   token: String!
   amount: BigInt!
+  txHash: String!
 }
 

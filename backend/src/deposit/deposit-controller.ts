@@ -7,37 +7,33 @@ import { prisma } from '../lib/prisma-trading-database/prisma-trading';
 @Controller('deposit')
 export class DepositController {
   @Post()
-  async handleDeposit(@Body() dataFrontend: any) {
-    const { traderId, token, amount } = dataFrontend;
-    if (!traderId || !token || !amount) {
+  async handleDeposit(@Body() dataEnvio: any) {
+    const { traderId, token, amount, txHash } = dataEnvio;
+    console.log('data which backend recevies is', dataEnvio);
+    if (!traderId || !token || !amount || !txHash) {
       return {
         success: false,
         message: 'Missing data',
       };
     }
-    // Create/check if trader exists
-    let searchForTrader = await prisma.trader.findUnique({
-      where: {
-        address: traderId,
-      },
+    //find/create trader
+    const trader = await prisma.trader.upsert({
+      where: { address: traderId },
+      create: { address: traderId },
+      update: {},
     });
-    if (!searchForTrader) {
-      searchForTrader = await prisma.trader.create({
-        data: { address: traderId },
-      });
-    }
     // Creat/check if acount exists
     let account = await prisma.account.findFirst({
       where: {
-        traderId: searchForTrader.id,
+        traderId: trader.id,
         currency: token,
       },
     });
     if (!account) {
       account = await prisma.account.create({
-        data: { currency: token, traderId: searchForTrader.id },
+        data: { currency: token, traderId: trader.id },
       });
-      console.log('account was created', account);
+      console.log('account was created', account.id);
       return {
         success: false,
         message:
@@ -46,47 +42,38 @@ export class DepositController {
     }
     try {
       //kyc if it will be time
-      console.log('received from frontend', dataFrontend);
+      console.log('received from frontend', dataEnvio);
       // to db
       const deposit = await prisma.transaction.create({
         data: {
           type: 'deposit',
-          traderId: searchForTrader.id,
+          traderId: trader.id,
           token,
-          amount: Number(dataFrontend.amount),
-          status: 'Pending',
-          txHash: null,
+          amount: Number(amount),
+          status: txHash ? 'Confirmed' : 'Pending',
+          txHash: txHash || null,
         },
       });
       console.log('Saved to dataabase wtih id', deposit.id);
-      //transaction hash simulation
-      const fakeTxHash = `0x${Math.random().toString(16).slice(2, 64)}`;
-      //update database
-      const updatedDeposit = await prisma.transaction.update({
-        where: { id: deposit.id },
-        data: {
-          status: 'Confirmed',
-          txHash: fakeTxHash,
-        },
-      });
       //what backend decided
       return {
         success: true,
         message: 'Deposit saved successfully',
-        depositId: updatedDeposit.id,
-        txHash: fakeTxHash,
-        status: updatedDeposit.status,
-        data: {
-          // traderId: updatedDeposit.traderId,
-          token: updatedDeposit.token,
-          amount: updatedDeposit.amount.toString(),
-        },
+        depositId: deposit.id,
+        txHash: txHash,
+        status: deposit.status,
+        // data: {
+        //   // traderId: updatedDeposit.traderId,
+        //   token: deposit.token,
+        //   amount: deposit.amount.toString(),
+        // },
       };
-    } catch (err) {
-      console.error('Error iccured', err);
+    } catch (error) {
+      console.error('Error occured', error);
       return {
         success: false,
         message: 'Internal server error',
+        error: error.message,
       };
     }
   }
