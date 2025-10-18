@@ -58,7 +58,7 @@ async function getBalanceKey(userId){
 }
 
 async function getBalanceValue(userId, amount){
-    const accruedAmount = getBalance(userId) + amount;//should be the pending balance!
+    const accruedAmount = getPendingBalance(userId) + amount;//should be the pending balance!
     const value = await poseidonToBN([getUserSecret(userId), BigInt(accruedAmount)]);
     return value;
 }
@@ -87,9 +87,22 @@ async function testInsert(user, amount){
         delta: amount,
         userSecret: getUserSecret(user).toString(),
     }
-    console.log("input", inputs);
+    updatePendingBalance(user, amount);
+    return await callCircuit(inputs, "single/firstDeposit");
+}
 
-    return await callCircuit(inputs, "deposit");
+async function testUpdate(user, amount){
+    const key = await getBalanceKey(user);
+    const value = await getBalanceValue(user, amount);
+    const input = updateBalanceProofInputs(key, value);
+    const inputs = {
+        ...input,
+        oldAmount: getPendingBalance(user), 
+        delta: amount,
+        userSecret: getUserSecret(user).toString(),
+    }
+    updatePendingBalance(user, amount);
+    return await callCircuit(inputs, "single/deposit");
 }
 export {
     getUserSecret,
@@ -101,5 +114,6 @@ export {
     updatePendingBalance,
     setPendingBalance,
 
-    testInsert
+    testInsert,
+    testUpdate
 }

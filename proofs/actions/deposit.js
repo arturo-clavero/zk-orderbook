@@ -95,6 +95,7 @@ export async function verifyDeposits(max_actions){
 }
 
 export async function verifyFirstDeposits(max_actions){
+    
     let oldRoot = '-1', newRoot = '-1';
     const len = pendingFirstDeposits.length
     const totalFirstDeposits = len > max_actions ? max_actions : len;
@@ -125,6 +126,7 @@ export async function verifyFirstDeposits(max_actions){
         p.value = await getBalanceValue(p.user, p.amount);
         p.oldAmount = getPendingBalance(p.user);
         const inputs = insertBalanceProofInputs(p.key, p.value);
+        
         const newDepositInputs = {
             ogLeafIdx: inputs.ogLeafIdx,
             ogLeafKey: inputs.ogLeafKey,

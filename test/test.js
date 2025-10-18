@@ -4,7 +4,7 @@ import { verifyBatch } from "../proofs/verify.js";
 
 async function test() {
     await queueDeposit("ali", 20, "eth", "log");
-    // await queueDeposit("a", 160, "eth", "log");
+    await queueDeposit("a", 160, "eth", "log");
     await queueDeposit("a", 40, "eth", "log");
     await queueDeposit("alice", 200, "eth", "log");//->problem?
     await queueDeposit("ali", 180, "eth", "log");
@@ -12,7 +12,7 @@ async function test() {
     let success = await verifyBatch();
     console.log("verify: ", success);
     console.log("a: ", getPendingBalance("a"));
-    console.log("ali: ", getPendingBalance("a"));
+    console.log("ali: ", getPendingBalance("ali"));
     console.log("alice: ", getPendingBalance("alice"));
 
     // await queueDeposit("alice", 200, "eth", "log");
