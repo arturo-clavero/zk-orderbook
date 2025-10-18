@@ -5,7 +5,6 @@ pyusd contract: https://sepolia.etherscan.io/address/0x9118b7E6f445dfa116984d042
 ##
 usdt contract:  https://sepolia.etherscan.io/address/0xe89044eeb8a14ce585a17f674d9dd5bcede67bbe
 ## Project setup
-
 ```bash
 $ pnpm install
 ```

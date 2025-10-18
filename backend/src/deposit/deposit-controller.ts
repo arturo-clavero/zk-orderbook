@@ -54,7 +54,17 @@ export class DepositController {
           txHash: txHash || null,
         },
       });
-      console.log('Saved to dataabase wtih id', deposit.id);
+      if (deposit.status === 'Confirmed') {
+        await prisma.account.update({
+          where: { id: account.id },
+          data: { available: { increment: Number(amount) } },
+        });
+        console.log('Saved to dataabase wtih id', deposit.id);
+      }
+      // const existing = await prisma.transaction.findUnique({
+      //   where: { txHash: txHash },
+      // });
+      // if (existing) return;
       //what backend decided
       return {
         success: true,
