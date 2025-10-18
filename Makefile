@@ -1,4 +1,4 @@
-PHONY: vm stop up down restart run build admin golive pnpm envio-dev
+PHONY: vm stop up down restart run build admin golive pnpm envio-dev envio-down
 
 DOCKER_COMPOSE = docker-compose
 PNPM = pnpm
@@ -10,13 +10,15 @@ NEST_START = nest start
 migrate:
 	cd backend && pnpm prisma migrate dev --schema ./src/lib/prisma-trading-database/schema.prisma
 envio-dev:
-	cd envio && pnpm start
+	cd envio && pnpm dev
+envio-down:
+	cd envio && pnpm envio local docker down
 #########################Prisma commands##################
 studio:
 	cd backend && pnpm prisma studio --schema ./src/lib/prisma-trading-database/schema.prisma
 
 #########################RUN PROJECT######################
-dev : vm upd run
+dev : vm upd runBackend runFrontend
 
 ##########################DOCKER##########################
 vm:
@@ -56,5 +58,3 @@ watch:
 ####ENTERING CONTAINERS####
 admin:
 	docker exec -it $(CONTAINER_TRADE) psql -U admin -d $(TRADING_DB)
-
-

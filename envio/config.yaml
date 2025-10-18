@@ -5,11 +5,14 @@ networks:
   start_block: 0
   contracts:
   - name: deposit
-    # abi_file_path: ../bacend/contracts/deposit.json
+    # abi_file_path: ../frontend/contracts/deposit.json
     address:
-    - 0xA6c4d6F4d8e77b8479C0121fA035A65FbB951b2d
+    - 0x4b39Eb5506E6BaB0085387504f3e0A05F2DdD0F1
     handler: src/EventHandlers.ts
     events:
     - event: Deposit(address indexed user, address indexed token, uint256 amount)
+      field_selection:
+        transaction_fields:
+          - hash
 unordered_multichain_mode: true
 preload_handlers: true

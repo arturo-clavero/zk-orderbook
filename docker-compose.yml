@@ -16,24 +16,7 @@ services:
       timeout: 5s
       retries: 3
     restart: always
-  envio-indexer:
-    container_name: envio-indexer
-    image: hasura/graphql-engine
-    depends_on:
-      - trading_db
-    ports:
-      - '4100:4100'
-    environment:
-      - ENVIO_PG_USER=${ENVIO_PG_USER}
-      - ENVIO_PG_PASSWORD=${ENVIO_PG_PASSWORD}
-      - ENVIO_PG_DATABASE=${ENVIO_PG_DATABASE}
-      - DATABASE_URL=${DATABASE_URL}
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d trading_db" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    restart: always
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
