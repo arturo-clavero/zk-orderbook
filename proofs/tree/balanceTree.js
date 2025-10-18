@@ -1,11 +1,9 @@
 import { 
     bufferToBigInt, 
-    callCircuit, 
-    membersToStrings, 
-    expandArray, 
     poseidonToBN, 
-    MAX_DEPTH 
-} from '../utils.js';
+    MAX_DEPTH, 
+    membersToStrings
+} from './utils.js';
 import {IndexedMerkleTree} from './merkle-tree.js';
 import crypto from 'crypto';
 import { Barretenberg, Fr } from "@aztec/bb.js";
@@ -16,98 +14,75 @@ let userSecrets = {}; // store each user's secret
 
 //balances & getBalance subtitute database, only for testing!
 const balances = {};
- function getBalance(userId){
+
+function getBalance(userId){
     if (!(userId in balances)) return 0;
     return balances[userId];
 }
-//TEST END
+function setBalance(userId, amount){
+    balances[userId] = amount;
+}
+function updateBalance(userId, delta){
+    if (!(userId in balances))
+        balances[userId] = 0;
+    balances[userId] += delta;
+}
+
+const pendingBalance = {}
+
+function getPendingBalance(userId){
+    if (!(userId in pendingBalance))
+        pendingBalance[userId] = getBalance(userId);
+    return pendingBalance[userId];
+}
+function setPendingBalance(userId, amount){
+    pendingBalance[userId] = amount;
+}
+
+function updatePendingBalance(userId, delta){
+    if (!(userId) in pendingBalance)
+        pendingBalance[userId]=0;
+    pendingBalance[userId] += delta;
+}
+
  function getUserSecret(userId){
     if (!(userId in userSecrets))
         userSecrets[userId] = bufferToBigInt(crypto.randomBytes(31));
     return userSecrets[userId];
 }
 
-//if leaf values should ever be exposed use UNIQUE SALT for each COMMITMENT in the leaf value
+async function getBalanceKey(userId){
+    const key = await poseidonToBN([getUserSecret(userId)], true);
+    return key;
+}
 
-async function writeBalanceProofInputs(userId, amount) {
-
-    if (!(userId in userSecrets)) {
-        userSecrets[userId] = bufferToBigInt(crypto.randomBytes(31));
-    }
-    const userSecret = userSecrets[userId];
-
+async function getBalanceValue(userId, amount){
     const accruedAmount = getBalance(userId) + amount;//should be the pending balance!
-    const value = await poseidonToBN([userSecret, BigInt(accruedAmount)]);
-    const key = (await poseidonToBN([userSecret], true));//add token!
-
-    const insertionProof = balanceTree.insertItem(key, value);
-    
-    //only for testing...
-    if (!(userId in balances)) balances[userId] = 0;
-    balances[userId] += amount;
-    //TEST END
-
-    const inputs = membersToStrings(insertionProof);
-    return inputs;
+    const value = await poseidonToBN([getUserSecret(userId), BigInt(accruedAmount)]);
+    return value;
 }
 
-
-async function readBalanceProofInputs(userId) {
-    if (!(userId in userSecrets)) {
-        return undefined;
-    }
-    const userSecret = userSecrets[userId];
-
-    const key = (await poseidonToBN([userSecret], true));//add token!
-    const merkleProof = balanceTree.generateProof(key);
-
-    const inputs = {
-      leafIdx: merkleProof.leafIdx,
-      leafKey: merkleProof.leaf.key.toString(10),
-      leafNextIdx: merkleProof.leaf.nextIdx,
-      leafNextKey: merkleProof.leaf.nextKey.toString(10),
-      leafValue: merkleProof.leaf.value.toString(10),
-      root: merkleProof.root.toString(10),
-      siblings: expandArray(merkleProof.siblings.map(x => x.toString(10)), MAX_DEPTH, 0)
-    };
-
-    return inputs;
+export function balanceKeyExists(userId){
+    return ((userId) in pendingBalance);
 }
 
-async function writeBalanceVerify(userId, amount){
-    const inputs = await writeBalanceProofInputs(userId, amount);
-    const success = await callCircuit(inputs, 'verifyInsertionProof');
-    return success;
+function updateBalanceProofInputs(key, value){
+    const input = balanceTree.updateItem(key, value);
+    return membersToStrings(input);
 }
 
-async function readBalanceVerify(userId){
-    const inputs = await readBalanceProofInputs(userId);
-    if (inputs == undefined)
-        return false;
-    const success = await callCircuit(inputs, 'verifyProof');
-    return success;
-}
-
-async function assertBalanceVerify(userId, amount){
-    const readInputs = await readBalanceProofInputs(userId);
-    if (readInputs == undefined)
-        return false;
-    const userSecret = userSecrets[userId].toString();
-
-    const inputs = {
-        ...readInputs,
-        amount,
-        userSecret,
-    }
-    const success = await callCircuit(inputs, 'test/assertBalance');
-    return success;
+function insertBalanceProofInputs(key, value){
+    const input = balanceTree.insertItem(key, value);
+    return membersToStrings(input);
 }
 
 export {
-    getBalance,
     getUserSecret,
-    writeBalanceProofInputs,
-    writeBalanceVerify,
-    readBalanceVerify,
-    assertBalanceVerify,
+    getBalanceKey,
+    getBalanceValue,
+    updateBalanceProofInputs,
+    insertBalanceProofInputs,
+    getPendingBalance,
+    updatePendingBalance,
+    setPendingBalance
 }

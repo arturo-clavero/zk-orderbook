@@ -1,15 +1,24 @@
-import { writeBalanceVerify, writeBalanceProofInputs, readBalanceVerify, assertBalanceVerify } from "../proofs/tree/balanceTree.js";
-import {deposit} from "../proofs/actions.js"
+import { queueDeposit } from "../proofs/actions/deposit.js";
+import { verifyBatch } from "../proofs/verify.js";
 
 async function test() {
-    let success; 
 
-    console.log("assert balance +200 for alice");
-    success = await deposit('alice', 200,);
-    console.log('asserted balance 1: ', success);
-    success = await deposit('alice', 200);
-    console.log('asserted balance 2: ', success);
+    await queueDeposit("a", 200, "eth", "log");
+    await queueDeposit("a", 100, "eth", "log");
+    await queueDeposit("ali", 150, "eth", "log");
+    await queueDeposit("ali", 20, "eth", "log");
+    await queueDeposit("a", 40, "eth", "log");
+    await queueDeposit("alice", 200, "eth", "log");
 
+    let success = await verifyBatch();
+    console.log("verify: ", success);
+    // await queueDeposit("alice", 200, "eth", "log");
+    // await queueDeposit("alice", 100, "eth", "log");
+    // await queueDeposit("brain", 20, "eth", "log");
+    // await queueDeposit("alice", 150, "eth", "log");
+    // await queueDeposit("brain", 40, "eth", "log");
+    // success = await verifyBatch();
+    // console.log("verify: ", success);
 }
 
 await test();

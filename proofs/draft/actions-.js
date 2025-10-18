@@ -1,5 +1,5 @@
-import { writeBalanceProofInputs, getBalance, getUserSecret } from "./tree/balanceTree.js";
-import { callCircuit } from "./utils.js";
+import { writeBalanceProofInputs, getBalance, getUserSecret } from "../tree/balanceTree.js";
+import { callCircuit } from "../utils.js";
 
 //balance and user secret should be in database somewhere or im not sure
 export async function deposit(userId, amountInput, verify = true){

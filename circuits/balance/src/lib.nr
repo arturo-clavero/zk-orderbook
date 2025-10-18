@@ -1,47 +1,6 @@
 use dep::indexed_merkle;
 use std::hash::poseidon2;
 
-fn checkBalance(
-    ogLeafIdx: u32,
-    ogLeafKey: u64,
-    ogLeafNextIdx: u32,
-    ogLeafNextKey: u64,
-    ogLeafValue: Field,
-    newLeafIdx: u32,
-    newLeafKey: u64,
-    newLeafValue: Field,
-    rootBefore: Field,
-    rootAfter: Field,
-    siblingsBefore: [Field; indexed_merkle::MAX_DEPTH],
-    siblingsAfterOg: [Field; indexed_merkle::MAX_DEPTH],
-    siblingsAfterNew: [Field; indexed_merkle::MAX_DEPTH],
-    oldAmount: u32,
-    delta: u32,
-    userSecret: Field,
-) {
-    //verify prev
-
-    indexed_merkle::verifyInsertionProof(
-        ogLeafIdx,
-        ogLeafKey,
-        ogLeafNextIdx,
-        ogLeafNextKey,
-        ogLeafValue,
-        newLeafIdx,
-        newLeafKey,
-        newLeafValue,
-        rootBefore,
-        rootAfter,
-        siblingsBefore,
-        siblingsAfterOg,
-        siblingsAfterNew
-    );
-    assertBalanceLeaf(oldAmount, userSecret, ogLeafValue);
-    assertBalanceLeaf(oldAmount + delta, userSecret, newLeafValue);
-
-}
-
-
 fn insertBalance(
     ogLeafIdx: u32,
     ogLeafKey: u64,
@@ -106,6 +65,8 @@ fn updateBalance(
         siblings,
     );
     assertBalanceLeaf(oldAmount, userSecret, ogLeafValue);
+
+    // this is not wokring ?
     assertBalanceLeaf(oldAmount + delta, userSecret, newLeafValue);
 }
 

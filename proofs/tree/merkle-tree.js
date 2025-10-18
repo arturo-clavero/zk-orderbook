@@ -6,11 +6,16 @@ export class IndexedMerkleTree {
     this.items = [{ key: 0n, nextIdx: 0, nextKey: 0n, value: 0n }];
   }
 
+  keyExists(key){
+    const {items} = this;
+    return items.find(x => x.key === key);
+  }
+
   insertItem(key, value) {
     const {items} = this;
     if(typeof key !== 'bigint' || key < 1n) throw new Error('invalid_key');
     if(typeof value !== 'bigint' || value < 0n) throw new Error('invalid_value');
-    if(items.find(x => x.key === key)) return this.updateItem(key, value);
+    if(items.find(x => x.key === key)) throw new Error(`double keys: ${key}`);
 
     // Find previous key
     let prevKey = 0n;
@@ -52,11 +57,12 @@ export class IndexedMerkleTree {
       siblingsBefore: exProof.siblings,
       siblingsAfterOg: updatedPrevProof.siblings,
       siblingsAfterNew: newItemProof.siblings,
-      isFirst: true,
     };
   }
 
   updateItem(key, value) {
+    console.log('key: ', key);
+    console.log("value: ", value);
     const {items} = this;
     if(typeof key !== 'bigint' || key < 1n) throw new Error('invalid_key');
     if(typeof value !== 'bigint' || value < 0n) throw new Error('invalid_value');
@@ -68,39 +74,23 @@ export class IndexedMerkleTree {
     for(let i = 1; i < items.length; i++) {
         if (key == items[i].key)
         {
-          if (items[i].value == value) throw new Error("same value");
+          if (items[i].value == value) throw new Error(`same value ${key}, ${value}`);
           items[i].value = value;
           break;
       }
     }
     const updateProof = this.generateProof(key);
 
-    // return {
-    //   leafIdx: exProof.leafIdx,
-    //   leafKey: exProof.leaf.key,
-    //   leafNextIdx: exProof.leaf.nextIdx,
-    //   leafNextKey: exProof.leaf.nextKey,
-    //   ogLeafValue: exProof.leaf.value,
-    //   newLeafValue: updateProof.leaf.value,
-    //   rootBefore: exProof.root,
-    //   rootAfter: updateProof.root,
-    //   siblings: exProof.siblings,
-    // };
     return {
-      ogLeafIdx: exProof.leafIdx,
-      ogLeafKey: exProof.leaf.key,
-      ogLeafNextIdx: exProof.leaf.nextIdx,
-      ogLeafNextKey: exProof.leaf.nextKey,
+      leafIdx: exProof.leafIdx,
+      leafKey: exProof.leaf.key,
+      leafNextIdx: exProof.leaf.nextIdx,
+      leafNextKey: exProof.leaf.nextKey,
       ogLeafValue: exProof.leaf.value,
-      newLeafIdx: updateProof.leafIdx,
-      newLeafKey: updateProof.leaf.key,
       newLeafValue: updateProof.leaf.value,
       rootBefore: exProof.root,
       rootAfter: updateProof.root,
-      siblingsBefore: exProof.siblings,
-      siblingsAfterOg: updateProof.siblings,
-      siblingsAfterNew: updateProof.siblings,
-      isFirst: false,
+      siblings: exProof.siblings,
     };
   }
 

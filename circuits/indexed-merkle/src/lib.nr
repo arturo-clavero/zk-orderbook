@@ -65,8 +65,6 @@ fn verifyInsertionProof(
     siblingsAfterOg: [Field; MAX_DEPTH],
     siblingsAfterNew: [Field; MAX_DEPTH]
 ) {
-    assert(ogLeafIdx == 0);
-
     // 1) All three proofs must be individually valid
     verifyProof(ogLeafIdx, ogLeafKey, ogLeafNextIdx, ogLeafNextKey, ogLeafValue, rootBefore, siblingsBefore);
     verifyProof(ogLeafIdx, ogLeafKey, newLeafIdx, newLeafKey, ogLeafValue, rootAfter, siblingsAfterOg);
