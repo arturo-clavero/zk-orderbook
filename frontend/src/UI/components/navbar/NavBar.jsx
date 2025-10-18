@@ -2,17 +2,7 @@ import { Box, Typography, Button, Stack } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import WalletConnect from "./WalletConnect.jsx";
 
-//TESTING
-import { useState } from "react";
-const min = 0;
-const max = 12;
-const exceptionIcon = 8;
-function setFaviconWithBackground(src, now) {
-  if (now == exceptionIcon) {
-    console.log("esception");
-    setFavicon(src);
-    return;
-  }
+async function setFaviconWithBackground(src) {
   const img = new Image();
   img.src = src;
   img.onload = () => {
@@ -38,19 +28,14 @@ function setFavicon(src) {
   }
   link.href = src;
 }
+
 ///END TESTING
 
 export default function NavBar() {
-  ///TESTING !
-  const [now, setNow] = useState(min);
-  const getLogo = () => `/l${now}.png`;
-  const changeLogo = () => {
-    let next = now + 1;
-    if (next > max) next = min;
-    setNow(next);
-    setFaviconWithBackground(`/l${next}.png`, next);
-  };
-  /// END TESTING!
+  setFaviconWithBackground("/logo.png");
+  console.log("link: ");
+  console.log(document.querySelector("link[rel~='icon']").href);
+
   const location = useLocation();
 
   const navItems = [
@@ -75,13 +60,11 @@ export default function NavBar() {
         bgcolor: "primary.main",
         boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
       }}
-      //TESTING!
-      onClick={changeLogo}
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box
           component="img"
-          src={getLogo()}
+          src={`/logo.png`}
           alt="DEX Logo"
           sx={{
             width: { xs: 36, sm: 30 },
@@ -104,32 +87,6 @@ export default function NavBar() {
           Zorro
         </Typography>
       </Box>
-
-      {/* <Stack
-        direction="row"
-        spacing={2}
-        sx={{ flexGrow: 1, justifyContent: "center" }}
-      >
-        {navItems.map((item) => (
-          <Button
-            key={item.name}
-            component={Link}
-            to={item.path}
-            sx={{
-              maxWidth: 140,
-              textAlign: "center",
-              color:
-                location.pathname === item.path
-                  ? "success.main"
-                  : "text.primary",
-              fontWeight: location.pathname === item.path ? 700 : 500,
-              textTransform: "none",
-            }}
-          >
-            {item.name}
-          </Button>
-        ))}
-      </Stack> */}
 
       <WalletConnect />
     </Box>

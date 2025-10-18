@@ -20,13 +20,8 @@ const titleFontWeight = 500;
 export default function QuickPairs() {
   const { tokenPairs } = useTokens();
 
-  const {
-    walletConnected,
-    setChartPair,
-    setSwitched,
-    marketVisible,
-    setMarketVisible,
-  } = useMyContext();
+  const { setChartPair, setSwitched, marketVisible, setMarketVisible } =
+    useMyContext();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
 

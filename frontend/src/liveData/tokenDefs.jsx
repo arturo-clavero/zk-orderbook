@@ -2,7 +2,7 @@ export const tokenDefs = [
   {
     symbol: "WBTC",
     feed: "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33",
-    icon: "/btc3.png",
+    icon: "/btc.png",
     decimals: "8",
     contract: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
   },

@@ -10,11 +10,11 @@ export function useWebSocketData({
   useEffect(() => {
     if (!walletConnected) return;
 
-    const ws = new WebSocket("wss://your-backend/ws"); // replace with real backend
+    const ws = new WebSocket("wss://zbackend/ws"); // replace with real backend
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("✅ WebSocket Connected");
+      console.log("WebSocket Connected");
       ws.send(JSON.stringify({ type: "subscribe", wallet: walletAddress }));
     };
 

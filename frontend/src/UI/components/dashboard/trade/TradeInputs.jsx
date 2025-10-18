@@ -33,7 +33,9 @@ export default function TradeInputs({
           size="small"
           type="number"
           value={(slippage * 100).toFixed(2)}
-          onChange={(e) => handleNumeric(Number(e.target.value) / 100, setSlippage)}
+          onChange={(e) =>
+            handleNumeric(Number(e.target.value) / 100, setSlippage)
+          }
           slotProps={{ input: { min: 0, step: 0.1 } }}
           sx={textFieldBase}
         />
@@ -42,12 +44,11 @@ export default function TradeInputs({
           label={`Price (${quoteToken?.symbol})`}
           size="small"
           type="number"
-        value={format(price)  == 0 ? "" : format(price)}
-
-         onChange={(e) => {
-              const val = e.target.value;
-              handleNumeric(val === "" ? 0 : val, setPrice);
-            }}
+          value={format(price) == 0 ? "" : format(price)}
+          onChange={(e) => {
+            const val = e.target.value;
+            handleNumeric(val === "" ? 0 : val, setPrice);
+          }}
           sx={textFieldBase}
         />
       )}
@@ -56,12 +57,11 @@ export default function TradeInputs({
         label={`Amount (${mainToken?.symbol})`}
         size="small"
         type="number"
-        value={format(amount)  == 0 ? "" : format(amount)}
-
-         onChange={(e) => {
-              const val = e.target.value;
-              handleNumeric(val === "" ? 0 : val, setAmount);
-            }}
+        value={format(amount) == 0 ? "" : format(amount)}
+        onChange={(e) => {
+          const val = e.target.value;
+          handleNumeric(val === "" ? 0 : val, setAmount);
+        }}
         error={invalidSell}
         helperText={
           invalidSell && walletConnected

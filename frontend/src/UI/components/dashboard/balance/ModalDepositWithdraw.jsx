@@ -22,22 +22,15 @@ import { handleNumeric } from "../../utils/reusable.jsx";
 import { format } from "../../utils/math.jsx";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
-
 export default function ModalDepositWithdraw({
   open,
   close,
   _type = "deposit",
 }) {
   const { tokens } = useTokens();
-  const {
-    chartPair,
-    switched,
-    balance,
-    dwStatus,
-    setToast,
-    walletAddress,
-  } = useMyContext();
-  const currToken = switched === false ? chartPair.token1: chartPair.token2;
+  const { chartPair, switched, balance, dwStatus, setToast, walletAddress } =
+    useMyContext();
+  const currToken = switched === false ? chartPair.token1 : chartPair.token2;
   const [type, setType] = useState(_type);
   const [selectedToken, setSelectedToken] = useState(currToken?.symbol || "");
   const [amount, setAmount] = useState(0);
@@ -177,7 +170,7 @@ export default function ModalDepositWithdraw({
             id="SelectAmount"
             label="Amount"
             type="number"
-            value={format(amount)  == 0 ? "" : format(amount)} 
+            value={format(amount) == 0 ? "" : format(amount)}
             error={invalidAmount}
             helperText={invalidAmount ? "Insufficient Balance" : ""}
             onChange={(e) => {

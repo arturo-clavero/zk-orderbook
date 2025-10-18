@@ -28,12 +28,11 @@ export default function TradeDetails({
       ? balance[mainToken.symbol]
       : balance[quoteToken.symbol] / price;
 
-    useEffect(() => {
-  if (safeNumber(lastPrice) > 0 && price === 0) {
-    setPrice(lastPrice);
-  }
-}, [lastPrice, maxAvailable, price, amount]);
-
+  useEffect(() => {
+    if (safeNumber(lastPrice) > 0 && price === 0) {
+      setPrice(lastPrice);
+    }
+  }, [lastPrice, maxAvailable, price, amount]);
 
   return (
     <Stack>

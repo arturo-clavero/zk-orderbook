@@ -14,7 +14,7 @@ export default function useWithdraw() {
       setDwStatus("LOADING");
       const tx = {
         // type,
-        amount : Number(amount),
+        amount: Number(amount),
         token,
         user,
       };

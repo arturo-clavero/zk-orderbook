@@ -7,6 +7,7 @@ const AppContext = createContext();
 
 function updateOrders(newOrders, orders, setOrders) {}
 
+
 function initializeBalance(tokens) {
   const balance = {};
   Object.values(tokens).forEach((t) => {
@@ -61,7 +62,8 @@ export function ContextProvider({ children }) {
   const [marketVisible, setMarketVisible] = useState(false);
   const [depositWithdrawLoading, setDepositWithdrawLoading] = useState(false);
   const [balance, setBalance] = useState(() => initializeBalance(tokens));
-  const [orders, setOrders] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const totalOrders = orders.length;
   const [tradeStatus, setTradeStatus] = useState("OPEN");
   const [dwStatus, setDwStatus] = useState("OPEN");
   const [animateWallet, setAnimateWallet] = useState(false);
