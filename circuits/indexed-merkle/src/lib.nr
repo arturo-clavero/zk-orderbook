@@ -43,11 +43,8 @@ fn verifyUpdateProof(
     siblings: [Field; MAX_DEPTH]
 )
 {
-    assert(leafIdx != 0);
     verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, ogLeafValue, rootBefore, siblings);
     verifyProof(leafIdx, leafKey, leafNextIdx, leafNextKey, newLeafValue, rootAfter, siblings);
-
-
 }
 
 fn verifyInsertionProof(

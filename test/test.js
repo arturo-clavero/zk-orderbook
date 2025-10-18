@@ -1,51 +1,27 @@
-import {ok} from 'node:assert';
+import { queueDeposit } from "../proofs/actions/deposit.js";
+import { getPendingBalance } from "../proofs/tree/balanceTree.js";
+import { verifyBatch } from "../proofs/verify.js";
 
-import {IndexedMerkleTree} from '../index.js';
+async function test() {
+    await queueDeposit("ali", 20, "eth", "log");
+    // await queueDeposit("a", 160, "eth", "log");
+    await queueDeposit("a", 40, "eth", "log");
+    await queueDeposit("alice", 200, "eth", "log");//->problem?
+    await queueDeposit("ali", 180, "eth", "log");
 
-describe('IndexedMerkleTree', () => {
-  it('should generate and verify exclusion proof on empty tree', () => {
-    const tree = new IndexedMerkleTree;
+    let success = await verifyBatch();
+    console.log("verify: ", success);
+    console.log("a: ", getPendingBalance("a"));
+    console.log("ali: ", getPendingBalance("a"));
+    console.log("alice: ", getPendingBalance("alice"));
 
-    const exProof = tree.generateExclusionProof(13n);
-    ok(tree.verifyProof(exProof));
-  });
+    // await queueDeposit("alice", 200, "eth", "log");
+    // await queueDeposit("alice", 100, "eth", "log");
+    // await queueDeposit("brain", 20, "eth", "log");
+    // await queueDeposit("alice", 150, "eth", "log");
+    // await queueDeposit("brain", 40, "eth", "log");
+    // success = await verifyBatch();
+    // console.log("verify: ", success);
+}
 
-  for(let size = 2; size <= (process.env.TEST_SIZE || 10); size++) {
-    it(`should generate and verify proof of ${size} items correctly matrix`, () => {
-      const tree = new IndexedMerkleTree;
-      for(let i = 1; i < size; i++) {
-        const transition = tree.insertItem(10n * BigInt(i), 123n * BigInt(i));
-        ok(tree.verifyInsertionProof(transition));
-      }
-
-      for(let i = 1; i < size; i++) {
-        // Test that each item can be successfully proved for inclusion
-        const proof = tree.generateProof(10n * BigInt(i));
-        ok(tree.verifyProof(proof));
-
-        // Test that a missing item doesn't exist slightly beyond each item
-        const exProof = tree.generateExclusionProof(10n * BigInt(i) + 3n);
-        ok(tree.verifyProof(exProof));
-      }
-    });
-  }
-
-  it('should generate and verify insertion proof from further leaves', () => {
-    const tree = new IndexedMerkleTree;
-
-    // Insert items such that the test item won't be neigbor to its previous item
-    tree.insertItem(20n, 234n);
-    tree.insertItem(22n, 234n);
-    tree.insertItem(23n, 234n);
-    tree.insertItem(24n, 234n);
-    tree.insertItem(25n, 234n);
-    tree.insertItem(26n, 234n);
-    tree.insertItem(27n, 234n);
-    tree.insertItem(28n, 234n);
-
-    const transition = tree.insertItem(21n, 123n);
-
-    ok(tree.verifyInsertionProof(transition))
-  });
-});
-
+await test();

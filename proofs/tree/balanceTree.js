@@ -7,6 +7,7 @@ import {
 import {IndexedMerkleTree} from './merkle-tree.js';
 import crypto from 'crypto';
 import { Barretenberg, Fr } from "@aztec/bb.js";
+import { callCircuit } from '../verify.js';
 
 
 const balanceTree = new IndexedMerkleTree;
@@ -76,6 +77,20 @@ function insertBalanceProofInputs(key, value){
     return membersToStrings(input);
 }
 
+async function testInsert(user, amount){
+    const key = await getBalanceKey(user);
+    const value = await getBalanceValue(user, amount);
+    const input = insertBalanceProofInputs(key, value);
+    const inputs = {
+        ...input,
+        oldAmount: 0, 
+        delta: amount,
+        userSecret: getUserSecret(user).toString(),
+    }
+    console.log("input", inputs);
+
+    return await callCircuit(inputs, "deposit");
+}
 export {
     getUserSecret,
     getBalanceKey,
@@ -84,5 +99,7 @@ export {
     insertBalanceProofInputs,
     getPendingBalance,
     updatePendingBalance,
-    setPendingBalance
+    setPendingBalance,
+
+    testInsert
 }

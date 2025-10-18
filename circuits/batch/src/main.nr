@@ -43,7 +43,7 @@ fn main(
     //     totalWithdrawals
     // );
     
-    // assert(rootNow == newRoot);
+    assert(rootNow == newRoot);
 }
 
 

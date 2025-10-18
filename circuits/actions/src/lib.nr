@@ -1,4 +1,4 @@
-global MAX_ACTIONS:u32 = 5;
+global MAX_ACTIONS:u32 = 3;
 
 struct FirstDeposit {
     ogLeafIdx: u32,
@@ -78,21 +78,20 @@ fn batchDeposit(
     for i in 0..MAX_ACTIONS{
         if (i < totalDeposits) {
             let d = deposits[i];
-        //     balance::updateBalance(
-        //     d.leafIdx,
-        //     d.leafKey,
-        //     d.leafNextIdx,
-        //     d.leafNextKey,
-        //     d.ogLeafValue,
-        //     d.newLeafValue,
-        //     rootNow,
-        //     d.rootAfter,
-        //     d.siblings,
-        //     d.oldAmount,
-        //     d.delta,
-        //     d.userSecret,
-        // );
-        //someproblem inside udpatebalance?
+            balance::updateBalance(
+                d.leafIdx,
+                d.leafKey,
+                d.leafNextIdx,
+                d.leafNextKey,
+                d.ogLeafValue,
+                d.newLeafValue,
+                rootNow,
+                d.rootAfter,
+                d.siblings,
+                d.oldAmount,
+                d.delta,
+                d.userSecret,
+            );
             rootNow = d.rootAfter;
         }
     }

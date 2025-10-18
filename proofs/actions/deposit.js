@@ -21,32 +21,19 @@ export async function queueDeposit(user, amount, token, log){
         token: token,
         user: user,
         key: '',
-        // key: await getBalanceKey(user),
         value: '',
         oldAmount: 0,
         inputs: {},
     }
     if (balanceKeyExists(user))
     {
-        // const accruedAmount = getPendingBalance(user) + amount;
-        // newDeposit.value = await getBalanceValue(user, accruedAmount);
-        // newDeposit.inputs = updateBalanceProofInputs(newDeposit.key, newDeposit.value);
-        // newDeposit.oldAmount = getPendingBalance(user),
         pendingDeposits.push(newDeposit);
     }
     else
     {
-        
-        // newDeposit.value = await getBalanceValue(user, amount);
-        // newDeposit.oldAmount = getPendingBalance(user),
-        // newDeposit.inputs = insertBalanceProofInputs(newDeposit.key, newDeposit.value);
-        pendingFirstDeposits.push(newDeposit);
-                        console.log("pending balance of user: ", user, " ->", getPendingBalance(user));
         setPendingBalance(user, 0);
-                        console.log("pending balance of user: ", user, " ->", getPendingBalance(user));
-
+        pendingFirstDeposits.push(newDeposit);
     }
-    // updatePendingBalance(user, amount);
 }
        
 
@@ -55,8 +42,6 @@ function checkDeposit(amount, token, user, log){
 }
 
 export async function verifyDeposits(max_actions){
-    // console.log("VERIFY DEPOSITS: ");
-    console.log("pending deposits: ", pendingDeposits);
 
     let oldRoot = '-1', newRoot = '-1';
     const len = pendingDeposits.length
@@ -77,17 +62,11 @@ export async function verifyDeposits(max_actions){
     });
     for(let i = 0; i < totalDeposits; i ++){
         const p = pendingDeposits[i];
-        // const inputs = p.inputs;
-        // console.log("pre inputs: ", p.inputs);
-                p.key = await getBalanceKey(p.user, p.amount);
-                p.value = await getBalanceValue(p.user, p.amount);
-                p.oldAmount = getPendingBalance(p.user);
-                console.log("pending balance of user: ", p.user, " ->", getPendingBalance(p.user));
+        p.key = await getBalanceKey(p.user, p.amount);
+        p.value = await getBalanceValue(p.user, p.amount);
+        p.oldAmount = getPendingBalance(p.user);
         const inputs = updateBalanceProofInputs(p.key, p.value);
-                updatePendingBalance(p.user, p.amount);
-                                console.log("pending balance of user: ", p.user, " ->", getPendingBalance(p.user));
 
-        // console.log("post inputs: ", inputs);
         const newDepositInputs = {
             leafIdx: inputs.leafIdx,
             leafKey: inputs.leafKey,
@@ -104,7 +83,7 @@ export async function verifyDeposits(max_actions){
         if (i == 0) oldRoot = inputs.rootBefore;
         newRoot = inputs.rootAfter;
         deposits[i] = newDepositInputs;
-
+        updatePendingBalance(p.user, p.amount);
     }
     pendingDeposits = pendingDeposits.slice(totalDeposits);
     return {
@@ -116,7 +95,6 @@ export async function verifyDeposits(max_actions){
 }
 
 export async function verifyFirstDeposits(max_actions){
-    console.log("first pending deposits: ", pendingFirstDeposits);
     let oldRoot = '-1', newRoot = '-1';
     const len = pendingFirstDeposits.length
     const totalFirstDeposits = len > max_actions ? max_actions : len;
@@ -140,25 +118,18 @@ export async function verifyFirstDeposits(max_actions){
             delta: 0,
             userSecret: '0',
     });
+
     for(let i = 0; i < totalFirstDeposits; i ++){
         const p = pendingFirstDeposits[i];
-            p.key = await getBalanceKey(p.user);
-            p.value = await getBalanceValue(p.user, p.amount);
-            p.oldAmount = getPendingBalance(p.user);
-        // console.log("pre inputs: ", p.inputs);
-        // const inputs = p.inputs;
+        p.key = await getBalanceKey(p.user);
+        p.value = await getBalanceValue(p.user, p.amount);
+        p.oldAmount = getPendingBalance(p.user);
         const inputs = insertBalanceProofInputs(p.key, p.value);
-                        console.log("pending balance of user: ", p.user, " ->", getPendingBalance(p.user));
-                        updatePendingBalance(p.user, p.amount);
-
-                        console.log("pending balance of user: ", p.user, " ->", getPendingBalance(p.user));
-console.log("old root: ", inputs.rootBefore);
-        // console.log("post inputs: ", inputs);
         const newDepositInputs = {
             ogLeafIdx: inputs.ogLeafIdx,
             ogLeafKey: inputs.ogLeafKey,
             ogLeafNextIdx: inputs.ogLeafNextIdx,
-            ogLeafNextKey: inputs.ogLeafNextIdx,
+            ogLeafNextKey: inputs.ogLeafNextKey,
             ogLeafValue: inputs.ogLeafValue,
             newLeafIdx: inputs.newLeafIdx,
             newLeafKey: inputs.newLeafKey,
@@ -171,11 +142,13 @@ console.log("old root: ", inputs.rootBefore);
             delta: p.amount,
             userSecret: getUserSecret(p.user).toString(),
         }
-        // updatePendingBalance(p.user, p.amount);
+
         if (i == 0) oldRoot = inputs.rootBefore;
         newRoot = inputs.rootAfter;
         firstDeposits[i] = newDepositInputs;
+        updatePendingBalance(p.user, p.amount);
     }
+    
     pendingFirstDeposits = pendingFirstDeposits.slice(totalFirstDeposits);
 
     return {

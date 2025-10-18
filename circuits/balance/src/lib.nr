@@ -65,8 +65,6 @@ fn updateBalance(
         siblings,
     );
     assertBalanceLeaf(oldAmount, userSecret, ogLeafValue);
-
-    // this is not wokring ?
     assertBalanceLeaf(oldAmount + delta, userSecret, newLeafValue);
 }
 
