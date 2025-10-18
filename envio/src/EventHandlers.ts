@@ -7,6 +7,33 @@ import {
 } from "generated";
 import axios from 'axios';
 import { error } from "console";
+import { execPath } from "process";
+import  { ethers } from "ethers";
+
+function normalizeAmount(token: string, amount: string | number | bigint): string{
+  let decimals: number;
+  let formated: string;
+
+  switch(token) {
+    case "USDT":
+      decimals = 6;
+      formated = ethers.formatUnits(amount.toString(), decimals);
+      return parseFloat(formated).toFixed(2);
+    case "PYUSD":
+      decimals = 18;
+      formated = ethers.formatUnits(amount.toString(), decimals);
+      return parseFloat(formated).toString(2);
+    case "ETH":
+      decimals = 18;
+      formated = ethers.formatUnits(amount.toString(), decimals);
+      return formated;
+
+    default:
+      decimals = 18;
+      formated = ethers.formatUnits(amount.toString(), decimals);
+      return formated;
+  }
+}
 
 Deposit.Deposit.handler(async ({ event, context }) => {
   const entity: Deposit_Deposit = {
@@ -17,13 +44,14 @@ Deposit.Deposit.handler(async ({ event, context }) => {
     txHash: event.transaction.hash,
   };
 
+  const normilizedAmonut = normalizeAmount(entity.token, entity.amount);
   context.Deposit_Deposit.set(entity);
   try {
     const response = await axios.post('http://localhost:4000/deposit', 
       {
         traderId: entity.user,
         token: entity.token,
-        amount: entity.amount.toString(),
+        amount: normilizedAmonut,
         txHash: entity.txHash,
       }
     );
