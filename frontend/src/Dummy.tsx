@@ -12,7 +12,7 @@ export default function DepositForm() {
     traderId: '',
     token: 'PYUSD',
     amount: '',
-  });
+  }); 
   const [loading, setLoading] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -40,7 +40,30 @@ export default function DepositForm() {
       setError('Failed to connect wallet');
     }
   };
-
+  //checking wallt existment 
+  const checkWallet = async () => {
+    if (!walletAddress){
+      alert("Please connect wallet first!");
+      return ;
+    }
+    try {
+      let response = await axios.post('http://localhost:4000/account/check', {
+        address: walletAddress,
+        token: formData.token,
+      })
+      if (!response.data.exists){
+          alert("New account creted, please verufy kyc before actions");
+          return false;
+      } else {
+        console.log("account exists, continue using");
+        return true;
+      }
+    } catch (err){
+      console.error("Verification failed", err);
+      setError("Bckend failed");
+      return false;
+    }
+  };
   // Handle Deposit Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +72,11 @@ export default function DepositForm() {
       setError('Please connect your MetaMask wallet first!');
       return;
     }
-
+    const accountExists = await checkWallet();
+    if (!accountExists){
+      setError("Please verify your account before trading")
+      return ;
+    }
     setLoading(true);
     setError(null);
     setResult(null);
@@ -60,7 +87,6 @@ export default function DepositForm() {
       const pyusd = process.env.REACT_APP_PYUSD_ADDRESS!;
       const usdt = process.env.REACT_APP_USDT_ADDRESS!;
       console.log("the address is ", address);
-  
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(address, vaultAbi, signer);
