@@ -11,6 +11,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "ethers": "^6.15.0",
     "path-browserify": "^1.0.1",

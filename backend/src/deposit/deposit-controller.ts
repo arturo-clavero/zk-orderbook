@@ -23,22 +23,15 @@ export class DepositController {
       update: {},
     });
     // Creat/check if acount exists
-    let account = await prisma.account.findFirst({
+    const account = await prisma.account.findFirst({
       where: {
         traderId: trader.id,
         currency: token,
       },
     });
     if (!account) {
-      account = await prisma.account.create({
-        data: { currency: token, traderId: trader.id },
-      });
-      console.log('account was created', account.id);
-      return {
-        success: false,
-        message:
-          'account was created for you need to verify kyc,deposit will not be successfull',
-      };
+      console.error('Account was not found, action will be ignnored');
+      return;
     }
     try {
       //kyc if it will be time
@@ -61,10 +54,10 @@ export class DepositController {
         });
         console.log('Saved to dataabase wtih id', deposit.id);
       }
-      // const existing = await prisma.transaction.findUnique({
-      //   where: { txHash: txHash },
-      // });
-      // if (existing) return;
+      const existing = await prisma.transaction.findUnique({
+        where: { txHash },
+      });
+      if (existing) return;
       //what backend decided
       return {
         success: true,
@@ -72,11 +65,6 @@ export class DepositController {
         depositId: deposit.id,
         txHash: txHash,
         status: deposit.status,
-        // data: {
-        //   // traderId: updatedDeposit.traderId,
-        //   token: deposit.token,
-        //   amount: deposit.amount.toString(),
-        // },
       };
     } catch (error) {
       console.error('Error occured', error);

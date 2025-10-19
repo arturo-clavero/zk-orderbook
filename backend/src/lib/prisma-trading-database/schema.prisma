@@ -57,7 +57,7 @@ model Transaction {
   amount     Float
   proof      String?
   merkleLeaf String?
-  txHash     String?
+  txHash     String? @unique
   status     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
