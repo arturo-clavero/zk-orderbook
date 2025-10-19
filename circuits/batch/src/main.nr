@@ -5,16 +5,15 @@ fn main(
     totalFirstDeposits: u32,
     deposits: [actions::Deposit; actions::MAX_ACTIONS],
     totalDeposits: u32,
-    // withdraw: [actions::Withdraw; actions::MAX_ACTIONS],
-    // withdrawDetails: [actions::WithdrawDetails; actions::MAX_ACTIONS],
-    // totalWithdrawals: u32,
-   
+    withdrawals: [actions::Withdrawal; actions::MAX_ACTIONS],
+    withdrawalDetails: [actions::WithdrawalDetail; actions::MAX_ACTIONS],
+    totalWithdrawals: u32,
 ){
     let mut rootNow = oldRoot;
 
     rootNow = actions::batchFirstDeposit(
         rootNow, 
-        firstDeposits, 
+        firstDeposits,
         totalFirstDeposits
     );
 
@@ -29,21 +28,18 @@ fn main(
     //     newOrders,
     //     totalNewOrders
     // )
-
     // rootNow = actions::settleOrders(
     //     rootNow,
     //     settledOrder,
     //     totalSettledOrders,
     // )
 
-    // rootNow = actions::batchWithdraw(
-    //     rootNow,
-    //     withdraw,
-    //     withdrawDetails,
-    //     totalWithdrawals
-    // );
+    rootNow = actions::batchWithdrawal(
+        rootNow,
+        withdrawals,
+        withdrawalDetails,
+        totalWithdrawals
+    );
     
     assert(rootNow == newRoot);
 }
-
-

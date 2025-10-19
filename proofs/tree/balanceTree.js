@@ -7,7 +7,7 @@ import {
 import {IndexedMerkleTree} from './merkle-tree.js';
 import crypto from 'crypto';
 import { Barretenberg, Fr } from "@aztec/bb.js";
-import { callCircuit } from '../verify.js';
+import { callCircuit, getRecursive } from '../verify.js';
 
 
 const balanceTree = new IndexedMerkleTree;
@@ -77,7 +77,7 @@ function insertBalanceProofInputs(key, value){
     return membersToStrings(input);
 }
 
-async function testInsert(user, amount){
+async function testInsert(user, amount, verify = true){
     const key = await getBalanceKey(user);
     const value = await getBalanceValue(user, amount);
     const input = insertBalanceProofInputs(key, value);
@@ -88,10 +88,12 @@ async function testInsert(user, amount){
         userSecret: getUserSecret(user).toString(),
     }
     updatePendingBalance(user, amount);
+    if (verify == false)
+        return await getRecursive(inputs, "single/firstDeposit");
     return await callCircuit(inputs, "single/firstDeposit");
 }
 
-async function testUpdate(user, amount){
+async function testUpdate(user, amount, verify = true){
     const key = await getBalanceKey(user);
     const value = await getBalanceValue(user, amount);
     const input = updateBalanceProofInputs(key, value);
@@ -102,8 +104,11 @@ async function testUpdate(user, amount){
         userSecret: getUserSecret(user).toString(),
     }
     updatePendingBalance(user, amount);
+    if (verify == false)
+        return await getRecursive(inputs, "single/deposit");
     return await callCircuit(inputs, "single/deposit");
 }
+
 export {
     getUserSecret,
     getBalanceKey,

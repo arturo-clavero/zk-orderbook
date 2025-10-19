@@ -49,6 +49,7 @@ fn updateBalance(
     rootBefore: Field,
     rootAfter: Field,
     siblings: [Field; indexed_merkle::MAX_DEPTH], 
+    isWithdrawal: bool,
     oldAmount: u32,
     delta: u32,
     userSecret: Field   
@@ -65,7 +66,12 @@ fn updateBalance(
         siblings,
     );
     assertBalanceLeaf(oldAmount, userSecret, ogLeafValue);
-    assertBalanceLeaf(oldAmount + delta, userSecret, newLeafValue);
+    if (isWithdrawal){
+        assertBalanceLeaf(oldAmount - delta, userSecret, newLeafValue);
+    }
+    else{
+        assertBalanceLeaf(oldAmount + delta, userSecret, newLeafValue);
+    }
 }
 
 fn assertBalanceLeaf(
