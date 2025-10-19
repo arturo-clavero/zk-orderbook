@@ -88,11 +88,65 @@ fn batchDeposit(
                 rootNow,
                 d.rootAfter,
                 d.siblings,
+                false,
                 d.oldAmount,
                 d.delta,
                 d.userSecret,
             );
             rootNow = d.rootAfter;
+        }
+    }
+    rootNow
+}
+
+
+struct Withdrawal {
+    leafIdx: u32,
+    leafKey: u64,
+    leafNextIdx: u32,
+    leafNextKey: u64,
+    ogLeafValue: Field,
+    newLeafValue: Field,
+    rootAfter: Field,
+    siblings: [Field; indexed_merkle::MAX_DEPTH],
+    oldAmount: u32,
+    userSecret: Field,
+}
+
+struct WithdrawalDetail {
+    delta: u32,
+    // userAddress: Field,
+}
+
+fn batchWithdrawal(
+    oldRoot: Field,
+    withdraw: [Withdrawal; MAX_ACTIONS],
+    withdrawDetails : [WithdrawalDetail; MAX_ACTIONS],
+    totalWithdrawals: u32,
+)->Field
+{
+    let mut rootNow:Field = oldRoot;
+    for i in 0..MAX_ACTIONS{
+        if (i < totalWithdrawals) {
+            let w = withdraw[i];
+            let wd = withdrawDetails[i];
+            assert(wd.delta < w.oldAmount + 1);
+            balance::updateBalance(
+                w.leafIdx,
+                w.leafKey,
+                w.leafNextIdx,
+                w.leafNextKey,
+                w.ogLeafValue,
+                w.newLeafValue,
+                rootNow,
+                w.rootAfter,
+                w.siblings,
+                true,
+                w.oldAmount,
+                wd.delta,
+                w.userSecret,
+            );
+            rootNow = w.rootAfter;
         }
     }
     rootNow
