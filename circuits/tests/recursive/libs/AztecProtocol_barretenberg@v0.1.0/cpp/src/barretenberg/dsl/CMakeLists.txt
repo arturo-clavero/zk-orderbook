@@ -1,2 +1,0 @@
-add_subdirectory(acir_format)
-add_subdirectory(acir_proofs)
