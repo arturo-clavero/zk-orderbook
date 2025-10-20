@@ -19,15 +19,10 @@ export class MerkleTree{
     async verifyProof({value, siblings, path}){
         let prevHash = value;
         for (let i = 0; i < siblings.length; i++){
-            console.log("level ", i);
             const isRight = path[i];
             const left = isRight ? siblings[i] : prevHash;
             const right = isRight ? prevHash : siblings[i];
-            console.log("hashing:");
-            console.log(left);
-            console.log(right);
             prevHash = await hash([left, right]);
-            console.log("new hash: ", prevHash);
         }
         return this.root == prevHash;
     }
@@ -105,14 +100,13 @@ export class MerkleTree{
         for (let i = 0; i < this.TOTAL_LEAFS; i ++){
             const value = this.leafs[i];
             const proof = await this.generateProof(value);
-            console.log("proof: ", proof);
             if (!circuits){
                 success =  await this.verifyProof(proof);
             }
             else {
                 success = await callCircuit(membersToStrings(proof, this.DEPTH), "merkle");
             }
-            console.log(`[${i}] verified ${value}: `, success);
+            console.log(success);
             if (success == false)
                 break;
         }
