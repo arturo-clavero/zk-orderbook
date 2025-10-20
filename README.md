@@ -103,6 +103,8 @@ pnpm prisma studio --schema ./src/lib/prisma-trading-database/schema.prisma
 
       #Display Prisma debug info
       $ prisma debug
+      #to reset
+      $ pnpm prisma migrate reset --schema ./src/lib/prisma-trading-database/schema.prisma
       ```
   ##prisma scripts custom scripts:
   ```bash
@@ -126,6 +128,15 @@ Restart your indexer to apply the new configuration:
     $ pnpm dev
       or
     $ pnpx envio start
+```
+### TO see logs in envio need to go to envio folder and export those vars
+```bash
+export TUI_OFF="true"  # Or use --tui-off flag when starting
+
+Log Visibility: To maintain the Terminal UI while capturing detailed logs:
+
+export LOG_STRATEGY="both-prettyconsole"
+export LOG_FILE="./debug.log"
 ```
 
 ```

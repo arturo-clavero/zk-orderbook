@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Post, Body } from '@nestjs/common';
 import { prisma } from '../lib/prisma-trading-database/prisma-trading';
+import { ethers } from 'ethers';
 
 const PYUSD_ADDRESS = process.env.PYUSD_ADDRESS?.toLowerCase() ?? '';
 const USDT_ADDRESS = process.env.USDT_ADDRESS?.toLowerCase() ?? '';
@@ -18,12 +19,12 @@ export const TOKEN_MAP: Record<string, string> = {
 export class DepositController {
   @Post()
   async handleDeposit(@Body() dataEnvio: any) {
-    let { traderId, token, amount, txHash } = dataEnvio;
+    let { traderId, token, rawAmount, txHash } = dataEnvio;
     traderId = traderId.toLowerCase();
     token = token.toLowerCase();
 
     console.log('data which backend recevies is in the deposit', dataEnvio);
-    if (!traderId || !token || !amount || !txHash) {
+    if (!traderId || !token || !rawAmount || !txHash) {
       return {
         success: false,
         message: 'Missing data',
@@ -63,13 +64,16 @@ export class DepositController {
       //kyc if it will be time
       console.log('received from frontend', dataEnvio);
       // to db
+      const decimals = currency === 'ETH' ? 18 : 6;
+      const humanAmount = ethers.formatUnits(rawAmount.toString(), decimals);
       const deposit = await prisma.transaction.upsert({
         where: { txHash },
         create: {
           type: 'deposit',
           traderId: trader.id,
           token,
-          amount: Number(amount),
+          rawAmount,
+          humanAmount,
           status: txHash ? 'Confirmed' : 'Pending',
           txHash: txHash || null,
         },
@@ -78,7 +82,7 @@ export class DepositController {
       if (deposit.status === 'Confirmed') {
         await prisma.account.update({
           where: { id: account.id },
-          data: { available: { increment: Number(amount) } },
+          data: { available: { increment: rawAmount } },
         });
         console.log('Saved to dataabase wtih id', deposit.id);
       }
