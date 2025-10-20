@@ -76,3 +76,20 @@ user1
         -WBTC 
                   *available 0  
                    *locked 0
+
+
+
+
+
+
+
+
+
+
+
+
+group 
+matching who have eths and pyusd (trade amounts) so eberythong should be in equivalent of pyusd 
+use stable token for alla mounts - 
+are dexes uses stable coinf for setlment?(is on bcnd everythong in stable coin )
+frontend sends x amount of pyusd === eth

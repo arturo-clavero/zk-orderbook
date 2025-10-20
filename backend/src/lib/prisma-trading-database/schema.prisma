@@ -54,7 +54,8 @@ model Transaction {
   traderId   String
   trader     Trader   @relation(fields: [traderId], references: [id])
   token      String
-  amount     Float
+  rawAmount     BigInt   // <-- exact on-chain value (from event.params.amount)
+  humanAmount   String   // <-- ethers.formatUnits() output for display
   proof      String?
   merkleLeaf String?
   txHash     String? @unique

@@ -107,7 +107,7 @@ export default function DepositForm() {
         tx = await contract.depositEth({value: ethers.parseUnits(formData.amount, 18)});
       }
       else if (token === "PYUSD") {
-        tx = await contract.depositErc(pyusd, ethers.parseUnits(formData.amount, 18));
+        tx = await contract.depositErc(pyusd, ethers.parseUnits(formData.amount, 6));
         console.log("tx is ", tx);
       } else if (token === "USDT") {
         tx = await contract.depositErc(usdt, ethers.parseUnits(formData.amount, 6));

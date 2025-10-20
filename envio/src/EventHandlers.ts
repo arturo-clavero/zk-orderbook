@@ -10,29 +10,20 @@ import { error } from "console";
 import { execPath } from "process";
 import  { ethers } from "ethers";
 
-function normalizeAmount(token: string, amount: string | number | bigint): string{
+//corrupted "amount" value
+function normilizer(token: string, amount: string | number | bigint): string {
   let decimals: number;
-  let formated: string;
-
-  switch(token) {
-    case "USDT":
-      decimals = 6;
-      formated = ethers.formatUnits(amount.toString(), decimals);
-      return parseFloat(formated).toFixed(2);
-    case "PYUSD":
-      decimals = 18;
-      formated = ethers.formatUnits(amount.toString(), decimals);
-      return parseFloat(formated).toString(2);
+  switch (token.toUpperCase()){
     case "ETH":
       decimals = 18;
-      formated = ethers.formatUnits(amount.toString(), decimals);
-      return formated;
-
+      break;
+    case "PYUSD":
+    case "ETH":
     default:
-      decimals = 18;
-      formated = ethers.formatUnits(amount.toString(), decimals);
-      return formated;
+      decimals = 6;
+      break;
   }
+  return ethers.formatUnits(amount.toString(), decimals);
 }
 
 Deposit.Deposit.handler(async ({ event, context }) => {
@@ -44,18 +35,18 @@ Deposit.Deposit.handler(async ({ event, context }) => {
     txHash: event.transaction.hash,
   };
 
-  const normilizedAmonut = normalizeAmount(entity.token, entity.amount);
+  const normilizedAmount = normilizer(entity.token, entity.amount);
   context.Deposit_Deposit.set(entity);
   try {
     const response = await axios.post('http://localhost:4000/deposit', 
       {
         traderId: entity.user,
         token: entity.token,
-        amount: normilizedAmonut,
+        rawAmount: entity.amount.toString(),
         txHash: entity.txHash,
       }
     );
-    console.log("snd to backend", response.data);
+    console.error("DEBUG", entity);
   }catch(err){
     if ( err instanceof Error){
       console.log(err.message);
