@@ -8,11 +8,12 @@ import { ethers } from 'ethers';
 
 const PYUSD_ADDRESS = process.env.PYUSD_ADDRESS?.toLowerCase() ?? '';
 const USDT_ADDRESS = process.env.USDT_ADDRESS?.toLowerCase() ?? '';
-console.log('address id ', PYUSD_ADDRESS);
-console.log('address id ', USDT_ADDRESS);
+const ETH_ADDRESS = process.env.ETH_ADDRESS?.toLowerCase() ?? '';
+
 export const TOKEN_MAP: Record<string, string> = {
   [PYUSD_ADDRESS]: 'PYUSD',
   [USDT_ADDRESS]: 'USDT',
+  [ETH_ADDRESS]: 'ETH',
 };
 
 @Controller('deposit')
