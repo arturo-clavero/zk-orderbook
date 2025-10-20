@@ -1,7 +1,6 @@
-import { hash } from "./utils.js";
+import { callCircuit } from "../circuit.js";
+import { hash, membersToStrings } from "./utils.js";
 
-const DEPTH = 3;
-const TOTAL_LEAFS = 2 ** DEPTH;
 //we are storing leaf values already hashed ... 
 //depth depends per tree, default is at 3
 //please await computeRoot() after tree creation...
@@ -20,10 +19,15 @@ export class MerkleTree{
     async verifyProof({value, siblings, path}){
         let prevHash = value;
         for (let i = 0; i < siblings.length; i++){
-            const isRight = (path >> i) & 1;
+            console.log("level ", i);
+            const isRight = path[i];
             const left = isRight ? siblings[i] : prevHash;
             const right = isRight ? prevHash : siblings[i];
+            console.log("hashing:");
+            console.log(left);
+            console.log(right);
             prevHash = await hash([left, right]);
+            console.log("new hash: ", prevHash);
         }
         return this.root == prevHash;
     }
@@ -51,15 +55,16 @@ export class MerkleTree{
         if (result.length > 1) return await this.getSiblings(value, result, _siblings, Math.floor(index / 2));
         else return _siblings
     }
+
     getPath(value){
         let index = this.valueToIndexMap[value];
-        let pathBits = 0;
+        let path = [];
         for (let i = 0; i < this.DEPTH; i++) {
             const isRight = index % 2;
-            pathBits |= (isRight << i);
-            index = Math.floor(index / 2);
+            path.push(isRight);
+            index = Math.floor(index/2);
         }
-        return pathBits;
+        return path;
     }
     async computeRoot(levelLeafs = this.leafs){
         let result = [];
@@ -95,11 +100,18 @@ export class MerkleTree{
     }
 
     //for testing only:
-    async verifyAll(){
+    async verifyAll(circuits = false){
+        let success;
         for (let i = 0; i < this.TOTAL_LEAFS; i ++){
             const value = this.leafs[i];
             const proof = await this.generateProof(value);
-            const success =  await this.verifyProof(proof);
+            console.log("proof: ", proof);
+            if (!circuits){
+                success =  await this.verifyProof(proof);
+            }
+            else {
+                success = await callCircuit(membersToStrings(proof, this.DEPTH), "merkle");
+            }
             console.log(`[${i}] verified ${value}: `, success);
             if (success == false)
                 break;
