@@ -1,0 +1,181 @@
+export class UtxoPool {
+    constructor() {
+        this.pool = new Map();         // user -> token ->[UTXO]
+        this.balances = new Map();     // user -> token -> { available, pending }
+        this.pendingUtxos = {}; // batch id -> pending outputs
+        this.batch = 0;
+    }
+
+    setPendingOutput(user, token, utxo) {
+        
+
+        utxo.pending = true;
+        const balance = this._ensureBalance(user, token);
+        balance.pending += utxo.amount;
+    }
+    addPendingOutput(utxo, id){
+        if (!(this.batch in this.pendingUtxos)) {
+            this.pendingUtxos[id] = { inputs: [], outputs: [] };
+        }
+        this.pendingUtxos[id].outputs.push(utxo);
+    }
+
+    setPendingInput(user, token, note) {
+        const utxos = this._ensureUserToken(user, token);
+        const utxo = utxos.find(u => u.note === note);
+        if (utxo && !utxo.spent) utxo.pending = true;
+        else {
+            console.log("error with note?");
+            return;
+        }
+        const balance = this._ensureBalance(user, token);
+        balance.pending -= utxo.amount;
+    }
+    addPendingOutput(utxo, id){
+        if (!(this.batch in this.pendingUtxos)) {
+            this.pendingUtxos[id] = { inputs: [], outputs: [] };
+        }
+        this.pendingUtxos[id].inputs.push(utxo);
+    }
+
+    closeBatch(){
+        const batchId = this.batch;
+        this.batch += 1;
+        return batchId;
+    }
+
+    finalizeBatch(batchId, success = true) {
+        const batch = this.pendingUtxos[batchId];
+        if (!batch) return;
+
+        const outUtxos = batch.outputs || [];
+        const inUtxos = batch.inputs || [];
+
+        // if (success) {
+            for (const o of outUtxos) {
+                if (o.isReserved)
+                    o.pending = false;
+                this._addUtxo(o);
+                const balance = this._ensureBalance(o.user, o.token);
+                balance.pending -= o.amount;
+                balance.available += o.amount;
+            }
+            for (const i of inUtxos) {
+                i.spent = true;
+                i.pending = false;
+                this._removeUtxo(i);
+                const balance = this._ensureBalance(o.user, o.token);
+                balance.pending += o.amount;
+                balance.available += o.amount;
+            }
+        // }
+        // else {
+        //     for (const o of outUtxos) {
+        //         o.pending = false;
+        //         const balance = this._ensureBalance(o.user, o.token);
+        //         balance.pending -= o.amount;
+        //     }
+
+        //     for (const i of inUtxos) {
+        //         i.pending = false;
+        //         const balance = this._ensureBalance(i.user, i.token);
+        //         balance.pending += i.amount;
+        //     }
+        // }
+        delete this.pendingUtxos[batchId];
+    }
+
+    selectForAmount(user, token, target) {
+        const available = this.getAvailable(user, token)
+            .slice()
+            .sort((a, b) => a.amount - b.amount);
+
+        if (available.length === 0)
+            return { utxos: [], covered: 0, mode: "insufficient" };
+
+        const exact1 = available.find(u => u.amount === target);
+        if (exact1)
+            return { utxos: [exact1], covered: target, remaining: 0, mode: "exact-1" };
+
+        for (let i = 0; i < available.length; i++) {
+            for (let j = i + 1; j < available.length; j++) {
+                const sum = available[i].amount + available[j].amount;
+                if (sum === target)
+                    return { utxos: [available[i], available[j]], covered: sum, mode: "exact-2" };
+            }
+        }
+
+        let best2 = null;
+        let minExcess = Infinity;
+        for (let i = 0; i < available.length; i++) {
+            for (let j = i + 1; j < available.length; j++) {
+                const sum = available[i].amount + available[j].amount;
+                if (sum >= target && sum - target < minExcess) {
+                    best2 = [available[i], available[j]];
+                    minExcess = sum - target;
+                }
+            }
+        }
+        if (best2)
+            return { utxos: best2, covered: best2[0].amount + best2[1].amount, remaining: 0, mode: "best-2" };
+
+        const greedy = [];
+        let total = 0;
+        for (let i = available.length - 1; i >= 0; i--) { // start from largest
+            if (total >= target) break;
+            greedy.push(available[i]);
+            total += available[i].amount;
+        }
+        if (total >= target)
+            return { utxos: greedy, covered: total, mode: "greedy" };
+
+        return { utxos: available, covered: total, mode: "insufficient" };
+    }
+
+    //GETTERS
+    getPending(batch = this.batch){
+        return this.pendingUtxos[batch];
+    }
+    getPendingInputs(batch = this.batch){
+        return this.pendingUtxos[batch].inputs;
+    }
+    getPendingOutputs(batch = this.batch){
+        return this.pendingUtxos[batch].outputs;
+    }
+    getAll(user, token) {
+        return this._ensureUserToken(user, token);
+    }
+    getAvailable(user, token) {
+        return this.getAll(user, token).filter(u => !u.spent && !u.pending);
+    }
+    getBalance(user, token) {
+        return this._ensureBalance(user, token);
+    }
+    getUnlockedBalance(user, token){
+        return this._ensureBalance(user, token).available;
+    }
+
+    //HELPERS
+    _addUtxo(u){
+        const utxos = this._ensureUserToken(u.user, u.token);
+        utxos.push(u);
+    }
+    _removeUtxo(u) {
+        const utxos = this._ensureUserToken(u.user, u.token);
+        const i = utxos.findIndex(utxo => utxo.note === u.note);
+        if (i !== -1) utxos.splice(i, 1);
+    }
+    _ensureUserToken(user, token) {
+        if (!this.pool.has(user)) this.pool.set(user, new Map());
+        const userTokens = this.pool.get(user);
+        if (!userTokens.has(token)) userTokens.set(token, []);
+        return userTokens.get(token);
+    }
+    _ensureBalance(user, token) {
+        if (!this.balances.has(user)) this.balances.set(user, new Map());
+        const userTokens = this.balances.get(user);
+        if (!userTokens.has(token)) userTokens.set(token, { available: 0, pending: 0 });
+        return userTokens.get(token);
+    }
+}
+

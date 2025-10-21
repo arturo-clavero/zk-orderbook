@@ -1,5 +1,5 @@
-import { queueDeposit } from "../proofs/actions.js";
-import { UtxoPool } from "../proofs/tree/utxoManager.js";
+import { queueDeposit } from "../proofs/actions/withdraw.js";
+import { UtxoPool } from "../proofs/utxo/UtxoPool.js";
 
 const pool = new UtxoPool();
 const user = "userA";
@@ -16,8 +16,8 @@ async function testSingleDeposit(logs=true){
     await queueDeposit(pool, user, token, 5);
     await queueDeposit(pool, user, token, 2);
     await queueDeposit(pool, user, token, 3);
+    if (logs) log_state("after deposit"); 
 
-    if (logs) log_state("after deposit");  
 }
 
 function testEndBatch(logs=true){
