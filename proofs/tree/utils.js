@@ -1,4 +1,6 @@
 import { Barretenberg} from "@aztec/bb.js";
+import crypto from "crypto";
+
 
 const FIELD_MODULUS = BigInt("21888242871839275222246405745257275088548364400416034343698204186575808495617");
 
@@ -36,4 +38,6 @@ export function membersToStrings(obj, DEPTH) {
     return out;
 }
 
-
+export function randomSalt() {
+  return "0x" + crypto.randomBytes(16).toString("hex");
+}

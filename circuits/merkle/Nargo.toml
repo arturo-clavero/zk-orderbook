@@ -1,6 +1,6 @@
 [package]
 name = "merkle"
-type = "bin"
+type = "lib"
 authors = [""]
 
 [dependencies]
