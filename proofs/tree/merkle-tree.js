@@ -38,6 +38,19 @@ export class MerkleTree{
         }
     }
 
+    generateEmptyProof(format = false){
+        const proof = {
+            root: 0,
+            value: 0,
+            siblings: new Array(this.DEPTH).fill(0),
+            path: new Array(this.DEPTH).fill(0),
+        };
+        if (format){
+            proof = membersToStrings(proof, this.DEPTH);
+        }
+        return proof;
+    }
+
     async getSiblings(value, levelLeafs = this.leafs, _siblings = [], index = -1){//STORE LEAF VALUES HASHED
         if (index == -1) index = this.valueToIndexMap[value];
         index = index % 2 == 0 ? index + 1 : index -1;
