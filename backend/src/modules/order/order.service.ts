@@ -6,12 +6,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import { prisma } from '../../lib/prisma-trading-database/prisma-trading';
+import { MatchingService } from 'src/services/matching/matching.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private matchingService: MatchingService,
+  ) {}
   async createOrder(dto: any) {
-    const { walletAddress, buy_currency, sell_currency, amount, price } = dto;
+    const { side, walletAddress, buy_currency, sell_currency, amount, price } =
+      dto;
 
     const trader = await prisma.trader.findUnique({
       where: {
@@ -23,14 +28,20 @@ export class OrderService {
     }
     const order = await prisma.order.create({
       data: {
+        side,
         traderId: trader.id,
         buy_currency,
         sell_currency,
         amount,
         price,
-        order_status: 'pending',
+        order_status: 'PENDING',
       },
     });
-    return { orderId: order.id, status: order.order_status };
+    await this.matchingService.matchOrder(order.id);
+    return {
+      orderId: order.id,
+      status: order.order_status,
+      message: 'order created and sended for matching',
+    };
   }
 }

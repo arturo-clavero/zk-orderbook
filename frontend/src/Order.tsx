@@ -86,8 +86,8 @@ export default function OrderForm() {
       // Map side → sell_currency / buy_currency
       let sell_currency = '';
       let buy_currency = '';
-
-      if (formData.side === 'buy') {
+      const side = formData.side;
+      if (side === 'buy') {
         // e.g. "Buy ETH with USDT"
         sell_currency = formData.quoteCurrency;
         buy_currency = formData.baseCurrency;
@@ -98,6 +98,7 @@ export default function OrderForm() {
       }
 
       const payload = {
+        side,
         walletAddress,
         buy_currency,
         sell_currency,

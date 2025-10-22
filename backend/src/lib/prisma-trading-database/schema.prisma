@@ -44,9 +44,10 @@ model Order {
   amount        BigInt
   price         BigInt
   created       DateTime @default(now())
-  order_status  String
+  order_status  Order_Status   @default(PENDING)
   proof         String?
   filled        BigInt    @default(0)
+  side          String
 
   buyTrades     Trade[] @relation("BuyTrades")
   sellTrades    Trade[] @relation("SellTrades")
@@ -79,9 +80,9 @@ model Trade {
   txHash     String? @unique
 }
 
-// enum order_status{
-//   PENDING
-//   FILLED
-//   PARTIAL
-//   CANCELED
-// }
+enum Order_Status{
+  PENDING
+  FILLED
+  PARTIAL
+  CANCELED
+}
