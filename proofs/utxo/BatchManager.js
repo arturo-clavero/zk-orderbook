@@ -1,3 +1,5 @@
+import { pool } from "./UtxoPool.js";
+
 function newEmptyBatch(id){
     return {
         id: id,
@@ -11,8 +13,7 @@ function newEmptyBatch(id){
 }
 
 class BatchManager {
-    constructor(pool, config = {}) {
-        this.pool = pool; // Reference to UtxoPool instance
+    constructor(config = {}) {
         // batchId -> { status, deposits, withdrawals, trades, typeCounts }
         this.batches = new Map();
         this.currentBatch = 0;
@@ -25,10 +26,24 @@ class BatchManager {
     }
 
     //type = "deposit" || "withdraw" || "trade" || "join"
-    addAction(type, data) {
-        const active = this._latestBatch(type);
-        if (data.inputs.length > 0) pool.addPendingInputs(data.inputs, active.id);
-        if (data.outputs.length > 0) pool.addPendingOutputs(data.outputs, active.id);
+    addAction(type, data, lastId = -1) {
+        const nextId = lastId == -1 ? this.currentBatch : lastId + 1;
+        const active = this._latestBatch(type, nextId);
+        // console.log("data: ", data);
+        if (Array.isArray(data.inputs) && data.inputs.length > 0)
+        {
+            // console.log("inputs,...");
+            for(const u of data.inputs) pool.addPendingInput(u, active.id);
+        }
+
+        if (Array.isArray(data.outputs) && data.outputs.length > 0)
+        {
+            // console.log("uotputs...")
+            for(const u of data.outputs) pool.addPendingOutput(u, active.id);
+        }
+
+        // if (data.inputs.length > 0) pool.addPendingInputs(data.inputs, active.id);
+        // if (data.outputs.length > 0) pool.addPendingOutputs(data.outputs, active.id);
 
         if (type === "deposit") {
             active.deposits.push(data);
@@ -37,28 +52,30 @@ class BatchManager {
         } else if (type === "trade") {
             active.trades.push(data);
         } else if (type == "join"){
-            active.join.push(data);
+            active.joins.push(data);
         }
         active.typeCounts[type]++;
         return active.id;
     }
+
     verifyNextBatch(){
         const id = this.currentBatch;
-        this.currentBatch += 1;
+        this.currentBatch += 1;  
+        this._ensureBatch();      
         const batch = this.batches.get(id);
-        this._markBatchPending(batch);
+        batch.status = "pending";
         return {
+            id,
             deposits: batch.deposits,
             withdrawals: batch.withdrawals,
             trades: batch.trades,
         }
     }
-    finalizeBatch(batchId, success = true) {
+    finalizeBatch(batchId) {
         const batch = this.batches.get(batchId);
         if (!batch) return;
-
-        this.pool.finalizeBatch(batchId, success);
-        batch.status = success ? "finalized" : "failed";
+        pool.finalizeBatch(batchId);
+        batch.status = "finalized";
         this.batches.delete(batchId);
     }
 
@@ -70,28 +87,21 @@ class BatchManager {
     }
     _ensureBatch(batchId = this.currentBatch) {
         if (!this.batches.has(batchId)) {
-            this.batches.set(batchId, newEmptyBatch(id));
+            this.batches.set(batchId, newEmptyBatch(batchId));
         }
         return this.batches.get(batchId);
     }
-    _markBatchPending(batch) {
-        batch.status = "pending";
-    }
-    _latestBatch(id = this.currentBatch){
+    _latestBatch(type, id = this.currentBatch){
         const batch = this._ensureBatch(id);
         if (batch.typeCounts[type] >= this.maxPerType[type]) {
-            return this._latestBatch(id++);
+            return this._latestBatch(id + 1);
         }
         return batch;
     }
-    // _startNewBatch() {
-    //     this.currentBatch++;
-    //     this._ensureBatch(this.currentBatch);
-    // }
 
     //GETTERS
     getBatch(batchId = this.currentBatch) {
-        return this.batches.get(batchId);
+        return this._ensureBatch(batchId);
     }
     getOpenBatch() {
         return [...this.batches.entries()].find(([_, b]) => b.status === "open");
@@ -99,22 +109,4 @@ class BatchManager {
     
 }
 
-export { BatchManager };
-
-// //USSAGE
-
-// const manager = new BatchManager(pool, { maxPerType: { deposit: 2, withdraw: 2, trade: 1 } });
-
-// // Add two deposits
-// manager.addAction("deposit", user, token, utxo1);
-// manager.addAction("deposit", user, token, utxo2);
-
-// // Automatically starts new batch if over limit
-// manager.addAction("deposit", user, token, new UTXO({ note: 3n, user, token, amount: 8, salt: "0xghi" }));
-
-// manager.printBatch(0);
-// manager.printBatch(1);
-
-// // Finalize first batch
-// manager.finalizeBatch(0, true);
-// console.log(pool.getAll(user, token));
+export const batch = new BatchManager(); 

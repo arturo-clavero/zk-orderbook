@@ -1,20 +1,21 @@
-export class UtxoPool {
+import { batch } from "./BatchManager.js";
+
+const pendingMirrors = true;
+
+class UtxoPool {
     constructor() {
         this.pool = new Map();         // user -> token ->[UTXO]
         this.balances = new Map();     // user -> token -> { available, pending }
         this.pendingUtxos = {}; // batch id -> pending outputs
-        this.batch = 0;
     }
 
     setPendingOutput(user, token, utxo) {
-        
-
         utxo.pending = true;
         const balance = this._ensureBalance(user, token);
         balance.pending += utxo.amount;
     }
     addPendingOutput(utxo, id){
-        if (!(this.batch in this.pendingUtxos)) {
+        if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
         this.pendingUtxos[id].outputs.push(utxo);
@@ -31,8 +32,8 @@ export class UtxoPool {
         const balance = this._ensureBalance(user, token);
         balance.pending -= utxo.amount;
     }
-    addPendingOutput(utxo, id){
-        if (!(this.batch in this.pendingUtxos)) {
+    addPendingInput(utxo, id){
+        if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
         this.pendingUtxos[id].inputs.push(utxo);
@@ -44,44 +45,29 @@ export class UtxoPool {
         return batchId;
     }
 
-    finalizeBatch(batchId, success = true) {
+    finalizeBatch(batchId) {
         const batch = this.pendingUtxos[batchId];
         if (!batch) return;
 
         const outUtxos = batch.outputs || [];
+        for (const o of outUtxos) {
+            if (!o.isReserved)
+                o.pending = false;
+            this._addUtxo(o);
+            const balance = this._ensureBalance(o.user, o.token);
+            balance.pending -= o.amount;
+            balance.available += o.amount;
+        }
         const inUtxos = batch.inputs || [];
+        for (const i of inUtxos) {
+            i.spent = true;
+            i.pending = false;
+            this._removeUtxo(i);
+            const balance = this._ensureBalance(i.user, i.token);
+            balance.pending += i.amount;
+            balance.available -= i.amount;
+        }
 
-        // if (success) {
-            for (const o of outUtxos) {
-                if (o.isReserved)
-                    o.pending = false;
-                this._addUtxo(o);
-                const balance = this._ensureBalance(o.user, o.token);
-                balance.pending -= o.amount;
-                balance.available += o.amount;
-            }
-            for (const i of inUtxos) {
-                i.spent = true;
-                i.pending = false;
-                this._removeUtxo(i);
-                const balance = this._ensureBalance(o.user, o.token);
-                balance.pending += o.amount;
-                balance.available += o.amount;
-            }
-        // }
-        // else {
-        //     for (const o of outUtxos) {
-        //         o.pending = false;
-        //         const balance = this._ensureBalance(o.user, o.token);
-        //         balance.pending -= o.amount;
-        //     }
-
-        //     for (const i of inUtxos) {
-        //         i.pending = false;
-        //         const balance = this._ensureBalance(i.user, i.token);
-        //         balance.pending += i.amount;
-        //     }
-        // }
         delete this.pendingUtxos[batchId];
     }
 
@@ -93,6 +79,7 @@ export class UtxoPool {
         if (available.length === 0)
             return { utxos: [], covered: 0, mode: "insufficient" };
 
+        
         const exact1 = available.find(u => u.amount === target);
         if (exact1)
             return { utxos: [exact1], covered: target, remaining: 0, mode: "exact-1" };
@@ -121,7 +108,7 @@ export class UtxoPool {
 
         const greedy = [];
         let total = 0;
-        for (let i = available.length - 1; i >= 0; i--) { // start from largest
+        for (let i = available.length - 1; i >= 0; i--) {
             if (total >= target) break;
             greedy.push(available[i]);
             total += available[i].amount;
@@ -133,8 +120,9 @@ export class UtxoPool {
     }
 
     //GETTERS
-    getPending(batch = this.batch){
-        return this.pendingUtxos[batch];
+    getPending(id = batch.currentBatch){
+        console.log("current batch id : ", id);
+        return this.pendingUtxos[id];
     }
     getPendingInputs(batch = this.batch){
         return this.pendingUtxos[batch].inputs;
@@ -179,3 +167,4 @@ export class UtxoPool {
     }
 }
 
+export const pool = new UtxoPool();

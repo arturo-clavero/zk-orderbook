@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { hash } from './utils';
-import { MerkleTree } from './merkle-tree';
+import { hash } from './utils.js';
+import { MerkleTree } from './merkle-tree.js';
 
 const balanceTree = new MerkleTree();
 

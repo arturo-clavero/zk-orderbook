@@ -1,13 +1,9 @@
-import { createOutput, sortExtraUtxos } from "../utxo/utxo-utils.js";
+import { batch } from "../utxo/BatchManager.js";
+import { createOutput } from "../utxo/utxo-utils.js";
+import { pool } from "../utxo/UtxoPool.js";
+import { _setInputs, _tooManyInputs } from "./action-utils.js";
 
-async function queueDeposit(pool, user, token, amount){
-    //check first the log is true...
-    //if not return false or send error to front end...
-    await createOutput(pool, user, token, change);
-    return true;
-}
-
-async function queueWithdraw(pool, user, token, targetAmount) {
+export async function queueWithdraw(user, token, targetAmount) {
     if (pool.getUnlockedBalance(user, token) <  targetAmount) {
         console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);
         //send error to front end?
@@ -21,31 +17,24 @@ async function queueWithdraw(pool, user, token, targetAmount) {
     }
     const inputs = inputData.utxos;
     const outputs = [];
-    // if (inputData.mode != "greedy") 
-    _setWithdrawInputs(inputs, inputData.covered);
-    // else 
-    //     sortExtraUtxos(inputData.utxos, 2, _setWithdrawInputs);
+    let lastId = -1;
+    if (inputs.length > 2) 
+    {
+        inputData = await _tooManyInputs(inputs, 2);
+        lastId = inputData.lastId;
+    }
+    _setInputs(inputs);
     const change = inputData.covered - targetAmount;
     if (change > 0) 
-        outputs.push(await createOutput(pool, user, token, change));
+        outputs.push(await createOutput(user, token, change));
     const circuitData = {
         inputs,
         outputs,
         user,
         token,
-        amount,
+        targetAmount,
     }
-    addAction("withdraw", circuitData);
+    batch.addAction("withdraw", circuitData, lastId);
 }
 
-function _setWithdrawInputs(utxos, covered){
-    for (const u of utxos) pool.setPendingInput(u.user, u.token, u.note);
-    return true;
-}
-
-
-export {
-    queueDeposit,
-    queueWithdraw,
-};
 
