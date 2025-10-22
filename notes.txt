@@ -1,0 +1,67 @@
+single withdraw
+
+
+<  >
+current batch id :  5
+current batch id :  6
+current batch id :  7
+Pending: [
+  {
+    inputs: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    outputs: [ [Object], [Object], [Object], [Object] ]
+  },
+  {
+    inputs: [ [Object], [Object], [Object], [Object] ],
+    outputs: [ [Object], [Object] ]
+  },
+  { inputs: [ [Object], [Object] ], outputs: [] }
+]
+Utxos: [
+  1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1
+]
+Balance :  { available: 10, pending: -10 }
+
+
+
+
+< final state  >
+current batch id :  6
+current batch id :  7
+Pending: [
+  {
+    inputs: [ [Object], [Object], [Object], [Object] ],
+    outputs: [ [Object], [Object] ]
+  },
+  { inputs: [ [Object], [Object] ], outputs: [] }
+]
+Utxos: [ 3, 3, 3, 1 ]
+Balance :  { available: 10, pending: -10 }
+
+
+
+
+< final state  >
+current batch id :  7
+Pending: [ { inputs: [ [Object], [Object] ], outputs: [] } ]
+Utxos: [ 9, 1 ]
+Balance :  { available: 10, pending: -10 }
+
+
+
+
+< final state  >
+current batch id :  8
+Pending: [ undefined ]
+Utxos: []
+Balance :  { available: 0, pending: 0 }
+
+
+
+end.

@@ -29,22 +29,15 @@ class BatchManager {
     addAction(type, data, lastId = -1) {
         const nextId = lastId == -1 ? this.currentBatch : lastId + 1;
         const active = this._latestBatch(type, nextId);
-        // console.log("data: ", data);
         if (Array.isArray(data.inputs) && data.inputs.length > 0)
         {
-            // console.log("inputs,...");
             for(const u of data.inputs) pool.addPendingInput(u, active.id);
         }
 
         if (Array.isArray(data.outputs) && data.outputs.length > 0)
         {
-            // console.log("uotputs...")
             for(const u of data.outputs) pool.addPendingOutput(u, active.id);
         }
-
-        // if (data.inputs.length > 0) pool.addPendingInputs(data.inputs, active.id);
-        // if (data.outputs.length > 0) pool.addPendingOutputs(data.outputs, active.id);
-
         if (type === "deposit") {
             active.deposits.push(data);
         } else if (type === "withdraw") {
@@ -94,7 +87,7 @@ class BatchManager {
     _latestBatch(type, id = this.currentBatch){
         const batch = this._ensureBatch(id);
         if (batch.typeCounts[type] >= this.maxPerType[type]) {
-            return this._latestBatch(id + 1);
+            return this._latestBatch(type, id + 1);
         }
         return batch;
     }
