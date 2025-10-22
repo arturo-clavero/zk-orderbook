@@ -9,26 +9,27 @@ export async function queueWithdraw(user, token, targetAmount) {
         //send error to front end?
         return false;
     }
-    const inputData = pool.selectForAmount(user, token, targetAmount);
+    let inputData = pool.selectForAmount(user, token, targetAmount);
     if (inputData.mode == "insufficient") {
         console.error(`Not enough funds for ${user} to withdraw ${targetAmount} ${token}`);
         //send error to front end?
         return false;
     }
-    const inputs = inputData.utxos;
+    // console.log("\n select form : ", inputData);
     const outputs = [];
     let lastId = -1;
-    if (inputs.length > 2) 
+    if (inputData.utxos.length > 2) 
     {
-        inputData = await _tooManyInputs(inputs, 2);
+        inputData = await _tooManyInputs(inputData.utxos, 2);
         lastId = inputData.lastId;
     }
-    _setInputs(inputs);
+    // console.log("inputdata.utxos: ", inputData.utxos);
+    _setInputs(inputData.utxos);
     const change = inputData.covered - targetAmount;
     if (change > 0) 
         outputs.push(await createOutput(user, token, change));
     const circuitData = {
-        inputs,
+        inputs: inputData.utxos,
         outputs,
         user,
         token,

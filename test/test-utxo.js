@@ -10,30 +10,48 @@ const token = "ETH";
 //0 : only state
 //1 : only batch
 //2 : batch and state 
-let LOGS = 0;
+let LOGS = -1;
 
+const d = 10;
 async function test() {
-    await testSingleDeposit(false);
+    for (let i =0; i < d; i++)
+        await testSingleDeposit(false, 1);
+    
+    for (let i = 0; i < d/2; i++)
+        testEndBatch();
+    LOGS = 0;
+    log_batch("<initial state>");
+
+    console.log("single withdraw");
+    await testSingleWithdraw(false, 10);
+    log_batch("<after withdrawal>");
+    log_batch("<after withdrawal>", 6);
+    log_batch("<after withdrawal>", 7);
+    log_state();
+
     testEndBatch();
+    testEndBatch();
+    testEndBatch();
+
     console.log("\nend.");
     // LOGS = 0;
-     await testSingleWithdraw();
-    testEndBatch();
-    console.log("\nend.");
+    // await testSingleWithdraw();
+    // testEndBatch();
+    // console.log("\nend.");
 
 
 
 }
 
-async function testSingleDeposit(logs=true){
+async function testSingleDeposit(logs=true, x=1){
     if (logs) log_state("original state");
-    await queueDeposit(user, token, 10);
+    await queueDeposit(user, token, x);
     if (logs) log_state("after deposit"); 
 }
 
-async function testSingleWithdraw(logs=true){
+async function testSingleWithdraw(logs=true, x = 1){
     if (logs) log_state("original state");
-    await queueWithdraw(user, token, 5);
+    await queueWithdraw(user, token, x);
     if (logs) log_state("after withdraw"); 
 
 }
@@ -67,10 +85,14 @@ export function log_state(str=""){
     if (LOGS == 1 || LOGS == -1)
         return;
     console.log("\n\n<",str,">");
-    console.log("Pending:", pool.getPending());
-    console.log("Utxos:", pool.getAll(user, token));
+    console.log("Pending:", pool.getAllPending());
+    const all =  pool.getAll(user, token);
+    const amounts = [];
+    for (const a of all) amounts.push(a.amount);
+    console.log("Utxos:", amounts);
     console.log("Balance : ", pool.getBalance(user, token));
     console.log("\n");
 
 }
+
 await test();

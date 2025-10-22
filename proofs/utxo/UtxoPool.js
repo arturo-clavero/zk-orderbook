@@ -10,29 +10,34 @@ class UtxoPool {
     }
 
     setPendingOutput(user, token, utxo) {
+        // console.log("set pending output");
         utxo.pending = true;
         const balance = this._ensureBalance(user, token);
         balance.pending += utxo.amount;
     }
     addPendingOutput(utxo, id){
+        // console.log("add pending output");
         if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
         this.pendingUtxos[id].outputs.push(utxo);
     }
 
-    setPendingInput(user, token, note) {
+    setPendingInput(user, token, note, _amount) {
+        // console.log("set pending input");
         const utxos = this._ensureUserToken(user, token);
         const utxo = utxos.find(u => u.note === note);
         if (utxo && !utxo.spent) utxo.pending = true;
-        else {
+        else if (utxo && utxo.spent){
             console.log("error with note?");
             return;
         }
+        const amount = utxo ? utxo.amount : _amount;
         const balance = this._ensureBalance(user, token);
-        balance.pending -= utxo.amount;
+        balance.pending -= amount;
     }
     addPendingInput(utxo, id){
+        // console.log("add pending input");
         if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
@@ -120,6 +125,18 @@ class UtxoPool {
     }
 
     //GETTERS
+    getAllPending(){
+        let id = batch.currentBatch;
+        const pending = [];
+        while (1){
+            if (!batch.batches.has(id)) {
+                break;
+            }
+            pending.push(this.getPending(id));
+            id++;
+        }
+        return pending;
+    }
     getPending(id = batch.currentBatch){
         console.log("current batch id : ", id);
         return this.pendingUtxos[id];
