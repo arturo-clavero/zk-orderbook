@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Post, Body } from '@nestjs/common';
-import { prisma } from '../lib/prisma-trading-database/prisma-trading';
+import { prisma } from '../../lib/prisma-trading-database/prisma-trading';
 
 @Controller('account')
 export class AccountController {
