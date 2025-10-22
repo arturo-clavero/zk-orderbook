@@ -4,6 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
+//delete the balance 
 generator trading_client {
   provider = "prisma-client-js"
 }
@@ -26,10 +28,9 @@ model Account {
   id         String  @id @default(uuid())
   traderId   String
   trader     Trader  @relation(fields: [traderId], references: [id])
-  currency   String
+  currency   String 
   locked     BigInt  @default(0)
   available  BigInt  @default(0)
-  merkleLeaf String?
   
   @@unique([traderId, currency]) //compound IDs&unique constraints
 }
@@ -45,7 +46,10 @@ model Order {
   created       DateTime @default(now())
   order_status  String
   proof         String?
-  newRoot       String?
+  filled        BigInt    @default(0)
+
+  buyTrades     Trade[] @relation("BuyTrades")
+  sellTrades    Trade[] @relation("SellTrades")
 }
 
 model Transaction {
@@ -57,9 +61,27 @@ model Transaction {
   rawAmount     BigInt   // <-- exact on-chain value (from event.params.amount)
   humanAmount   String   // <-- ethers.formatUnits() output for display
   proof      String?
-  merkleLeaf String?
   txHash     String? @unique
   status     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model Trade {
+  id         String   @id @default(uuid())
+  buyOrderId   String
+  sellOrderId  String
+  buyOrder   Order   @relation("BuyTrades", fields: [buyOrderId], references: [id])
+  sellOrder  Order  @relation("SellTrades", fields: [sellOrderId], references: [id])
+  amount        BigInt
+  price         BigInt
+  executedAt    DateTime @default(now())
+  txHash     String? @unique
+}
+
+// enum order_status{
+//   PENDING
+//   FILLED
+//   PARTIAL
+//   CANCELED
+// }

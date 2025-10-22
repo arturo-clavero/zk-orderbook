@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import  vaultAbi  from './contracts/deposit.json';
+import vaultAbi from './contracts/deposit.json';
+import { useNavigate } from "react-router-dom";
 
-declare var window: any
+declare var window: any;
 
 export default function DepositForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     traderId: '',
     token: 'PYUSD',
@@ -19,7 +21,7 @@ export default function DepositForm() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Connect to MetaMask
+  // ===== MetaMask Connect =====
   const connectWallet = async () => {
     if (!window.ethereum) {
       alert('Please install MetaMask!');
@@ -40,31 +42,33 @@ export default function DepositForm() {
       setError('Failed to connect wallet');
     }
   };
-  //checking wallt existment 
+
+  // ===== Account Check =====
   const checkWallet = async () => {
     if (!walletAddress){
       alert("Please connect wallet first!");
-      return ;
+      return false;
     }
     try {
-      let response = await axios.post('http://localhost:4000/account/check', {
+      const response = await axios.post('http://localhost:4000/account/check', {
         address: walletAddress,
         token: formData.token,
-      })
+      });
       if (!response.data.exists){
-          alert("New account creted, please verufy kyc before actions");
-          return false;
+        alert("New account created, please verify KYC before actions");
+        return false;
       } else {
-        console.log("account exists, continue using");
+        console.log("Account exists, continue using");
         return true;
       }
     } catch (err){
       console.error("Verification failed", err);
-      setError("Bckend failed");
+      setError("Backend failed");
       return false;
     }
   };
-  // Handle Deposit Submit
+
+  // ===== Handle Deposit =====
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -74,58 +78,52 @@ export default function DepositForm() {
     }
     const accountExists = await checkWallet();
     if (!accountExists){
-      setError("Please verify your account before trading")
-      return ;
+      setError("Please verify your account before trading");
+      return;
     }
+
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      //ADDRESSES for the token contracts are in .env
-      const address = process.env.REACT_APP_VAULT_ADDRESS!;
+      const vaultAddress = process.env.REACT_APP_VAULT_ADDRESS!;
       const pyusd = process.env.REACT_APP_PYUSD_ADDRESS!;
       const usdt = process.env.REACT_APP_USDT_ADDRESS!;
-      console.log("the address is ", address);
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(address, vaultAbi, signer);
+      const contract = new ethers.Contract(vaultAddress, vaultAbi, signer);
       const token = formData.token;
       const tokenAddress = token === "PYUSD" ? pyusd : usdt;
-      const erc20Abi = [
-        "function approve(address spender, uint256 amount) public returns(bool)"
-      ];
+      const erc20Abi = ["function approve(address spender, uint256 amount) public returns(bool)"];
       const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, signer);
 
-      const amount = ethers.parseUnits(formData.amount, 18);
-      const approveTx = await tokenContract.approve(address, amount);
-      await approveTx.wait();
-      let tx;
+      const amount = ethers.parseUnits(formData.amount, token === 'ETH' ? 18 : 6);
+      const approveTx = token !== 'ETH' ? await tokenContract.approve(vaultAddress, amount) : null;
+      if (approveTx) await approveTx.wait();
 
+      let tx;
       if (token === "ETH"){
-        console.log("tx is ", tx);
-        tx = await contract.depositEth({value: ethers.parseUnits(formData.amount, 18)});
+        tx = await contract.depositEth({ value: ethers.parseUnits(formData.amount, 18) });
+      } else {
+        tx = await contract.depositErc(tokenAddress, amount);
       }
-      else if (token === "PYUSD") {
-        tx = await contract.depositErc(pyusd, ethers.parseUnits(formData.amount, 6));
-        console.log("tx is ", tx);
-      } else if (token === "USDT") {
-        tx = await contract.depositErc(usdt, ethers.parseUnits(formData.amount, 6));
-        console.log("tx is ", tx);
-      }
-      if (!tx) throw new Error("transaction was not created");
       await tx.wait();
 
-      setResult(`if deposit successful you will see the hash: ${tx.hash}`, );
+      setResult({
+        txHash: tx.hash,
+        message: 'Deposit confirmed on-chain',
+      });
       setFormData({ traderId: walletAddress || '', token: 'PYUSD', amount: '' });
-    }catch (err: any) {
+    } catch (err: any) {
       console.error('❌ Deposit failed:', err);
-      setError(err.response?.data?.error || 'Something went wrong');
+      setError(err.reason || err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
+  // ===== Handle Form Change =====
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -133,6 +131,7 @@ export default function DepositForm() {
     });
   };
 
+  // ===== UI =====
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">Deposit Funds</h2>
@@ -147,6 +146,12 @@ export default function DepositForm() {
       ) : (
         <div className="mb-4 p-3 border border-green-200 bg-green-50 rounded-lg text-sm text-green-800">
           ✅ Connected: <span className="font-mono">{walletAddress}</span>
+        </div>
+      )}
+
+      {walletConnected && (
+        <div className="mb-4 p-3 border border-gray-200 bg-gray-50 rounded-lg text-sm">
+          💰 <strong>{formData.token}</strong> Balance: from redis
         </div>
       )}
 
@@ -191,20 +196,26 @@ export default function DepositForm() {
         </button>
       </form>
 
-      {/*  Success */}
+      {/* Go to Order Page Button */}
+      <div className="mt-6">
+        <button
+          onClick={() => navigate("/order")}
+          className="w-full bg-gray-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-900"
+        >
+          🧾 Go to Order Page
+        </button>
+      </div>
+
+      {/* Success */}
       {result && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h3 className="font-semibold text-green-800 mb-2">✅ Deposit Successful!</h3>
-          <div className="text-sm text-green-700 space-y-1">
-            <p><strong>Deposit ID:</strong> {result.depositId}</p>
-            <p><strong>Transaction Hash:</strong> {result.txHash}</p>
-            <p><strong>Status:</strong> {result.status}</p>
-            <p className="text-xs mt-2 text-gray-600">{result.message}</p>
-          </div>
+          <p className="text-sm text-green-700">Transaction: {result.txHash}</p>
+          <p className="text-xs text-gray-600 mt-1">{result.message}</p>
         </div>
       )}
 
-      {/*  Error */}
+      {/* Error */}
       {error && (
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <h3 className="font-semibold text-red-800 mb-2">❌ Error</h3>

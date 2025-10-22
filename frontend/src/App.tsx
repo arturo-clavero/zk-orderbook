@@ -1,12 +1,14 @@
-import React from "react";
-import Dummy from "./Dummy";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import DepositForm from './Dummy';
+import OrderForm from './Order';
 
-const App: React.FC = () => {
+export default function App() {
   return (
-    <div>
-      <Dummy />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<DepositForm />} />
+        <Route path="/order" element={<OrderForm />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
-
-export default App;
+}
