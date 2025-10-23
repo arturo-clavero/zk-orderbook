@@ -7,6 +7,8 @@ import os from 'node:os';
 
 const PREPATH = '../circuits/';
 
+let backend;
+
 export async function callCircuit(inputs, path){
   try {
     const compiledCircuit = await compile(createFileManager(
@@ -14,14 +16,17 @@ export async function callCircuit(inputs, path){
     ));
 
     const noir = new Noir(compiledCircuit.program);
-    const backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: os.cpus().length });
+    backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: os.cpus().length });
     // const backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: 1});
     const { witness } = await noir.execute(inputs, { showOutputs: true });
     const { proof, publicInputs } = await backend.generateProof(witness);
-    console.log("verifying...");
-    return await backend.verifyProof({ proof, publicInputs });
+    return {proof, publicInputs};
   } catch(error){
     console.error("Verification failed:", error);
     return false;
   }
+}
+
+export async function verifyLatestProof(proof, publicInputs){
+  return await backend.verifyProof({ proof, publicInputs });
 }

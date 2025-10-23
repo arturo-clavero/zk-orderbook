@@ -40,3 +40,16 @@ export async function _tooManyInputs(inputs, maxInputs, prevId = -1){
         covered,
     }
 }
+
+export function formatProofInputs(obj) {
+    const out = {};
+    for(let key of Object.keys(obj)) {
+        if (typeof obj[key] === "boolean") {
+            out[key] = obj[key];
+        }
+        else{
+            out[key] = obj[key].toString(10);
+        }
+    }
+    return out;
+}

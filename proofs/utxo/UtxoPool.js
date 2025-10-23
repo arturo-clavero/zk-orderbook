@@ -6,7 +6,7 @@ class UtxoPool {
     constructor() {
         this.pool = new Map();         // user -> token ->[UTXO]
         this.balances = new Map();     // user -> token -> { available, pending }
-        this.pendingUtxos = {}; // batch id -> pending outputs
+        this.pendingUtxos = {};        // batch id -> pending outputs
     }
 
     setPendingOutput(user, token, utxo) {
