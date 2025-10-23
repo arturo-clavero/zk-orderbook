@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
@@ -29,8 +27,9 @@ export class OrderService {
     }
     //cooool prisma atomic transaction feature
     const order = await prisma.$transaction(async (tx) => {
-      if (side.toLowerCase === 'sell') {
-        const sellAccount = await prisma.account.findUnique({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      if (side.toLowerCase() === 'sell') {
+        const sellAccount = await tx.account.findUnique({
           where: {
             traderId_currency: {
               traderId: trader.id,

@@ -33,7 +33,7 @@ export class MatchingService {
       side: order.side,
       buy_currency: order.buy_currency,
       sell_currency: order.sell_currency,
-      amount: order.amount,
+      amount: { gt: 0 },
       price: order.price,
       filled: order.filled,
     });
@@ -49,9 +49,12 @@ export class MatchingService {
       where: {
         side: oppositeSide,
         buy_currency: order.buy_currency,
+        order_status: { in: ['PENDING', 'PARTIAL'] },
         sell_currency: order.sell_currency,
         amount: order.amount,
-        price: order.price,
+        price: isBuy
+          ? { lte: order.price } //buyer pays >= sellers price
+          : { gte: order.price }, // sellers <= buyers price
       },
       orderBy: [
         {
@@ -79,7 +82,8 @@ export class MatchingService {
       if (!validPrice) continue;
 
       //can be filled?
-      const availableOpp = BigInt(opp.amount) - BigInt(order.filled); // if opposote is tryong to fill his full order too
+      const availableOpp = BigInt(opp.amount) - BigInt(opp.filled); // if opposote is tryong to fill his full order too
+      if (availableOpp <= 0n) continue;
       const fillAmount =
         remainingAmount < availableOpp ? remainingAmount : availableOpp;
 
@@ -108,7 +112,7 @@ export class MatchingService {
       const sellerId = isBuy ? opp.traderId : order.traderId;
       const buyCurrency = order.buy_currency;
       const sellCurrency = order.sell_currency;
-      const totalCost = BigInt(opp.amount) * fillAmount;
+      const totalCost = BigInt(opp.price) * fillAmount;
 
       //===loogs===//
       console.log(`💰 Updating balances:`);
