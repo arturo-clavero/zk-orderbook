@@ -81,8 +81,8 @@ export class MatchingService {
       if (remainingAmount <= 0n) break;
       //is price overlap?
       const validPrice = isBuy
-        ? BigInt(order.price) >= BigInt(opp.price) //buy order
-        : BigInt(order.price) <= BigInt(opp.price); //sell
+        ? BigInt(order.price) >= BigInt(opp.price) //buyers want to pay more than seller asks
+        : BigInt(order.price) <= BigInt(opp.price); //sellers want to sell less than buyers wants
 
       if (!validPrice) continue;
 
