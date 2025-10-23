@@ -17,12 +17,33 @@ export class MatchingService {
       where: {
         id: orderId,
       },
+      include: {
+        trader: true,
+      },
     });
+    console.log('The order id is: ', order);
     if (!order) {
       throw new Error('order not founf');
     }
-    const isBuy = order.side === 'BUY';
-    const oppositeSide = isBuy ? 'BUY' : 'SELL';
+    //===loogs===//
+    console.log('🆕 NEW ORDER RECEIVED:');
+    console.log({
+      id: order.id,
+      trader: order.traderId,
+      side: order.side,
+      buy_currency: order.buy_currency,
+      sell_currency: order.sell_currency,
+      amount: order.amount,
+      price: order.price,
+      filled: order.filled,
+    });
+    ////////////////////
+    const isBuy = order.side === 'buy';
+    const oppositeSide = isBuy ? 'sell' : 'buy';
+
+    //===loogs===//
+    console.log(`🔄 Searching for opposite side orders (${oppositeSide})...`);
+
     //find opposite sides
     const oppositeOrders = await prisma.order.findMany({
       where: {
@@ -39,6 +60,11 @@ export class MatchingService {
         { created: 'asc' },
       ],
     });
+    if (oppositeOrders.length === 0) {
+      console.log('No opposite orders founf');
+      return;
+    }
+    console.log('Opposite orders: ', oppositeOrders);
     //partial feels if order comes not at first time
     let remainingAmount = BigInt(order.amount) - BigInt(order.filled);
 
@@ -57,6 +83,17 @@ export class MatchingService {
       const fillAmount =
         remainingAmount < availableOpp ? remainingAmount : availableOpp;
 
+      //===loogs===//
+      console.log('💥 MATCH FOUND!');
+      console.log({
+        buyer: isBuy ? order.traderId : opp.traderId,
+        seller: isBuy ? opp.traderId : order.traderId,
+        buyPrice: order.price,
+        sellPrice: opp.price,
+        fillAmount: fillAmount.toString(),
+      });
+      ////////////////////
+
       //trading
       await this.prisma.trade.create({
         data: {
@@ -66,10 +103,58 @@ export class MatchingService {
           price: opp.price,
         },
       });
+      //update balances
+      const buyerId = isBuy ? order.traderId : opp.traderId;
+      const sellerId = isBuy ? opp.traderId : order.traderId;
+      const buyCurrency = order.buy_currency;
+      const sellCurrency = order.sell_currency;
+      const totalCost = BigInt(opp.amount) * fillAmount;
 
+      //===loogs===//
+      console.log(`💰 Updating balances:`);
+      console.log({
+        buyer: buyerId,
+        seller: sellerId,
+        buyCurrency,
+        sellCurrency,
+        totalCost: totalCost.toString(),
+      });
+      //////////////////////
+
+      //Buyer receives
+      await prisma.account.updateMany({
+        where: {
+          traderId: buyerId,
+          currency: buyCurrency,
+        },
+        data: {
+          available: { increment: fillAmount },
+        },
+      });
+      await prisma.account.updateMany({
+        where: {
+          traderId: sellerId,
+          currency: sellCurrency,
+        },
+        data: {
+          available: { increment: totalCost },
+        },
+      });
+      //Seller receives
       //update filled amounts
       const newOppFilled = BigInt(opp.filled) + fillAmount;
       const newOrderFilled = BigInt(order.filled) + fillAmount;
+
+      //===loogs===//
+      console.log(`🧾 Updating order statuses...`);
+      console.log({
+        orderId: order.id,
+        newOrderFilled: newOrderFilled.toString(),
+        oppOrderId: opp.id,
+        newOppFilled: newOppFilled.toString(),
+      });
+      ///////////////////
+
       await prisma.order.update({
         where: {
           id: opp.id,
@@ -98,6 +183,9 @@ export class MatchingService {
                 : 'PENDING',
         },
       });
+      console.log(`✅ TRADE COMPLETED between ${buyerId} and ${sellerId}`);
+      console.log('---------------------------------------------');
     }
+    console.log(`🏁 Matching process finished for order ${order.id}`);
   }
 }
