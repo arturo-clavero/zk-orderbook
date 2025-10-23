@@ -5,6 +5,8 @@ import { hash, membersToStrings } from "./tree-utils.js";
 //depth depends per tree, default is at 3
 //please await computeRoot() after tree creation...
 
+const maxSubtreeSize = 4;
+const maxSubtreeDepth = 2;
 export class MerkleTree{
     #root;
 
@@ -139,5 +141,120 @@ export class MerkleTree{
                 break;
         }
     }
+    async insertNewSubtree(subtreeLeaves) {
+        if (subtreeLeaves.length < maxSubtreeSize){
+            const zeroHash = await hash([0]);
+            while (subtreeLeaves.length < maxSubtreeSize) {
+                subtreeLeaves.push(zeroHash);
+            }
+        }
+        
+        const subtreeSize = subtreeLeaves.length;
+        const subtreeHeight = Math.log2(subtreeSize);
 
+        const startIndex = this.maxIndex;
+        for (let i = 0; i < subtreeLeaves.length; i++) {
+            const leafIndex = startIndex + i;
+            this.leafs[leafIndex] = subtreeLeaves[i];
+            this.valueToIndexObj[subtreeLeaves[i]] = leafIndex;
+        }
+        this.maxIndex += subtreeLeaves.length;
+
+        const subtreeRoot = await computeSubtreeRoot(subtreeLeaves);
+
+        const subtreeIndex = Math.floor(startIndex / subtreeSize);
+
+        const siblingPathLength = this.DEPTH - subtreeHeight;
+        const siblingPath = [];
+        let index = subtreeIndex;
+        let levelLeaves = this.leafs;
+
+        for (let i = 0; i < siblingPathLength; i++) {
+            const pairIndex = index % 2 === 0 ? index + 1 : index - 1;
+            const leftIndexStart = pairIndex * subtreeSize;
+            const rightIndexStart = index * subtreeSize;
+            const leftLeaves = levelLeaves.slice(leftIndexStart, leftIndexStart + subtreeSize);
+            const rightLeaves = levelLeaves.slice(rightIndexStart, rightIndexStart + subtreeSize);
+            const leftHash = await computeSubtreeRoot(leftLeaves);
+            const rightHash = await computeSubtreeRoot(rightLeaves);
+            siblingPath.push(index % 2 === 0 ? rightHash : leftHash);
+
+            const nextLevel = [];
+            for (let j = 0; j < levelLeaves.length; j += 2) {
+                nextLevel.push(await hash([levelLeaves[j], levelLeaves[j + 1]]));
+            }
+            levelLeaves = nextLevel;
+            index = Math.floor(index / 2);
+        }
+
+        const newRoot = await computeNewRootFromSubtree(subtreeRoot, siblingPath, subtreeIndex);
+        this.#root = newRoot;
+        const inputs = {
+            subtreeNotes: membersToStrings(subtreeLeaves, maxSubtreeSize),//subtree length
+            siblings: membersToStrings(siblingPath, maxSubtreeDepth),//subtree depth
+            path: getPathFromIndex(subtreeIndex, this.DEPTH - maxSubtreeDepth),
+            newRoot: newRoot.toString(10),
+        }
+        return inputs;
+    }
+
+    async verifySubtree(subtreeLeaves, siblings, path) {
+        const subtreeRoot = await computeSubtreeRoot(subtreeLeaves);
+        let prevHash = subtreeRoot;
+
+        for (let i = 0; i < siblings.length; i++) {
+            const isRight = path[i];
+            if (isRight) {
+            prevHash = await hash([siblings[i], prevHash]);
+            } else {
+            prevHash = await hash([prevHash, siblings[i]]);
+            }
+        }
+
+        return prevHash === await this.getRoot();
+    }
+
+    // async verifySubtreeInsertion(subtreeLeaves, siblingPath, subtreeIndex) {
+    //     const subtreeRoot = await computeSubtreeRoot(subtreeLeaves);
+    //     const computedRoot = await computeNewRootFromSubtree(subtreeRoot, siblingPath, subtreeIndex);
+    //     return computedRoot === await this.getRoot();
+    // }
+
+}
+
+function getPathFromIndex(index, depth) {
+  const path = [];
+  for (let i = 0; i < depth; i++) {
+    path.push(index % 2 === 1);
+    index = Math.floor(index / 2);
+  }
+  return path;
+}
+
+async function computeSubtreeRoot(values) {
+    let level = [...values];
+    while (level.length > 1) {
+        const next = [];
+        for (let i = 0; i < level.length; i += 2) {
+            next.push(await hash([level[i], level[i+1]]));
+        }
+        level = next;
+    }
+    return level[0];
+}
+
+async function computeNewRootFromSubtree(subtreeRoot, siblingPath, subtreeIndex) {
+    let current = subtreeRoot;
+    let index = subtreeIndex;
+
+    for (let i = 0; i < siblingPath.length; i++) {
+        const sibling = siblingPath[i];
+        const isRight = index % 2 === 1;
+        const left = isRight ? sibling : current;
+        const right = isRight ? current : sibling;
+        current = await hash([left, right]);
+        index = Math.floor(index / 2);
+    }
+
+    return current; 
 }
