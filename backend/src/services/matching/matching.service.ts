@@ -33,7 +33,6 @@ export class MatchingService {
       side: order.side,
       buy_currency: order.buy_currency,
       sell_currency: order.sell_currency,
-      amount: { gt: 0 },
       price: order.price,
       filled: order.filled,
     });
@@ -45,13 +44,12 @@ export class MatchingService {
     console.log(`🔄 Searching for opposite side orders (${oppositeSide})...`);
 
     //find opposite sides
-    const oppositeOrders = await prisma.order.findMany({
+    let oppositeOrders = await prisma.order.findMany({
       where: {
         side: oppositeSide,
-        buy_currency: order.buy_currency,
+        buy_currency: order.sell_currency,
         order_status: { in: ['PENDING', 'PARTIAL'] },
-        sell_currency: order.sell_currency,
-        amount: order.amount,
+        sell_currency: order.buy_currency,
         price: isBuy
           ? { lte: order.price } //buyer pays >= sellers price
           : { gte: order.price }, // sellers <= buyers price
@@ -64,8 +62,15 @@ export class MatchingService {
       ],
     });
     if (oppositeOrders.length === 0) {
-      console.log('No opposite orders founf');
-      return;
+      oppositeOrders = await prisma.order.findMany({
+        where: {
+          side: 'buy',
+          buy_currency: order.sell_currency,
+          order_status: { in: ['PENDING', 'PARTIAL'] },
+          sell_currency: order.buy_currency,
+          price: { lte: order.price }, //buyer pays >= sellers price
+        },
+      });
     }
     console.log('Opposite orders: ', oppositeOrders);
     //partial feels if order comes not at first time
