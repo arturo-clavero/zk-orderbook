@@ -23,20 +23,23 @@ export function expandArray(arr, len, fill) {
 }
 
 export function membersToStrings(obj, DEPTH) {
-    const out = {};
-    for(let key of Object.keys(obj)) {
-        if(obj[key] instanceof Array) {
-            out[key] = expandArray(obj[key].map(x => x.toString(10)), DEPTH, '0');
-        } 
-        else if (typeof obj[key] === "boolean") {
-            out[key] = obj[key];
-        }
-        else{
-            out[key] = obj[key].toString(10);
-        }
+     if (Array.isArray(obj)) {
+    return Array.from(expandArray(obj.map(x => x.toString(10)), DEPTH, '0'));
+  }
+  const out = {};
+  for (let key of Object.keys(obj)) {
+    const val = obj[key];
+    if (Array.isArray(val)) {
+      out[key] = Array.from(expandArray(val.map(x => x.toString(10)), DEPTH, '0'));
+    } else if (typeof val === "boolean") {
+      out[key] = val;
+    } else {
+      out[key] = val.toString(10);
     }
-    return out;
+  }
+  return out;
 }
+
 
 export function randomSalt() {
   return "0x" + crypto.randomBytes(16).toString("hex");
