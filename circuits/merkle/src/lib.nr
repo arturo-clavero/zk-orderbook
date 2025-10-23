@@ -17,16 +17,6 @@ struct InputUtxoPublic{
     nullifier: Field,
 }
 
-struct OutputUtxo {
-    salt: Field,
-    token: Field,
-    amount: u32,
-}
-
-struct OutputUtxoPub{
-    note: Field,
-}
-
 struct OutputUtxoWithdrawal {
     salt: Field,
 }
@@ -42,11 +32,14 @@ fn verifyOutputUTXO(
     output_note: Field,
     output_amount: u32,
     output_token: Field,
-    output_salt: Field
+    output_salt: Field,
+    newRoot: Field,
+    siblings: [Field; DEPTH],
+    path: [bool; DEPTH],
 ){
     let output_amount_field: Field = output_amount as Field;
-    //verify new output (reconstruct old commitment);
     assert_eq(output_note, poseidon2::Poseidon2::hash([output_amount_field, output_token, output_salt], 3));
+    verifyProof(newRoot, output_note, siblings, path);
 }
 
 fn verifyInputUTXO(

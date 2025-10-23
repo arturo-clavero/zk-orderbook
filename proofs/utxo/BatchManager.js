@@ -51,7 +51,7 @@ class BatchManager {
         return active.id;
     }
 
-    verifyNextBatch(){
+    proofNextBatch(){
         const id = this.currentBatch;
         this.currentBatch += 1;  
         this._ensureBatch();      
@@ -62,6 +62,7 @@ class BatchManager {
             deposits: batch.deposits,
             withdrawals: batch.withdrawals,
             trades: batch.trades,
+            joins: batch.joins,
         }
     }
     finalizeBatch(batchId) {

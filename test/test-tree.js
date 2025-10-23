@@ -1,5 +1,5 @@
 import { MerkleTree } from "../proofs/tree/merkle-tree.js";
-import { hash, membersToStrings } from "../proofs/tree/utils.js";
+import { hash } from "../proofs/tree/tree-utils.js";
 
 function printArray(array){
     let string = "";
@@ -16,23 +16,22 @@ const DEPTH = 3;
 
 async function testTree(){
     const tree = new MerkleTree(DEPTH);
-    console.log("root at 0",await tree.computeRoot());
     await tree.insertMultipleItems([
         await hash(["A"]),
         await hash(["B"]),
         await hash(["C"]),
-        await hash(["D"]),
-        await hash(["E"]),
-        await hash(["F"]),
-        await hash(["G"]),
-        await hash(["H"]),
     ]);
-    console.log("\n\nleafs: ", tree.leafs, "\n");
-    console.log("root: ", await tree.computeRoot(), "\n\n");
-    const proof = await tree.generateProof(await hash(["A"]));
-    console.log("proof: ", membersToStrings(proof, tree.DEPTH));
-    console.log("verify: ", await tree.verifyProof(proof));
-    tree.verifyAll(true);
+    await tree.verifyAll();
+    console.log("SHADOW!");
+    const shadow = tree.clone();
+    await shadow.verifyAll();
+    const newItem = await hash(["D"]);
+    console.log("new item: ", newItem);
+    await shadow.insertItem(newItem);
+    console.log('shadow 2nd:');
+    await shadow.verifyAll();
+    console.log("tree...");
+    await tree.verifyAll();
 
 }
 

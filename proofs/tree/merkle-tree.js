@@ -1,21 +1,26 @@
 import { callCircuit } from "../circuit.js";
-import { hash, membersToStrings } from "./utils.js";
+import { hash, membersToStrings } from "./tree-utils.js";
 
 //we are storing leaf values already hashed ... 
 //depth depends per tree, default is at 3
 //please await computeRoot() after tree creation...
 
 export class MerkleTree{
+    #root;
 
     constructor(_depth = 3){
         this.DEPTH = _depth;
         this.TOTAL_LEAFS = 2  ** _depth; 
         this.leafs = new Array(this.TOTAL_LEAFS).fill(0);
-        this.root = -1;
+        this.#root = -1;
         this.maxIndex = 0;
-        this.valueToIndexMap = new Map();
+        this.valueToIndexObj = {};
     }
-
+    async getRoot(){
+        if (this.#root == -1)
+            return this.computeRoot();
+        return this.#root;
+    }
     async verifyProof({value, siblings, path}){
         let prevHash = value;
         for (let i = 0; i < siblings.length; i++){
@@ -24,14 +29,12 @@ export class MerkleTree{
             const right = isRight ? prevHash : siblings[i];
             prevHash = await hash([left, right]);
         }
-        return this.root == prevHash;
+        return this.#root == prevHash;
     }
 
     async generateProof(value){
-        if (this.root == -1)
-            await this.computeRoot();
         return {
-            root: this.root,
+            root: await this.getRoot(),
             value,
             siblings: await this.getSiblings(value),
             path: this.getPath(value)
@@ -52,7 +55,7 @@ export class MerkleTree{
     }
 
     async getSiblings(value, levelLeafs = this.leafs, _siblings = [], index = -1){//STORE LEAF VALUES HASHED
-        if (index == -1) index = this.valueToIndexMap[value];
+        if (index == -1) index = this.valueToIndexObj[value];
         index = index % 2 == 0 ? index + 1 : index -1;
         _siblings.push(levelLeafs[index]);
         const result = [];
@@ -65,7 +68,7 @@ export class MerkleTree{
     }
 
     getPath(value){
-        let index = this.valueToIndexMap[value];
+        let index = this.valueToIndexObj[value];
         let path = [];
         for (let i = 0; i < this.DEPTH; i++) {
             const isRight = index % 2;
@@ -89,7 +92,7 @@ export class MerkleTree{
         if (this.maxIndex >= this.TOTAL_LEAFS)
             return;
         this.leafs[this.maxIndex] = value;
-        this.valueToIndexMap[value] = this.maxIndex;
+        this.valueToIndexObj[value] = this.maxIndex;
         this.maxIndex+=1;
         this.root = await this.computeRoot();
         return this.root;
@@ -100,11 +103,21 @@ export class MerkleTree{
             if (this.maxIndex >= this.TOTAL_LEAFS)
                 break;
             this.leafs[this.maxIndex] = values[i];
-            this.valueToIndexMap[values[i]] = this.maxIndex;
+            this.valueToIndexObj[values[i]] = this.maxIndex;
             this.maxIndex += 1;
         }
         this.root = await this.computeRoot();
         return this.root;
+    }
+
+    clone() {
+        const copy = new MerkleTree(this.DEPTH);
+        copy.TOTAL_LEAFS = this.TOTAL_LEAFS;
+        copy.leafs = [...this.leafs];
+        copy.root = this.root;
+        copy.maxIndex = this.maxIndex;
+        copy.valueToIndexObj ={...this.valueToIndexObj};
+        return copy;
     }
 
     //for testing only:
@@ -112,6 +125,8 @@ export class MerkleTree{
         let success;
         for (let i = 0; i < this.TOTAL_LEAFS; i ++){
             const value = this.leafs[i];
+            if (value == 0)
+                break;
             const proof = await this.generateProof(value);
             if (!circuits){
                 success =  await this.verifyProof(proof);
