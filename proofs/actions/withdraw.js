@@ -21,7 +21,6 @@ export async function queueWithdraw(user, tokenString, targetAmount) {
         return false;
     }
     // console.log("\n select form : ", inputData);
-    const outputs = [];
     let lastId = -1;
     if (inputData.utxos.length > 2) 
     {
@@ -30,6 +29,8 @@ export async function queueWithdraw(user, tokenString, targetAmount) {
     }
     // console.log("inputdata.utxos: ", inputData.utxos);
     _setInputs(inputData.utxos);
+    
+    const outputs = [];
     const change = inputData.covered - targetAmount;
     if (change > 0) 
         outputs.push(await createOutput(user, token, change));

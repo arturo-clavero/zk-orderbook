@@ -1,4 +1,5 @@
 import { proofDeposits } from "./actions/deposit.js";
+import { proofTrades } from "./actions/trade.js";
 import { proofWithdrawals } from "./actions/withdraw.js";
 
 import { callCircuit, verifyLatestProof } from "./circuit.js";
@@ -12,9 +13,10 @@ export async function proofBatch(){
 
     await proofDeposits(verifyInputs.deposits);
     const {w_nulls, w_data} = await proofWithdrawals(verifyInputs.withdrawals);
-    console.log('w_nulls: ', w_nulls);
-    console.log('w_data: ', w_data);
-    // const t_nulls = await proofTrades(verifyInputs.trades);
+    // console.log('w_nulls: ', w_nulls);
+    // console.log('w_data: ', w_data);
+    const t_nulls = await proofTrades(verifyInputs.trades);
+    console.log("t_nulls: ", t_nulls);
     // const j_nulls = await proofJoins(verifyInputs.joins);
     // const proof = await proofBatch(d_input, w_input, t_input, j_input);
 

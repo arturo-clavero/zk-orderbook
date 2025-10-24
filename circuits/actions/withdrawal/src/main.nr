@@ -29,7 +29,7 @@ fn main(
         oldRoot
     );
 
-    let zero = 0 as Field;
+    let zero: Field = 0 as Field;
     //optional...
     if (inputs[1].note != zero){
          merkle::verifyInputUTXO(
