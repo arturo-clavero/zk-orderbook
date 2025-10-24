@@ -1,4 +1,4 @@
-import { queueDeposit } from "../proofs/actions/deposit.js";
+import { proofDeposits, queueDeposit } from "../proofs/actions/deposit.js";
 import { queueSettlement } from "../proofs/actions/trade.js";
 import { queueWithdraw } from "../proofs/actions/withdraw.js";
 import { batch } from "../proofs/utxo/BatchManager.js";
@@ -14,13 +14,30 @@ const token2 = "DAI";
 // 0 : only state
 // 1 : only batch
 // 2 : batch and state 
-let LOGS = 2;
+let LOGS = 0;
 
 const d = 10;
 async function test() {
-    await testOrderSettlement(true);
+    let max = 5;
+
+    for (let i = 0; i < max; i++)
+        await testSingleDeposit(false, 1);
+    for (let i =0 ; i < Math.ceil(max / 2); i++){
+        await proofBatch();
+    }
+
+    log_batch("after deposits...");
+    log_state("after deposits...");
+
+    await testSingleWithdraw(true, 3);
+ 
+     log_batch("after queue withdrawal...");
+     log_state("after queue withdrawal...");
     await proofBatch();
-    log_order_state("settlement verified !!!!!!!!!!!");
+    log_batch("mid proofs after join ...");
+     log_state("mid proofs after join...");
+    await proofBatch();
+
     console.log("end");
 }
 

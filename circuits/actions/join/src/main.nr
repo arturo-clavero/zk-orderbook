@@ -1,23 +1,46 @@
 fn main(
-    inputs: [merkle::InputUtxo; 4],
-    inputsPub: pub [merkle::InputUtxoPublic; 4],
+    inputsA: merkle::InputUtxo,
+    inputsApub: pub merkle::InputUtxoPublic,
+    inputsB: merkle::InputUtxo,
+    inputsBpub: pub merkle::InputUtxoPublic,
+    inputsC: merkle::InputUtxo,
+    inputsCpub: pub merkle::InputUtxoPublic,
     output: merkle::OutputUtxo,
     userSecret: Field,
     oldRoot: pub Field,
 ){
-    for i in 0..4 {
+    let zero: Field = 0 as Field;
+
+    merkle::verifyInputUTXO(
+        inputsA,
+        inputsApub,
+        userSecret,
+        oldRoot
+    );
+
+    if (inputsB.note != zero){
         merkle::verifyInputUTXO(
-            inputs[i],
-            inputsPub[i],
+            inputsB,
+            inputsBpub,
             userSecret,
             oldRoot
         );
     }
+
+    if (inputsC.note != zero){
+        merkle::verifyInputUTXO(
+            inputsC,
+            inputsCpub,
+            userSecret,
+            oldRoot
+        );
+    }
+
     merkle::verifyOutputUTXO(
         output.note,
         output.amount,
         output.token,
         output.salt
     );
-    assert_eq(inputs[0].amount + inputs[1].amount + inputs[2].amount + inputs[3].amount, output.amount);
+    assert_eq(inputsA.amount + inputsB.amount + inputsC.amount, output.amount);
 }

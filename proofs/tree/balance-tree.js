@@ -6,13 +6,19 @@ class ProofTree {
         this.shadowTrees = new Map();
     }
     async insertInShadow(newCommitments, batchId){
+        if (newCommitments.length == 0)
+            return;
         const shadow = this._ensureShadowTree(batchId);
         const proof = await shadow.insertNewSubtree(newCommitments);
         return (proof);
     }
     async verifyShadowTree(batchId) {
         const shadow = this.shadowTrees.get(batchId);
-        if (!shadow) throw new Error(`No shadow tree found for batch ${batchId}`);
+        if (!shadow) 
+        {
+            console.log(`No shadow tree found for batch ${batchId}`);
+            return;
+        }
         this.mainTree = shadow.clone();
         this.shadowTrees.delete(batchId);
         return await this.mainTree.getRoot();
