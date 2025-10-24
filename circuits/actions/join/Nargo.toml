@@ -1,5 +1,5 @@
 [package]
-name = "batch"
+name = "join"
 type = "bin"
 authors = [""]
 

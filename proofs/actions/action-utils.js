@@ -1,3 +1,5 @@
+import { tree } from "../tree/balance-tree.js";
+import { membersToStrings } from "../tree/tree-utils.js";
 import { pool } from "../utxo/UtxoPool.js";
 import { queueJoin } from "./join.js";
 
@@ -52,4 +54,14 @@ export function formatProofInputs(obj) {
         }
     }
     return out;
+}
+
+export function getOutxoInputs(output){
+    const inputs = {
+        note: output.note,
+        salt: output.salt,
+        amount: output.amount,
+        token: output.token,
+    };
+    return membersToStrings(inputs, tree.mainTree.DEPTH);
 }

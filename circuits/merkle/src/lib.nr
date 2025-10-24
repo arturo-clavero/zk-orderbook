@@ -16,18 +16,14 @@ struct InputUtxo {
 }
 
 struct InputUtxoPublic{
-    root: Field,
     nullifier: Field,
 }
 
-struct OutputUtxoWithdrawal {
-    salt: Field,
-}
-
-struct OutputUtxoPubWithdrawal{
+struct OutputUtxo {
     note: Field,
-    token: Field,
+    salt: Field,
     amount: u32,
+    token: Field
 }
 
 
@@ -36,23 +32,20 @@ fn verifyOutputUTXO(
     output_amount: u32,
     output_token: Field,
     output_salt: Field,
-    newRoot: Field,
-    siblings: [Field; DEPTH],
-    path: [bool; DEPTH],
 ){
     let output_amount_field: Field = output_amount as Field;
     assert_eq(output_note, poseidon2::Poseidon2::hash([output_amount_field, output_token, output_salt], 3));
-    verifyProof(newRoot, output_note, siblings, path);
 }
 
 fn verifyInputUTXO(
     inputUtxo: InputUtxo,
     inputUtxoPub: InputUtxoPublic,
     userSecret: Field,
+    oldRoot: Field,
 ){
     //1. verify old input (proof);
     verifyProof(
-        inputUtxoPub.root, 
+        oldRoot, 
         inputUtxo.note, 
         inputUtxo.siblings, 
         inputUtxo.path
@@ -61,7 +54,7 @@ fn verifyInputUTXO(
     //2. verify nullifier
     assert_eq(inputUtxoPub.nullifier, poseidon2::Poseidon2::hash([userSecret, inputUtxo.note], 2));
     
-    //3. verify old amount (reconstruct old commitment);
+    //3. verify old amount (reconstruct old commitment); //is it necessary?
     let input_amount_field: Field = inputUtxo.amount as Field; 
     assert_eq(inputUtxo.note, poseidon2::Poseidon2::hash([input_amount_field, inputUtxo.token, inputUtxo.salt], 3));
 }
