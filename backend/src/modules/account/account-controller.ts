@@ -3,9 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Post, Body } from '@nestjs/common';
 import { prisma } from '../../lib/prisma-trading-database/prisma-trading';
+import { RedisBalanceService } from '../redis/redis.service';
 
 @Controller('account')
 export class AccountController {
+  constructor(private readonly redisBalanceService: RedisBalanceService) {}
+
   @Post('check')
   async checkAccount(@Body() body: { address: string; token: string }) {
     const { address, token } = body;
@@ -38,9 +41,15 @@ export class AccountController {
       });
       console.log('Accout was created for address ${address} in ${token}');
     }
+    //redis check
+    const redisBalance = await this.redisBalanceService.getBalance(
+      address,
+      token,
+    );
     return {
       exists: true,
       accountId: account.id,
+      balance: redisBalance,
       message: 'Account exists',
     };
   }

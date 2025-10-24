@@ -1,7 +1,7 @@
 services:
   trading_db:
     container_name: trading
-    image: postgres:latest
+    image: postgres:18-alpine
     volumes:
       - trading_data:/var/lib/postgresql/data
     ports:
@@ -15,8 +15,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - backend
     restart: always
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -27,7 +28,24 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
 
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+  envio-shared:
+    external: true
+
 volumes:
   trading_data:
   portainer_data:
-  envio_data:
+  redis_data:

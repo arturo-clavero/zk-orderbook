@@ -138,6 +138,10 @@ Log Visibility: To maintain the Terminal UI while capturing detailed logs:
 export LOG_STRATEGY="both-prettyconsole"
 export LOG_FILE="./debug.log"
 ```
+### Docker create network for envio 
+```bash
+  $ docker network create envio-shared
+```
 
 ```
 
