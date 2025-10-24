@@ -1,3 +1,4 @@
+import { tree } from "../tree/balance-tree.js";
 import { pool } from "./UtxoPool.js";
 
 function newEmptyBatch(id){
@@ -65,10 +66,13 @@ class BatchManager {
             joins: batch.joins,
         }
     }
-    finalizeBatch(batchId) {
+    async finalizeBatch(batchId) {
         const batch = this.batches.get(batchId);
         if (!batch) return;
+
         pool.finalizeBatch(batchId);
+        await tree.verifyShadowTree(batchId);
+
         batch.status = "finalized";
         this.batches.delete(batchId);
     }

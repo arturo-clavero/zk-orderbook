@@ -56,7 +56,7 @@ export function formatProofInputs(obj) {
     return out;
 }
 
-export function getOutxoInputs(output){
+export function getNewOutxoInputs(output){
     const inputs = {
         note: output.note,
         salt: output.salt,
@@ -64,4 +64,56 @@ export function getOutxoInputs(output){
         token: output.token,
     };
     return membersToStrings(inputs, tree.mainTree.DEPTH);
+}
+
+export async function getOldOutxoInputs(_inputs, max){
+    const inputs = [];
+    const inputsPub = [];
+    let root;
+    for (let j = 0; j < max; j++){
+        let proof;
+        let i;
+        if (j < _inputs.length){
+            i = _inputs[j];
+            proof = await tree.mainTree.generateProof(i.note);
+            if (j == 0)
+                root = proof.root;
+            else if (proof.root != root){
+                throw Error("wrong proof ?");
+                //return wrong... 
+            }
+        }
+        else {
+            i = {
+                note: 0n,
+                salt: 0n,
+                amount: 0,
+                token: 0n,
+                nullifier: 0n,
+            }
+            proof = tree.mainTree.generateEmptyProof();
+        }
+        inputs.push(membersToStrings({
+            siblings: proof.siblings,
+            path: proof.path,
+            note: i.note,
+            salt: i.salt,
+            amount: i.amount,
+            token: i.token,
+        }, tree.mainTree.DEPTH));
+        inputsPub.push(membersToStrings({
+            nullifier: i.nullifier,
+        }, tree.mainTree.DEPTH));
+    }
+    return {inputs, inputsPub, root};
+}
+
+const TOKEN_IDS = {
+  ETH: 1,
+  DAI: 2,
+  USDC: 3,
+};
+
+export function getToken(tokenString){
+    return TOKEN_IDS[tokenString];
 }

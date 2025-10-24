@@ -23,6 +23,7 @@ export function expandArray(arr, len, fill) {
 }
 
 export function membersToStrings(obj, DEPTH) {
+  // console.log('obj @members to strinng: ', obj, "\n");
      if (Array.isArray(obj)) {
     return Array.from(expandArray(obj.map(x => x.toString(10)), DEPTH, '0'));
   }

@@ -1,5 +1,6 @@
 import { queueDeposit } from "../proofs/actions/deposit.js";
 import { queueWithdraw } from "../proofs/actions/withdraw.js";
+import { tree } from "../proofs/tree/balance-tree.js";
 import { batch } from "../proofs/utxo/BatchManager.js";
 import { pool } from "../proofs/utxo/UtxoPool.js";
 import { proofBatch } from "../proofs/validate.js";
@@ -15,11 +16,21 @@ let LOGS = -1;
 
 const d = 10;
 async function test() {
-    await testSingleDeposit(false, 1);
-    await testSingleDeposit(false, 2);
-    console.log("proof batch....");
+    await testSingleDeposit(false, 5);
+     await testSingleDeposit(false, 1);
+
+
+            log_state();
+
     await proofBatch();
-    
+    console.log('<withdrawal...>');
+    await testSingleWithdraw(false, 1);
+        await testSingleWithdraw(false, 1);
+
+    await proofBatch();
+
+    LOGS = 0;
+    log_state();    
 }
 
 

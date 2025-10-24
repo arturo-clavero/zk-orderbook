@@ -10,15 +10,15 @@ struct InputUtxo {
     siblings: [Field; DEPTH],
     path: [bool; DEPTH],
     note: Field,
-    token: Field,
-    amount: u32,
     salt: Field,
+    amount: u32,
+    token: Field,
 }
 
 struct InputUtxoPublic{
     nullifier: Field,
 }
-
+// 
 struct OutputUtxo {
     note: Field,
     salt: Field,
