@@ -4,18 +4,10 @@ import { tree } from "../tree/balance-tree.js";
 import { membersToStrings } from "../tree/tree-utils.js";
 import { batch } from "../utxo/BatchManager.js";
 import { createOutput } from "../utxo/utxo-utils.js";
-import { formatProofInputs, getOutxoInputs } from "./action-utils.js";
+import { getNewOutxoInputs, getToken } from "./action-utils.js";
 
-function checkDeposit(){
-    return true;
-}
-
-export async function queueDeposit(user, token, amount){
-    if (!checkDeposit){
-        return false;
-    }
-    //check first the log is true...
-    //if not return false or send error to front end...
+export async function queueDeposit(user, tokenString, amount){
+    const token = getToken(tokenString);
     const output = await createOutput(user, token, amount);
     const data = {
         outputs: [output],
@@ -43,7 +35,7 @@ export async function proofDeposits(inputs){
 }
 
 export async function proofSingleDeposit(output, amount){
-    const outputUtxo = getOutxoInputs(output);
+    const outputUtxo = getNewOutxoInputs(output);
     const pi = {
         outputUtxo,
         target: amount,

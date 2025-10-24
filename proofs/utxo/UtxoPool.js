@@ -51,10 +51,10 @@ class UtxoPool {
     }
 
     finalizeBatch(batchId) {
-        const batch = this.pendingUtxos[batchId];
-        if (!batch) return;
+        const pending = this.pendingUtxos[batchId];
+        if (!pending) return;
 
-        const outUtxos = batch.outputs || [];
+        const outUtxos = pending.outputs || [];
         for (const o of outUtxos) {
             if (!o.isReserved)
                 o.pending = false;
@@ -63,7 +63,7 @@ class UtxoPool {
             balance.pending -= o.amount;
             balance.available += o.amount;
         }
-        const inUtxos = batch.inputs || [];
+        const inUtxos = pending.inputs || [];
         for (const i of inUtxos) {
             i.spent = true;
             i.pending = false;
@@ -138,7 +138,6 @@ class UtxoPool {
         return pending;
     }
     getPending(id = batch.currentBatch){
-        console.log("current batch id : ", id);
         return this.pendingUtxos[id];
     }
     getPendingInputs(batch = this.batch){

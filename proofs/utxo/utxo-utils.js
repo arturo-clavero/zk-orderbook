@@ -1,23 +1,21 @@
 import { hash, randomSalt } from "../tree/tree-utils.js";
+import { getUserSecret } from "../userSecret.js";
 import { pool } from "./UtxoPool.js";
 
-const TOKEN_IDS = {
-  ETH: 1,
-  DAI: 2,
-  USDC: 3,
-};
 
 
-export async function UTXO(user, amount, tokenString){
-    const token = TOKEN_IDS[tokenString];
+
+export async function UTXO(user, amount, token){
     const salt = randomSalt();
     const note = await hash([amount, token, salt]);
+    const nullifier = await hash([getUserSecret(user), note])
     const utxo = {
         note, 
         user,
         token,
         amount,
         salt,
+        nullifier,
         pending : false,
         spent: false,
         isReserved: false,

@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { MerkleTree } from './merkle-tree.js';
 
 class ProofTree {

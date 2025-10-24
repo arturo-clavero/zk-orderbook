@@ -22,25 +22,33 @@ fn main(
     target: pub u32,
 
 ){
-    merkle::verifyOutputUTXO(
-        output.note,
-        output.amount,
-        outputPub.token,
-        output.salt
-    );
-
     merkle::verifyInputUTXO(
         inputs[0],
         inputsPub[0],
         userSecret,
         oldRoot
     );
-    merkle::verifyInputUTXO(
-        inputs[1],
-        inputsPub[1],
-        userSecret,
-        oldRoot
-    );
+
+    let zero = 0 as Field;
+    //optional...
+    if (inputs[1].note != zero){
+         merkle::verifyInputUTXO(
+            inputs[1],
+            inputsPub[1],
+            userSecret,
+            oldRoot
+        );
+    }
+
+    //optional...
+    if (output.note != zero){
+        merkle::verifyOutputUTXO(
+            output.note,
+            output.amount,
+            outputPub.token,
+            output.salt
+        );
+    }
 
     assert_eq((inputs[0].amount + inputs[1].amount - target), output.amount);
 

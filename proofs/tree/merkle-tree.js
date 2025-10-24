@@ -13,7 +13,7 @@ export class MerkleTree{
     constructor(_depth = 4){
         this.DEPTH = _depth;
         this.TOTAL_LEAFS = 2  ** _depth; 
-        this.leafs = new Array(this.TOTAL_LEAFS).fill(0);
+        this.leafs = new Array(this.TOTAL_LEAFS).fill(0n);
         this.#root = -1;
         this.maxIndex = 0;
         this.valueToIndexObj = {};
@@ -24,12 +24,20 @@ export class MerkleTree{
         return this.#root;
     }
     async verifyProof({value, siblings, path}){
+        console.log("valu: ", value);
+        console.log("siblings: ", siblings);
+        console.log('length: ', path);
         let prevHash = value;
         for (let i = 0; i < siblings.length; i++){
             const isRight = path[i];
             const left = isRight ? siblings[i] : prevHash;
             const right = isRight ? prevHash : siblings[i];
             prevHash = await hash([left, right]);
+        }
+        if (value == 0n)
+        {
+            console.log('prevhash: ', prevHash);
+            return prevHash == 1088245306496891736480479238854411717682655977115122900648625220369346708864n;
         }
         return this.#root == prevHash;
     }
@@ -45,9 +53,9 @@ export class MerkleTree{
 
     generateEmptyProof(format = false){
         const proof = {
-            root: 0,
-            value: 0,
-            siblings: new Array(this.DEPTH).fill(0),
+            root: 1088245306496891736480479238854411717682655977115122900648625220369346708864n,
+            value: 0n,
+            siblings: new Array(this.DEPTH).fill(0n),
             path: new Array(this.DEPTH).fill(0),
         };
         if (format){
@@ -143,9 +151,8 @@ export class MerkleTree{
     }
     async insertNewSubtree(subtreeLeaves) {
         if (subtreeLeaves.length < maxSubtreeSize){
-            const zeroHash = await hash([0]);
             while (subtreeLeaves.length < maxSubtreeSize) {
-                subtreeLeaves.push(zeroHash);
+                subtreeLeaves.push(0n);
             }
         }
         
@@ -153,6 +160,7 @@ export class MerkleTree{
         const subtreeHeight = Math.log2(subtreeSize);
 
         const startIndex = this.maxIndex;
+
         for (let i = 0; i < subtreeLeaves.length; i++) {
             const leafIndex = startIndex + i;
             this.leafs[leafIndex] = subtreeLeaves[i];
