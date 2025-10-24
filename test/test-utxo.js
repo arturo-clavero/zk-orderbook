@@ -14,7 +14,7 @@ const token2 = "DAI";
 // 0 : only state
 // 1 : only batch
 // 2 : batch and state 
-let LOGS = 0;
+let LOGS = 2;
 
 const d = 10;
 async function test() {
@@ -54,14 +54,21 @@ async function testOrderSettlement(logs=true, preDeposit=true){
     const tokenY = "DAI";
 
     if (preDeposit){
-        await queueDeposit(userX, tokenX, amountX);
-        await queueDeposit(userY, tokenY, amountY);
+        await queueDeposit(userX, tokenX, amountX/2);
+        await queueDeposit(userX, tokenX, amountX/2);
+      
+        await queueDeposit(userY, tokenY, 3);
+        await queueDeposit(userY, tokenY, 3);
+        await proofBatch();
         await proofBatch();
     }
+        log_batch("settlement start: ");
         log_order_state("settlement start: ");
 
     await queueSettlement(userX, amountX, tokenX, userY, amountY, tokenY);
             log_order_state("settlement queued! ");
+            log_batch("settlement queued: ");
+
 
 }
 

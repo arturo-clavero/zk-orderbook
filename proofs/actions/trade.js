@@ -52,16 +52,18 @@ export async function queueSettlement(
         const change = side.inputData.covered - side.amount;  
         if (change > 0) 
             side.outputs.push(await createOutput(side.user, side.token, change));
-        console.log("SIDE ", i);
-        console.log('out: ', side.outputs);
-        console.log('in: ', side.inputData.utxos);
+        // console.log("SIDE ", i);
+        // console.log('out: ', side.outputs);
+        // console.log('in: ', side.inputData.utxos);
     }
-    console.log("inputs and outputs done...");
+    // console.log("inputs and outputs done...");
     //pick largerst...
     const lastId = sides[0].lastId > sides[1].lastId ? sides[0].lastId : sides[1].lastId;
     const circuitData = {
+        inputs: [...sides[0].inputData.utxos,...sides[1].inputData.utxos],
         inputsX: sides[0].inputData.utxos,
         inputsY: sides[1].inputData.utxos,
+        outputs: [...sides[0].outputs, ...sides[1].outputs],
         outputsX: sides[0].outputs,
         outputsY: sides[1].outputs,
         userX,
@@ -78,7 +80,7 @@ export async function proofTrades(inputs){
     const nullifiers = [];
     for (const i of inputs) 
     {
-        console.log("----i:", i);
+        // console.log("----i:", i);
         const success = await proofSingleTrade(
             i.inputsX, //1-2
             i.inputsY, //1-2
@@ -88,8 +90,7 @@ export async function proofTrades(inputs){
             getUserSecret(i.userY),
         );
         if (success){
-            nullifiers.push(...i.inputsX.map(input => input.nullifier));
-            nullifiers.push(...i.inputsY.map(input => input.nullifier));
+            nullifiers.push(...i.inputs.map(input => input.nullifier));
         }
     }
     return nullifiers;
@@ -123,7 +124,7 @@ export async function proofSingleTrade(
         userSecretY: userSecretY.toString(10),
         oldRoot: inX.root.toString(10),
     }
-    console.log("pi: ", pi);
+    // console.log("pi: ", pi);
     const {proof, publicInputs} = await callCircuit(pi, "actions/trade");
     const success = await verifyLatestProof(proof, publicInputs);
     console.log("withdraw.js: verified? ", success); 
@@ -131,7 +132,7 @@ export async function proofSingleTrade(
 }
 
 function getNewOutxoInputs(_outputs, max){
-    console.log("received outputs: ", _outputs);
+    // console.log("received outputs: ", _outputs);
     const outputs = [];
     for (let i =0 ; i < max; i++){
         outputs.push(membersToStrings(i < _outputs.length 
