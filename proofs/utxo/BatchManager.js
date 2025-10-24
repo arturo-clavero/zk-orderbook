@@ -34,7 +34,6 @@ class BatchManager {
         {
             for(const u of data.inputs) pool.addPendingInput(u, active.id);
         }
-
         if (Array.isArray(data.outputs) && data.outputs.length > 0)
         {
             for(const u of data.outputs) pool.addPendingOutput(u, active.id);

@@ -10,13 +10,13 @@ class UtxoPool {
     }
 
     setPendingOutput(user, token, utxo) {
-        // console.log("set pending output");
+        console.log("set pending output");
         utxo.pending = true;
         const balance = this._ensureBalance(user, token);
         balance.pending += utxo.amount;
     }
     addPendingOutput(utxo, id){
-        // console.log("add pending output");
+        console.log("add pending output to ", id);
         if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
@@ -24,7 +24,7 @@ class UtxoPool {
     }
 
     setPendingInput(user, token, note, _amount) {
-        // console.log("set pending input");
+        console.log("set pending input");
         const utxos = this._ensureUserToken(user, token);
         const utxo = utxos.find(u => u.note === note);
         if (utxo && !utxo.spent) utxo.pending = true;
@@ -37,7 +37,7 @@ class UtxoPool {
         balance.pending -= amount;
     }
     addPendingInput(utxo, id){
-        // console.log("add pending input");
+        console.log("add pending input to ", id);
         if (!(id in this.pendingUtxos)) {
             this.pendingUtxos[id] = { inputs: [], outputs: [] };
         }
@@ -52,16 +52,24 @@ class UtxoPool {
 
     finalizeBatch(batchId) {
         const pending = this.pendingUtxos[batchId];
+        console.log("finalize batch pool> ", pending);
+        console.log("id: ", batchId);
         if (!pending) return;
 
+        console.log("<finalize batch> pending: ", pending.outputs);
         const outUtxos = pending.outputs || [];
         for (const o of outUtxos) {
             if (!o.isReserved)
                 o.pending = false;
             this._addUtxo(o);
             const balance = this._ensureBalance(o.user, o.token);
+            console.log("balance before: ", balance);
+            console.log("o: ", o);
+            console.log(o.user, o.token);
             balance.pending -= o.amount;
             balance.available += o.amount;
+            console.log("balance after: ", balance);
+
         }
         const inUtxos = pending.inputs || [];
         for (const i of inUtxos) {
