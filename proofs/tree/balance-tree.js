@@ -8,8 +8,8 @@ class ProofTree {
     }
     async insertInShadow(newCommitments, batchId){
         const shadow = this._ensureShadowTree(batchId);
-        await shadow.insertMultipleItems(newCommitments);
-        return (await shadow).getRoot();
+        const proof = await shadow.insertNewSubtree(newCommitments);
+        return (proof);
     }
     async verifyShadowTree(batchId) {
         const shadow = this.shadowTrees.get(batchId);

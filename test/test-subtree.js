@@ -1,7 +1,6 @@
 import { callCircuit, verifyLatestProof } from "../proofs/circuit.js";
-import { tree } from "../proofs/tree/balance-tree.js";
 import { MerkleTree } from "../proofs/tree/merkle-tree.js";
-import { hash, membersToStrings } from "../proofs/tree/tree-utils.js";
+import { hash } from "../proofs/tree/tree-utils.js";
 
 async function test(){
     // create main tree

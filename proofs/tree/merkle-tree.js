@@ -10,7 +10,7 @@ const maxSubtreeDepth = 2;
 export class MerkleTree{
     #root;
 
-    constructor(_depth = 3){
+    constructor(_depth = 4){
         this.DEPTH = _depth;
         this.TOTAL_LEAFS = 2  ** _depth; 
         this.leafs = new Array(this.TOTAL_LEAFS).fill(0);
@@ -189,13 +189,16 @@ export class MerkleTree{
 
         const newRoot = await computeNewRootFromSubtree(subtreeRoot, siblingPath, subtreeIndex);
         this.#root = newRoot;
-        const inputs = {
-            subtreeNotes: membersToStrings(subtreeLeaves, maxSubtreeSize),//subtree length
-            siblings: membersToStrings(siblingPath, maxSubtreeDepth),//subtree depth
-            path: getPathFromIndex(subtreeIndex, this.DEPTH - maxSubtreeDepth),
-            newRoot: newRoot.toString(10),
+        const proof = {
+            inputs : {
+                subtreeNotes: membersToStrings(subtreeLeaves, maxSubtreeSize),//subtree length
+                siblings: membersToStrings(siblingPath, maxSubtreeDepth),//subtree depth
+                path: getPathFromIndex(subtreeIndex, this.DEPTH - maxSubtreeDepth),
+                newRoot: newRoot.toString(10),
+            },
+            newRoot: newRoot
         }
-        return inputs;
+        return proof;
     }
 
     async verifySubtree(subtreeLeaves, siblings, path) {
