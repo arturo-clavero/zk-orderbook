@@ -11,7 +11,9 @@ export async function proofBatch(){
     const subtreeProof = await insertNewOutputs(verifyInputs);
 
     await proofDeposits(verifyInputs.deposits);
-    const w_nulls = await proofWithdrawals(verifyInputs.withdrawals);
+    const {w_nulls, w_data} = await proofWithdrawals(verifyInputs.withdrawals);
+    console.log('w_nulls: ', w_nulls);
+    console.log('w_data: ', w_data);
     // const t_nulls = await proofTrades(verifyInputs.trades);
     // const j_nulls = await proofJoins(verifyInputs.joins);
     // const proof = await proofBatch(d_input, w_input, t_input, j_input);
@@ -21,6 +23,11 @@ export async function proofBatch(){
     //         const success = await verifyLatestProof(proof, public_inputs);
     //         console.log("validate.js: test-verified: ", success);
     //end testing
+    //const nullifiers = {
+        //..t_nulls,
+        //..w_nulls,
+        //..j_nulls,
+    //}
     //call_smart_contract(public_inputs, nullifiers, withdrawals);
 
     //call this after event with id

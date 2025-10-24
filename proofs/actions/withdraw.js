@@ -45,7 +45,8 @@ export async function queueWithdraw(user, tokenString, targetAmount) {
 
 
 export async function proofWithdrawals(inputs){
-    const proofs = [];
+    const withdrawData = [];
+    const nullifiers = [];
     for (const i of inputs) 
     {
         const success = await proofSingleWithdrawal(
@@ -54,14 +55,18 @@ export async function proofWithdrawals(inputs){
             i.targetAmount,
             getUserSecret(i.user),
         );
-        if (success == false)
-            throw new Error("verification failed...", i.outputs, i.inputs);
-        //gotta do something upon error....
+        if (success){
+            nullifiers.push(...i.inputs.map(input => input.nullifier));
+            withdrawData.push({
+                user: i.user,
+                amount: i.targetAmount,
+                token: i.token
+            });
+        }
     }
-    console.log("proofs: ", proofs);
-    //batch proof... 
-
+    return {w_nulls: nullifiers, w_data: withdrawData};
 }
+
 const DEPTH = tree.mainTree.DEPTH;
 
 export async function proofSingleWithdrawal(_inputs, _outputs, amount, userSecret){
@@ -72,20 +77,15 @@ export async function proofSingleWithdrawal(_inputs, _outputs, amount, userSecre
         ?{
             salt: _outputs[0].salt,
             note: _outputs[0].note,
-            amount: _outputs[0].note,
-        } 
-        :{
+            amount: _outputs[0].amount,
+        }:{
             salt: 0n,
             note: 0n,
             amount: 0
         }, DEPTH);
     const outputPub = membersToStrings(_outputs.length > 0 
-        ?{
-            token: _outputs[0].token,
-        }
-        :{
-            token: 0n,
-        }
+        ?{token: _outputs[0].token}
+        :{token: 0n}
         , DEPTH);
 
     const pi = {
