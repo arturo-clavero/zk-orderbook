@@ -1,4 +1,4 @@
-PHONY: vm stop up down restart run build admin golive pnpm envio-dev envio-down
+PHONY: vm stop up down restart run build admin golive pnpm envio-dev envio-down network
 
 DOCKER_COMPOSE = docker-compose
 PNPM = pnpm
@@ -7,6 +7,8 @@ CONTAINER_TRADE = trading
 NEST_START = nest start
 
 #!!!!!!!!!!!!!!!!FIRST TIME RUNNING PROJECT NEED TO USE MIGRATIONS!!!!!!!!!!!!!!!!!#
+network:
+	docker network create envio-shared
 migrate:
 	cd backend && pnpm prisma migrate dev --schema ./src/lib/prisma-trading-database/schema.prisma
 envio-dev:
