@@ -16,20 +16,19 @@ let LOGS = -1;
 
 const d = 10;
 async function test() {
-    await testSingleDeposit(false, 5);
-     await testSingleDeposit(false, 1);
-
-
-            log_state();
+    await testSingleDeposit(false, 1);
+        await testSingleDeposit(false, 1);
+    await testSingleDeposit(false, 1);
 
     await proofBatch();
+    
+
     console.log('<withdrawal...>');
-    await testSingleWithdraw(false, 1);
-        await testSingleWithdraw(false, 1);
+    await testSingleWithdraw(true, 3);
 
     await proofBatch();
+    log_state();
 
-    LOGS = 0;
     log_state();    
 }
 
@@ -74,11 +73,11 @@ export function log_state(str=""){
         return;
     console.log("\n\n<",str,">");
     console.log("Pending:", pool.getAllPending());
-    const all =  pool.getAll(user, token);
+    const all =  pool.getAll(user, 1);
     const amounts = [];
     for (const a of all) amounts.push(a.amount);
     console.log("Utxos:", amounts);
-    console.log("Balance : ", pool.getBalance(user, token));
+    console.log("Balance : ", pool.getBalance(user, 1));
     console.log("\n");
 }
 
