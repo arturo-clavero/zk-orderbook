@@ -35,6 +35,7 @@ export async function proofDeposits(inputs){
 }
 
 export async function proofSingleDeposit(output, amount){
+    return true;//TESTING DELETE
     const outputUtxo = getNewOutxoInputs(output);
     const pi = {
         outputUtxo,

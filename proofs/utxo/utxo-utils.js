@@ -24,7 +24,7 @@ export async function UTXO(user, amount, token){
 }
 
 export async function createOutput(user, token, amount) {
-    const utxo = await UTXO(user, amount, token);
+    const utxo = await UTXO(user,amount, token);
     pool.setPendingOutput(user, token, utxo);
     return utxo;
 }

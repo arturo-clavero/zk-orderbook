@@ -3,6 +3,12 @@ import { membersToStrings } from "../tree/tree-utils.js";
 import { pool } from "../utxo/UtxoPool.js";
 import { queueJoin } from "./join.js";
 
+const TOKEN_IDS = {
+  ETH: 1,
+  DAI: 2,
+  USDC: 3,
+};
+
 export function _setInputs(utxos){
     for (const u of utxos) pool.setPendingInput(u.user, u.token, u.note, u.amount);
     return true;
@@ -93,6 +99,7 @@ export async function getOldOutxoInputs(_inputs, max){
             }
             proof = tree.mainTree.generateEmptyProof();
         }
+
         inputs.push(membersToStrings({
             siblings: proof.siblings,
             path: proof.path,
@@ -108,11 +115,6 @@ export async function getOldOutxoInputs(_inputs, max){
     return {inputs, inputsPub, root};
 }
 
-const TOKEN_IDS = {
-  ETH: 1,
-  DAI: 2,
-  USDC: 3,
-};
 
 export function getToken(tokenString){
     return TOKEN_IDS[tokenString];
