@@ -29,7 +29,7 @@ export async function proofDeposits(inputs){
             throw new Error("verification failed...", i.outputs[0]);
         //gotta do something upon error....
     }
-    console.log("proofs: ", proofs);
+    console.log(" ", proofs);
     //batch proof... 
 
 }
