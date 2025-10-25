@@ -2,8 +2,8 @@ use std::hash::poseidon2::{self, Poseidon2};
 
 global DEPTH: u32 = 4;
 // global MAX_LEAFS: u32 = 16;
-global SUBTREE_DEPTH:u32 = 2;
-global SUBTREE_LEAFS:u32 = 4;
+global SUBTREE_DEPTH:u32 = 3;
+global SUBTREE_LEAFS:u32 = 8;
 //depth ^ 2 = total
 
 struct InputUtxo {

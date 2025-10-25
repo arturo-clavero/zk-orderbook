@@ -4,9 +4,9 @@ import { hash, membersToStrings } from "./tree-utils.js";
 //we are storing leaf values already hashed ... 
 //depth depends per tree, default is at 3
 //please await computeRoot() after tree creation...
+const maxSubtreeDepth = 3;
+export const maxSubtreeSize = 2 ** maxSubtreeDepth;
 
-const maxSubtreeSize = 4;
-const maxSubtreeDepth = 2;
 export class MerkleTree{
     #root;
 
