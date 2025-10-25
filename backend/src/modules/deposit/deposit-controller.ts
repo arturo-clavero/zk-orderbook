@@ -9,7 +9,6 @@ import { ethers } from 'ethers';
 const PYUSD_ADDRESS = process.env.PYUSD_ADDRESS?.toLowerCase() ?? '';
 const USDT_ADDRESS = process.env.USDT_ADDRESS?.toLowerCase() ?? '';
 const ETH_ADDRESS = process.env.ETH_ADDRESS?.toLowerCase() ?? '';
-
 export const TOKEN_MAP: Record<string, string> = {
   [PYUSD_ADDRESS]: 'PYUSD',
   [USDT_ADDRESS]: 'USDT',
@@ -21,6 +20,7 @@ export class DepositController {
   @Post()
   async handleDeposit(@Body() dataEnvio: any) {
     let { wallet, token, rawAmount, txHash } = dataEnvio;
+    console.log('eth address', ETH_ADDRESS);
     console.log('wallet', wallet);
     wallet = wallet.toLowerCase();
     token = token.toLowerCase();
@@ -42,15 +42,17 @@ export class DepositController {
     const currency = TOKEN_MAP[token] || token;
     console.log('Currency is ', currency);
     console.log('Trder.id id', trader.id);
-    console.log('trader address', trader.address);
+    // console.log('trader address', trader.address);
+
     // check if acount exists
     const account = await prisma.account.findFirst({
       where: {
-        traderId: trader.id,
-        currency: currency,
+        traderId: trader.id, //75fd2 - has 2 accounts
+        currency: currency, // just currency eth
       },
     });
     if (!account) {
+      // account = await prisma.account.create
       console.log('Account which was not found is ', account);
       console.error('Account was not found, action will be ignnored');
       return;

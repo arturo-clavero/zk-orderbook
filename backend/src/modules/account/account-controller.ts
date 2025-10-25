@@ -11,7 +11,8 @@ export class AccountController {
 
   @Post('check')
   async checkAccount(@Body() body: { address: string; token: string }) {
-    const { address, token } = body;
+    let { address, token } = body;
+    address = address.toLowerCase();
     console.log('data which backend recevies for checking account is', body);
     let trader = await prisma.trader.findUnique({
       where: {
