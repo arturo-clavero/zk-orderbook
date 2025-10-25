@@ -1,0 +1,7 @@
+{
+  "name": "@zkdex/shared",
+  "version": "1.0.0",
+  "dependencies": {
+    "@noir-lang/noir_js": "1.0.0-beta.11"
+  }
+}
