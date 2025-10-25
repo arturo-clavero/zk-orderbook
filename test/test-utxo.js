@@ -18,7 +18,12 @@ let LOGS = 0;
 
 const d = 10;
 async function test() {
-    let max = 5;
+    await testSingleDeposit(false);
+    await proofBatch();
+}
+
+async function test_join(){
+        let max = 5;
 
     for (let i = 0; i < max; i++)
         await testSingleDeposit(false, 1);
@@ -40,7 +45,6 @@ async function test() {
 
     console.log("end");
 }
-
 export function log_order_state(str=""){
     if (LOGS == 1 || LOGS == -1)
         return;
