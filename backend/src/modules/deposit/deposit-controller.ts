@@ -20,12 +20,13 @@ export const TOKEN_MAP: Record<string, string> = {
 export class DepositController {
   @Post()
   async handleDeposit(@Body() dataEnvio: any) {
-    let { traderId, token, rawAmount, txHash } = dataEnvio;
-    traderId = traderId.toLowerCase();
+    let { wallet, token, rawAmount, txHash } = dataEnvio;
+    console.log('wallet', wallet);
+    wallet = wallet.toLowerCase();
     token = token.toLowerCase();
 
     console.log('data which backend recevies is in the deposit', dataEnvio);
-    if (!traderId || !token || !rawAmount || !txHash) {
+    if (!wallet || !token || !rawAmount || !txHash) {
       return {
         success: false,
         message: 'Missing data',
@@ -33,12 +34,15 @@ export class DepositController {
     }
     //find trader
     const trader = await prisma.trader.upsert({
-      where: { address: traderId },
-      create: { address: traderId },
+      where: { address: wallet },
+      create: { address: wallet },
       update: {},
     });
-    console.log('Trader which was not found is ', trader);
+    console.log('Trader which was  found is ', trader);
     const currency = TOKEN_MAP[token] || token;
+    console.log('Currency is ', currency);
+    console.log('Trder.id id', trader.id);
+    console.log('trader address', trader.address);
     // check if acount exists
     const account = await prisma.account.findFirst({
       where: {
@@ -83,7 +87,9 @@ export class DepositController {
       if (deposit.status === 'Confirmed') {
         await prisma.account.update({
           where: { id: account.id },
-          data: { available: { increment: rawAmount } },
+          data: {
+            available: { increment: rawAmount },
+          },
         });
         console.log('Saved to dataabase wtih id', deposit.id);
       }
