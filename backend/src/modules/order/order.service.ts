@@ -14,9 +14,30 @@ export class OrderService {
     private matchingService: MatchingService,
   ) {}
   async createOrder(dto: any) {
-    const { side, walletAddress, buy_currency, sell_currency, amount, price } =
-      dto;
+    const {
+      tradeType,
+      side,
+      price,
+      amount,
+      chartPair,
+      mainToken,
+      quoteToken,
+      slippage,
+      ammFallBack,
+      filled,
+      timestamp,
+      user,
+      signature,
+    } = dto;
+    console.log(
+      'what is not used add to database',
+      slippage,
+      ammFallBack,
+      filled,
+      timestamp,
+    );
 
+    const walletAddress = user;
     const trader = await prisma.trader.findUnique({
       where: {
         address: walletAddress,
@@ -33,13 +54,13 @@ export class OrderService {
           where: {
             traderId_currency: {
               traderId: trader.id,
-              currency: sell_currency,
+              currency: quoteToken,
             },
           },
         });
 
         if (!sellAccount) {
-          throw new Error(`Transaction was not founf fp ${sell_currency}`);
+          throw new Error(`Transaction was not founf fp ${quoteToken}`);
         }
         if (BigInt(sellAccount.available) < BigInt(amount)) {
           throw new Error('Not enough tokens on your balance');
@@ -56,10 +77,13 @@ export class OrderService {
       //order creatin
       return await prisma.order.create({
         data: {
+          tradeType,
+          chartPair,
+          signature,
           side,
           traderId: trader.id,
-          buy_currency,
-          sell_currency,
+          buy_currency: mainToken,
+          sell_currency: quoteToken,
           amount,
           price,
           order_status: 'PENDING',

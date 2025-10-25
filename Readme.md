@@ -1,55 +1,146 @@
-# Getting Started with Create React App
+## Contracts used here 
+voult contract: https://sepolia.etherscan.io/address/0xb113cf6bfb6dd42e12bd401e22e3e0ea9cdbd1af
+##
+pyusd contract: https://sepolia.etherscan.io/address/0x9118b7E6f445dfa116984d04222FDC8C5bF27d9D
+##
+usdt contract:  https://sepolia.etherscan.io/address/0xe89044eeb8a14ce585a17f674d9dd5bcede67bbe
+## Project setup
+```bash
+$ pnpm install
+```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Compile and run the project
 
-## Available Scripts
+```bash
+# development
+$ pnpm run start
 
-In the project directory, you can run:
+# watch mode
+$ pnpm run start:dev
 
-### `npm start`
+# production mode
+$ pnpm run start:prod
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Run tests
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+# unit tests
+$ pnpm run test
 
-### `npm test`
+# e2e tests
+$ pnpm run test:e2e
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# test coverage
+$ pnpm run test:cov
+```
 
-### `npm run build`
+```bash
+$ pnpm install -g @nestjs/mau
+$ mau deploy
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## ✨ Glossary
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* Personally identifiable information (PII) is information related to confirming an individual's identity. Sensitive PII can include full name, Social Security number, driver's license, financial information, and medical records.
 
-### `npm run eject`
+## ✨ High-level architecture (components)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+* KYC / Identity Store (KIS) — highly-protected DB/service (encrypted fields, HSM keys). Stores real PII and mapping tokens only.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* Trading Ledger Service (TLS) — stores orders, trades, balances using pseudonymous IDs only (no PII).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+* Matching Engine (ME) — matches orders using pseudonyms or blinded order book; runs in the same trust boundary as TLS or within an enclave.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+* Settlement / Custody — moves funds; only TLS and custody speak to it.
 
-## Learn More
+* Audit & Compliance Interface — one-way, logged access for legal requests; can reveal mapping from pseudonym → identity only after multi-party approval and logged events.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* User-facing UI — shows users only their own balances + aggregated market data (no per-user balances or exact counterparty details).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## two databases 
+* ADD IN FUTURE kyc_db (strict) — contains real identity / PII (names, IDs, documents, DOB, KYC evidence). Very sensitive. Access extremely restricted, strongly encrypted, separate network/credentials, and only accessible via a narrow service/API that requires multi-party approval / logging.
 
-# Run project
+* trading_db (pseudonymous) — contains operational trading data (orders, ledger entries, balances) but uses opaque tokens (pseudonymous IDs) instead of PII. This DB is used daily by matching, settlement, and UI services — but it must not contain raw identity data.
+* Verifying users via KYC DB (yes/no). Having pseudonymous trading users in Trading DB.Tracking balances, orders, and executed trades.
 
-pnpm i
-pnpm dev
+## prisma - backend ORM
+for entering orm 
+pnpm prisma studio --schema ./src/lib/prisma-trading-database/schema.prisma
+```bash
 
-# format lines
+      #Set up a new local Prisma Postgres `prisma dev`-ready project
+      $ prisma init
 
-pnpm prettier --write .
+      #Start a local Prisma Postgres server for development
+      $ prisma dev
+
+      #Generate artifacts (e.g. Prisma Client)
+      $ prisma generate
+
+      #Browse your data
+      $ prisma studio
+
+      #Create migrations from your Prisma schema, apply them to the database, generate artifacts (e.g. Prisma Client)
+      $ prisma migrate dev
+
+      #Pull the schema from an existing database, updating the Prisma schema
+      $ prisma db pull
+
+      #Push the Prisma schema state to the database
+      $ prisma db push
+
+      #Validate your Prisma schema
+      $ prisma validate
+
+      #Format your Prisma schema
+      $ prisma format
+
+      #Display Prisma version info
+      $ prisma version
+
+      #Display Prisma debug info
+      $ prisma debug
+      #to reset
+      $ pnpm prisma migrate reset --schema ./src/lib/prisma-trading-database/schema.prisma
+      ```
+  ##prisma scripts custom scripts:
+  ```bash
+    postinstall: Runs immediately after installing dependencies to generate Prisma Clients for both the user and post databases using their respective schema files.
+    generate: Manually triggers the generation of Prisma Clients for both schemas, ensuring your client code reflects the latest models.
+    migrate: Applies pending migrations in development mode for both databases using Prisma Migrate, updating their schemas based on changes in your Prisma files.
+    deploy: Executes migrations in a production environment, synchronizing your live databases with your Prisma schemas.
+    studio: Opens Prisma Studio for both databases simultaneously on different ports (5555 for the user database and 5556 for the post database) for visual data management.
+
+  ```
+  ## Envio commands
+  ``` bash
+  Run code generation to update types and generated code:
+
+    $ pnpm codegen
+      or
+    $ pnpx envio codegen
+
+Restart your indexer to apply the new configuration:
+
+    $ pnpm dev
+      or
+    $ pnpx envio start
+```
+### TO see logs in envio need to go to envio folder and export those vars
+```bash
+export TUI_OFF="true"  # Or use --tui-off flag when starting
+
+Log Visibility: To maintain the Terminal UI while capturing detailed logs:
+
+export LOG_STRATEGY="both-prettyconsole"
+export LOG_FILE="./debug.log"
+```
+### Docker create network for envio 
+```bash
+  $ docker network create envio-shared
+```
+
+```
