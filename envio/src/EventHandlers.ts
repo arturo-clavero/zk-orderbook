@@ -38,9 +38,9 @@ Deposit.Deposit.handler(async ({ event, context }) => {
   const normilizedAmount = normilizer(entity.token, entity.amount);
   context.Deposit_Deposit.set(entity);
   try {
-    const response = await axios.post('http://localhost:4000/deposit', 
+    const response = await axios.post('http://localhost:4000/deposit',
       {
-        traderId: entity.user,
+        wallet: entity.user,
         token: entity.token,
         rawAmount: entity.amount.toString(),
         txHash: entity.txHash,

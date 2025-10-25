@@ -49,9 +49,6 @@ export default function useDeposit() {
       const vaultAddress = import.meta.env.VITE_VAULT_ADDRESS;
       const pyusd = import.meta.env.VITE_PYUSD_ADDRESS;
       const usdt = import.meta.env.VITE_USDT_ADDRESS;
-      
-      console.log("ABI is", vaultAbi);
-      console.log("pyusd", pyusd);
       const contract = new ethers.Contract(vaultAddress, vaultAbi, signer);
       const tokenAddress = token === "PYUSD" ? pyusd : token === "USDT" ? usdt : undefined;
       
@@ -71,7 +68,9 @@ export default function useDeposit() {
 
         const approveTx = await tokenContract.approve(vaultAddress, value);
         await approveTx.wait();
+
         tx = await contract.depositErc(tokenAddress, value);
+        console.log("what is tx", tx);
       }
 
       setDwStatus("VERIFY_TX");
