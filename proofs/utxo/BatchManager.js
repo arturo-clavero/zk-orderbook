@@ -1,4 +1,5 @@
 import { tree } from "../tree/balance-tree.js";
+import { maxSubtreeSize } from "../tree/merkle-tree.js";
 import { pool } from "./UtxoPool.js";
 
 function newEmptyBatch(id){
@@ -9,33 +10,35 @@ function newEmptyBatch(id){
         withdrawals: [],
         trades: [],
         joins: [],
-        typeCounts: { deposit: 0, withdraw: 0, trade: 0, join: 0 },
+        outputsN: 0
+        // typeCounts: { deposit: 0, withdraw: 0, trade: 0, join: 0 },
     }
 }
 
 class BatchManager {
     constructor(config = {}) {
-        // batchId -> { status, deposits, withdrawals, trades, typeCounts }
+        // batchId -> { status, deposits, withdrawals, trades, outputsN }
         this.batches = new Map();
         this.currentBatch = 0;
-        this.maxPerType = config.maxPerType || { 
-            deposit: 2, 
-            withdraw: 2, 
-            trade: 6, 
-            join: 8
-        };
+        this.maxOutputs = maxSubtreeSize;
+        // this.maxPerType = config.maxPerType || { 
+        //     deposit: 2, 
+        //     withdraw: 2, 
+        //     trade: 6, 
+        //     join: 8
+        // };
     }
 
-    //type = "deposit" || "withdraw" || "trade" || "join"
     addAction(type, data, lastId = -1) {
         const nextId = lastId == -1 ? this.currentBatch : lastId + 1;
-        const active = this._latestBatch(type, nextId);
+        const active = this._latestBatch(nextId, data.outputs);
         if (Array.isArray(data.inputs) && data.inputs.length > 0)
         {
             for(const u of data.inputs) pool.addPendingInput(u, active.id);
         }
         if (Array.isArray(data.outputs) && data.outputs.length > 0)
         {
+            active.outputsN += data.outputs.length;
             for(const u of data.outputs) pool.addPendingOutput(u, active.id);
         }
         if (type === "deposit") {
@@ -47,7 +50,7 @@ class BatchManager {
         } else if (type == "join"){
             active.joins.push(data);
         }
-        active.typeCounts[type]++;
+        // active.typeCounts[type]++;
         return active.id;
     }
 
@@ -88,14 +91,17 @@ class BatchManager {
         }
         return this.batches.get(batchId);
     }
-    _latestBatch(type, id = this.currentBatch){
+    _latestBatch(id = this.currentBatch){
         const batch = this._ensureBatch(id);
-        if (batch.typeCounts[type] >= this.maxPerType[type]) {
-            return this._latestBatch(type, id + 1);
+        if (batch.outputsN >= this.maxOutputs) {
+            return this._latestBatch(id + 1);
         }
         return batch;
     }
-
+    isFull(id = this.currentBatch){
+        const batch = this._ensureBatch(id);
+        return batch.outputsN == this.maxOutputs;
+    }
     //GETTERS
     getBatch(batchId = this.currentBatch) {
         return this._ensureBatch(batchId);

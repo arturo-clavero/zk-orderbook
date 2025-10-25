@@ -36,7 +36,7 @@ TODO! -> check signature
 
 ---
 
-### 3. Proof Batch
+### 2. Proof Batch
 
 **When to use:**
 
