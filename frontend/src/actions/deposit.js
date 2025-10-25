@@ -49,8 +49,9 @@ export default function useDeposit() {
       const vaultAddress = import.meta.env.VITE_VAULT_ADDRESS;
       const pyusd = import.meta.env.VITE_PYUSD_ADDRESS;
       const usdt = import.meta.env.VITE_USDT_ADDRESS;
+      const eth = import.meta.env.VITE_ETH_ADDRESS;
       const contract = new ethers.Contract(vaultAddress, vaultAbi, signer);
-      const tokenAddress = token === "PYUSD" ? pyusd : token === "USDT" ? usdt : undefined;
+      const tokenAddress = token === "PYUSD" ? pyusd : token === "USDT" ? usdt : token === "ETH" ? eth : undefined;
       
       const erc20Abi = ["function approve(address spender, uint256 amount) public returns(bool)"];
       let tx;

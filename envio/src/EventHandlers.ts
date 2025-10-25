@@ -6,8 +6,6 @@ import {
   Deposit_Deposit,
 } from "generated";
 import axios from 'axios';
-import { error } from "console";
-import { execPath } from "process";
 import  { ethers } from "ethers";
 
 //corrupted "amount" value
@@ -18,7 +16,7 @@ function normilizer(token: string, amount: string | number | bigint): string {
       decimals = 18;
       break;
     case "PYUSD":
-    case "ETH":
+    case "USDT":
     default:
       decimals = 6;
       break;
@@ -29,8 +27,8 @@ function normilizer(token: string, amount: string | number | bigint): string {
 Deposit.Deposit.handler(async ({ event, context }) => {
   const entity: Deposit_Deposit = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    user: event.params.user,
-    token: event.params.token,
+    user: event.params.user.toLowerCase(),
+    token: event.params.token.toLowerCase(),
     amount: event.params.amount,
     txHash: event.transaction.hash,
   };
