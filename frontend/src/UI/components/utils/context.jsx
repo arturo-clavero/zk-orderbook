@@ -70,6 +70,7 @@ export function ContextProvider({ children }) {
   const [subtleAnimateWallet, setSubtleAnimateWallet] = useState(true);
   const [animationWalletLock, setAnimationWalletLock] = useState(false);
   const [toast, setToast] = useState({ open: false, type: "success", msg: "" });
+  const [priceInitialized, setPriceInitialized] = useState(false);
 
   const handleWalletPopAnimation = () => {
     if (!animationWalletLock) {
@@ -129,6 +130,8 @@ export function ContextProvider({ children }) {
         handleWalletPopAnimation,
         toast,
         setToast,
+        priceInitialized,
+        setPriceInitialized
       }}
     >
       {children}

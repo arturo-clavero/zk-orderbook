@@ -1,5 +1,5 @@
 import { Stack, Typography } from "@mui/material";
-import { floorAndFormat, format, safeNumber } from "../../utils/math";
+import { floorAndFormat, formatFixed, safeNumber } from "../../utils/math";
 import { useMyContext } from "../../utils/context";
 import { useEffect } from "react";
 
@@ -20,24 +20,25 @@ export default function TradeDetails({
   mainToken,
   quoteToken,
 }) {
-  const { balance, walletConnected } = useMyContext();
-
+  const { balance, walletConnected, priceInitialized, setPriceInitialized } = useMyContext();
   const lastPrice = mainToken.price / quoteToken.price;
   const maxAvailable =
     side == "sell"
       ? balance[mainToken.symbol]
       : balance[quoteToken.symbol] / price;
 
+
   useEffect(() => {
-    if (safeNumber(lastPrice) > 0 && price === 0) {
+    if (!priceInitialized && safeNumber(lastPrice) > 0 && price === 0) {
       setPrice(lastPrice);
+      setPriceInitialized(true);
     }
   }, [lastPrice, maxAvailable, price, amount]);
 
   return (
     <Stack>
       <Typography variant="caption" color="text.secondary">
-        Last price: ${format(lastPrice)} |{" "}
+        Last price: ${formatFixed(lastPrice)} |{" "}
         <Typography
           component="span"
           variant="caption"
@@ -49,7 +50,7 @@ export default function TradeDetails({
       </Typography>
       {walletConnected && (
         <Typography variant="caption" color="text.secondary">
-          Max Available: {format(maxAvailable)} |{" "}
+          Max Available: {formatFixed(maxAvailable)} |{" "}
           <Typography
             component="span"
             variant="caption"

@@ -95,9 +95,17 @@ export function ExpandableTitle({
   );
 }
 
+// export const handleNumeric = (val, setter) => {
+//   if (!/^\d*\.?\d*$/.test(val)) return;
+//   if (val.length > 1 && val[0] === "0" && val[1] !== ".")
+//     val = val.replace(/^0+/, "");
+//   setter(val);
+// };
 export const handleNumeric = (val, setter) => {
   if (!/^\d*\.?\d*$/.test(val)) return;
-  if (val.length > 1 && val[0] === "0" && val[1] !== ".")
+  if (val.length > 1 && val[0] === "0" && val[1] !== ".") {
     val = val.replace(/^0+/, "");
+  }
+  if (setter == null) return;
   setter(val);
 };

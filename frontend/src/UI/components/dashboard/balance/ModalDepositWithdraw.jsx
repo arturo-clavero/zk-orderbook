@@ -170,7 +170,7 @@ export default function ModalDepositWithdraw({
             id="SelectAmount"
             label="Amount"
             type="number"
-            value={format(amount) == 0 ? "" : format(amount)}
+            value={amount}
             error={invalidAmount}
             helperText={invalidAmount ? "Insufficient Balance" : ""}
             onChange={(e) => {
