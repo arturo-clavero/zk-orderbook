@@ -30,6 +30,7 @@ describe("Deposit contract Deposit event tests", () => {
       user: event.params.user,
       token: event.params.token,
       amount: event.params.amount,
+      txHash: event.transaction.hash,
     };
     // Asserting that the entity in the mock database is the same as the expected entity
     assert.deepEqual(actualDepositDeposit, expectedDepositDeposit, "Actual DepositDeposit should be the same as the expectedDepositDeposit");

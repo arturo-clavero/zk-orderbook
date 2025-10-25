@@ -9,7 +9,8 @@
     "codegen": "envio codegen",
     "dev": "envio dev",
     "start": "envio start",
-    "test": "pnpm mocha"
+    "test": "pnpm mocha",
+    "envio:dev": "envio codegen && docker network create envio-shared || true && docker compose -f generated/docker-compose.yaml -f generated/envio.override.yml up -d"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
