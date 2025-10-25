@@ -17,6 +17,8 @@ export default function TradeButton({
   quoteToken,
   slippage,
   publicRouterFallback,
+  invalidBuy,
+  invalidSell,
 }) {
   const createOrder = useCreateOrder();
   const { chartPair, tradeStatus, walletConnected, handleWalletPopAnimation } =
@@ -41,6 +43,8 @@ export default function TradeButton({
             tradeStatus !== "OPEN" ||
             price == 0 ||
             amount == 0 ||
+            invalidBuy ||
+            invalidSell ||
             !walletConnected
           }
           onClick={async () =>

@@ -22,7 +22,10 @@ export default function TradeForm() {
   const quoteToken = switched ? chartPair?.token1 : chartPair?.token2;
   const [slippage, setSlippage] = useState(0.05);
   const [publicRouterFallback, setPublicRouterFallback] = useState(true);
-
+  const totalPrice = price * amount;
+  const invalidBuy = balance[quoteToken.symbol] < totalPrice;
+  const mainBalance = balance[mainToken.symbol];
+  const invalidSell = mainBalance < amount;
   useEffect(() => {
     if (tradeStatus === "ORDER_OPEN")
       setToast({
@@ -82,6 +85,8 @@ export default function TradeForm() {
         setSlippage={setSlippage}
         publicRouterFallback={publicRouterFallback}
         setPublicRouterFallback={setPublicRouterFallback}
+        invalidBuy={invalidBuy}
+        invalidSell={invalidSell}
       />
       <TradeButton
         tradeType={tradeType}
@@ -92,6 +97,8 @@ export default function TradeForm() {
         quoteToken={quoteToken}
         slippage={slippage}
         publicRouterFallback={publicRouterFallback}
+        invalidBuy={invalidBuy}
+        invalidSell={invalidSell}
       />
     </Box>
   );
