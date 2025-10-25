@@ -5,6 +5,7 @@
 * Deposits: after Envio listens to the `Deposit` event
 * Withdrawals: after the frontend sends a withdrawal signature
 * Trade: for each order settlement (2 full/partial orders matched)
+* CheckOrder: for each new order check order to confirm validity
 
 **What it does:**
 
@@ -21,14 +22,21 @@ await queueDeposit(user, token, amount);
 
 await queueWithdrawal(user, token, amount);
 // @ ./proofs/actions/withdraw.js
+TODO! -> check signature
 
 await queueSettlement(userX, amountX, tokenX, userY, amountY, tokenY);
 // @ ./proofs/actions/trade.js
+
+checkOrder(order, signature);
+// @ ./proofs/actions/trade.js
+TODO! -> check signature
+
+
 ```
 
 ---
 
-### 2. Proof Batch
+### 3. Proof Batch
 
 **When to use:**
 
@@ -56,36 +64,3 @@ await proofBatch();
 ```
 
 ---
-
-### 3. Finalize Batch
-## ! REMOVED WE JUST WAIT IN PROOF BATCH NO NEED FOR ENVIO
-**When to use:**
-
-* After Envio listens to the `BatchVerified(id, success)` event
-
-**What it does:**
-
-* Updates available balances
-* Marks input UTXOs as spent
-* Inserts output UTXOs
-* Unlocks batch prover
-
-**How to use:**
-
-```js
-await finalizeBatch(id);
-// @ ./proofs/validate.js
-```
-
----
-
-### 4. Read Balances
-
-```js
-import { pool } from "./proofs/utxo/UtxoPool.js";
-
-const { available, pending } = pool.getBalance(user, token);
-```
-
-`token` must be a digit.
-See mapping `const TOKEN_IDS` in `./proofs/actions/action-utils.js`.
