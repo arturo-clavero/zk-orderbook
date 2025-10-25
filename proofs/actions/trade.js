@@ -17,15 +17,9 @@ export function checkOrder(order, signature){
     }
     //LERA CHECK SIGNATURE
     pool.lockBalance(order.user, token, order.amount);
-
 }
 
-//Alice   : gives    2       ETH   , receives    5      DAI ;
-//Bob     : gives    5       DAI   , receives    2      ETH ;
-
-//userX   : gives amountX of tokenX, receives amountY of tokenY;
-//userY   : gives amountY of tokenY, receives amountX of tokenX;
-export async function queueSettlement(
+export async function queueTrade(
     userX, 
     tokenXString, 
     amountX, 
@@ -33,18 +27,43 @@ export async function queueSettlement(
     tokenYString,
     amountY, 
 ){
+    const data = {
+        type: "trade",
+        userX, 
+        tokenX: getToken(tokenXString), 
+        amountX, 
+        userY, 
+        tokenY: getToken(tokenYString),
+        amountY
+    }
+    // if (pool.getLockedBalance(side.user, side.token) < side.amount) {
+    //         console.error(`Not enough unlocked funds for ${side.user} to trade ${side.amount} ${side.tokenStr}`);
+    //         return false;
+    //     }
+    await batch.queueAction(data);
+}
+
+//Alice   : gives    2       ETH   , receives    5      DAI ;
+//Bob     : gives    5       DAI   , receives    2      ETH ;
+
+//userX   : gives amountX of tokenX, receives amountY of tokenY;
+//userY   : gives amountY of tokenY, receives amountX of tokenX;
+export async function processTrade(
+    userX, 
+    tokenX, 
+    amountX, 
+    userY, 
+    tokenY,
+    amountY, 
+){
     const sides = [
-        { name: 'X', user: userX, token: getToken(tokenXString), amount: amountX },
-        { name: 'Y', user: userY, token: getToken(tokenYString), amount: amountY }
+        { name: 'X', user: userX, token: tokenX, amount: amountX },
+        { name: 'Y', user: userY, token: tokenY, amount: amountY }
     ];
 
     for (let i = 0; i < sides.length; i++) {
         const side = sides[i];
         const opposite = sides[1 - i];
-        // if (pool.getUnlockedBalance(side.user, side.token) < side.amount) {
-        //     console.error(`Not enough unlocked funds for ${side.user} to trade ${side.amount} ${side.tokenStr}`);
-        //     return false;
-        // }
         side.inputData = pool.selectForAmount(side.user, side.token, side.amount);
         if (side.inputData.mode === "insufficient") {
             console.error(`Not enough funds for ${side.user} to withdraw ${side.amount} ${side.tokenStr}`);
@@ -84,6 +103,7 @@ export async function queueSettlement(
         amountY,
     }
     batch.addAction("trade", circuitData, lastId);
+    return true;
 }
 
 export async function proofTrades(inputs){

@@ -7,7 +7,19 @@ import { createOutput } from "../utxo/utxo-utils.js";
 import { getNewOutxoInputs, getToken } from "./action-utils.js";
 
 export async function queueDeposit(user, tokenString, amount){
+    
     const token = getToken(tokenString);
+    const data = {
+        type:"deposit",
+        user,
+        token,
+        amount
+    }
+    await batch.queueAction(data);
+}
+
+export async function processDeposit(user, token, amount){
+    
     const output = await createOutput(user, token, amount);
     const data = {
         outputs: [output],

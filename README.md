@@ -24,7 +24,7 @@ await queueWithdrawal(user, token, amount);
 // @ ./proofs/actions/withdraw.js
 TODO! -> check signature
 
-await queueSettlement(userX, amountX, tokenX, userY, amountY, tokenY);
+await queueTrade(userX, amountX, tokenX, userY, amountY, tokenY);
 // @ ./proofs/actions/trade.js
 
 checkOrder(order, signature);
