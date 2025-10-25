@@ -25,7 +25,7 @@ export async function callCircuit(inputs, path){
     backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: os.cpus().length });
     // const backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: 1});
     const { witness } = await noir.execute(inputs, { showOutputs: true });
-    const { proof, publicInputs } = await backend.generateProof(witness);
+    const { proof, publicInputs } = await backend.generateProof(witness, {keccak: true});
     return {proof, publicInputs};
   } catch(error){
     console.error("Verification failed:", error);

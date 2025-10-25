@@ -24,7 +24,7 @@ The latest ABI is located at:
 
 ```js
 import { readFileSync } from "fs";
-import { ethers } from "ethers";
+import { JsonRpcProvider, Wallet, Contract } from "ethers";
 
 // 1. Create a contract object
 const DarkPool = JSON.parse(
@@ -34,9 +34,9 @@ const DARKPOOL_ADDRESS = "0x2222222222222222222222222222222222222222";
 const RPC_URL = "http://127.0.0.1:8545";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-const provider = new ethers.JsonRpcProvider(RPC_URL);
-const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-const contract = new ethers.Contract(DARKPOOL_ADDRESS, DarkPool.abi, wallet);
+const provider = new JsonRpcProvider(RPC_URL);
+const wallet = new Wallet(PRIVATE_KEY, provider);
+const contract = new Contract(DARKPOOL_ADDRESS, DarkPool.abi, wallet);
 
 // 2. Call a function
 const tx = await contract.<functionName>(<param>);
@@ -52,5 +52,11 @@ if (receipt.status === 1) {
 
 // 4. Print emitted events
 console.log("Events:", receipt.logs);
+
+
+## Notes
+//!! make sure you generate the proof with {keccak: true}
+//    const { proof, publicInputs } = await backend.generateProof(witness, {keccak: true});
+
 
 ```

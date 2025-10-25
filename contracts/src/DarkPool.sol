@@ -16,8 +16,8 @@ contract DarkPool is ReentrancyGuard {
     event BatchVerified(uint256 indexed id, bool success);
     //event WithdrawExecuted(address indexed user, address indexed token, uint256 amount);
 
-    mapping(bytes32 => bool) public s_nullifiers;
-    IVerifier public immutable i_verifier;
+    mapping(bytes32 => bool) private s_nullifiers;
+    IVerifier private immutable i_verifier;
 
     constructor(IVerifier _verifier) {
         i_verifier = _verifier;
@@ -56,6 +56,7 @@ contract DarkPool is ReentrancyGuard {
         emit Deposit(msg.sender, token, amount);
     }
 
+    
     function verifyAndWithdraw(
         uint256 id,
         bytes32[] calldata _nullifiers,

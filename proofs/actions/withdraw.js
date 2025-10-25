@@ -71,7 +71,7 @@ export async function proofWithdrawals(inputs){
 const DEPTH = tree.mainTree.DEPTH;
 
 export async function proofSingleWithdrawal(_inputs, _outputs, amount, userSecret){
-    return true;
+    // return true;
     const {inputs, inputsPub, root} = await getOldOutxoInputs(_inputs, 2);
     
     // prepare outputs
