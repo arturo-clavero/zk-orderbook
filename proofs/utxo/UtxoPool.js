@@ -5,7 +5,7 @@ const pendingMirrors = true;
 class UtxoPool {
     constructor() {
         this.pool = new Map();         // user -> token ->[UTXO]
-        this.balances = new Map();     // user -> token -> { available, pending }
+        this.balances = new Map();     // user -> token -> { available, pending, locked }
         this.pendingUtxos = {};        // batch id -> pending outputs
     }
 
@@ -22,7 +22,16 @@ class UtxoPool {
         }
         this.pendingUtxos[id].outputs.push(utxo);
     }
-
+    lockBalance(user, token, amount){
+        const balance = this._ensureBalance(user, token);
+        balance.locked += amount;
+        balance.available -= amount;
+    }
+    unlockBalance(user, token, amount){
+        const balance = this._ensureBalance(user, token);
+        balance.locked -= amount;
+        balance.available += amount;
+    }
     setPendingInput(user, token, note, _amount) {
         // console.log("set pending input");
         const utxos = this._ensureUserToken(user, token);
@@ -63,13 +72,8 @@ class UtxoPool {
                 o.pending = false;
             this._addUtxo(o);
             const balance = this._ensureBalance(o.user, o.token);
-            // console.log("balance before: ", balance);
-            // console.log("o: ", o);
-            // console.log(o.user, o.token);
-            balance.pending -= o.amount;
+            // balance.pending -= o.amount;
             balance.available += o.amount;
-            // console.log("balance after: ", balance);
-
         }
         const inUtxos = pending.inputs || [];
         for (const i of inUtxos) {
@@ -77,7 +81,7 @@ class UtxoPool {
             i.pending = false;
             this._removeUtxo(i);
             const balance = this._ensureBalance(i.user, i.token);
-            balance.pending += i.amount;
+            // balance.pending += i.amount;
             balance.available -= i.amount;
         }
 
@@ -186,7 +190,7 @@ class UtxoPool {
     _ensureBalance(user, token) {
         if (!this.balances.has(user)) this.balances.set(user, new Map());
         const userTokens = this.balances.get(user);
-        if (!userTokens.has(token)) userTokens.set(token, { available: 0, pending: 0 });
+        if (!userTokens.has(token)) userTokens.set(token, { available: 0, pending: 0, locked: 0});
         return userTokens.get(token);
     }
 }

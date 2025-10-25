@@ -8,19 +8,30 @@ import { createOutput } from "../utxo/utxo-utils.js";
 import { pool } from "../utxo/UtxoPool.js";
 import { _setInputs, getOldOutxoInputs, getToken } from "./action-utils.js";
 
+
+export async function checkOrder(order, signature){
+    const token = getToken(order.mainToken);
+     if (pool.getUnlockedBalance(order.user, token) < order.amount) {
+        console.error(`Not enough unlocked funds for ${order.user} to trade ${order.amount} ${token}`);
+        return false;
+    }
+    //LERA CHECK SIGNATURE
+    pool.lockBalance(order.user, token, order.amount);
+
+}
+
 //Alice   : gives    2       ETH   , receives    5      DAI ;
 //Bob     : gives    5       DAI   , receives    2      ETH ;
 
 //userX   : gives amountX of tokenX, receives amountY of tokenY;
 //userY   : gives amountY of tokenY, receives amountX of tokenX;
-
 export async function queueSettlement(
     userX, 
-    amountX, 
     tokenXString, 
+    amountX, 
     userY, 
-    amountY, 
     tokenYString,
+    amountY, 
 ){
     const sides = [
         { name: 'X', user: userX, token: getToken(tokenXString), amount: amountX },
@@ -30,11 +41,10 @@ export async function queueSettlement(
     for (let i = 0; i < sides.length; i++) {
         const side = sides[i];
         const opposite = sides[1 - i];
-        // side.token = getToken(side.tokenStr);
-        if (pool.getUnlockedBalance(side.user, side.token) < side.amount) {
-            console.error(`Not enough unlocked funds for ${side.user} to trade ${side.amount} ${side.tokenStr}`);
-            return false;
-        }
+        // if (pool.getUnlockedBalance(side.user, side.token) < side.amount) {
+        //     console.error(`Not enough unlocked funds for ${side.user} to trade ${side.amount} ${side.tokenStr}`);
+        //     return false;
+        // }
         side.inputData = pool.selectForAmount(side.user, side.token, side.amount);
         if (side.inputData.mode === "insufficient") {
             console.error(`Not enough funds for ${side.user} to withdraw ${side.amount} ${side.tokenStr}`);

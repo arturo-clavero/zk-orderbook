@@ -1,5 +1,5 @@
 import { proofDeposits, queueDeposit } from "../proofs/actions/deposit.js";
-import { queueSettlement } from "../proofs/actions/trade.js";
+import { checkOrder, queueSettlement } from "../proofs/actions/trade.js";
 import { queueWithdraw } from "../proofs/actions/withdraw.js";
 import { batch } from "../proofs/utxo/BatchManager.js";
 import { pool } from "../proofs/utxo/UtxoPool.js";
@@ -17,9 +17,32 @@ const token2 = "DAI";
 let LOGS = 0;
 
 const d = 10;
-async function test() {
-    await testSingleDeposit(false);
+
+async function test(){
+    await queueDeposit(user, token, 1);
+    await queueDeposit(user2, token2, 1);
+
     await proofBatch();
+    await checkOrder(test_new_order(user, token, 1));
+    await checkOrder(test_new_order(user2, token2, 1));
+
+    log_state();
+    await queueSettlement(user,token, 1, user2, token2, 1);
+
+    await proofBatch();
+    log_order_state();
+    console.log("end");
+
+}
+
+
+function test_new_order(user, token, amount){
+    const order = {
+        amount, 
+        mainToken: token,
+        user,
+    };
+    return order;
 }
 
 async function test_join(){
@@ -86,7 +109,7 @@ async function testOrderSettlement(logs=true, preDeposit=true){
         log_batch("settlement start: ");
         log_order_state("settlement start: ");
 
-    await queueSettlement(userX, amountX, tokenX, userY, amountY, tokenY);
+    await queueSettlement(userX, tokenX,amountX, userY,tokenY, amountY);
             log_order_state("settlement queued! ");
             log_batch("settlement queued: ");
 

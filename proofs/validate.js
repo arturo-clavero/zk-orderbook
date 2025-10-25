@@ -9,16 +9,16 @@ import { batch } from "./utxo/BatchManager.js";
 import { callSmartContract } from "./contract.js";
 
 import { ethers } from "ethers";
+import { pool } from "./utxo/UtxoPool.js";
+import { membersToStrings } from "./tree/tree-utils.js";
 
-const isVerifying = false;
+let isVerifying = false;
 
 export async function proofBatch(){
     if (isVerifying == true)
         return;
     isVerifying = true;    
     const verifyInputs = batch.proofNextBatch();
-
-    // console.log("\n\n\n\n\\nverify inputs!", verifyInputs,"\n\n\n\n\n");
     const subtreeProof = await insertNewOutputs(verifyInputs);
 
     console.log("subtree proof: ", subtreeProof.inputs);
@@ -26,20 +26,27 @@ export async function proofBatch(){
     const {w_nulls, w_data} = await proofWithdrawals(verifyInputs.withdrawals);
     const t_nulls = await proofTrades(verifyInputs.trades);
     const j_nulls = await proofJoins(verifyInputs.joins);
-
-        // //only for testing! call true 
+    
     const {proof, publicInputs} = await callCircuit(subtreeProof.inputs, "batch", true);
-    //end testing
     const nullifiers = [
         ...t_nulls,
         ...w_nulls,
         ...j_nulls,
     ];
-    console.log("raw proof length: ", typeof proof);
     const proofBytes = ethers.hexlify(proof);
-
-    const success = await callSmartContract(verifyInputs.id, proofBytes, publicInputs, nullifiers, w_data);
+    const nullifiersBytes32 = nullifiers.map(n => {
+        const bn = BigInt(n);
+        return "0x" + bn.toString(16).padStart(64, "0");
+    });
+    const success = await callSmartContract(verifyInputs.id, proofBytes, publicInputs, nullifiersBytes32, w_data);
     batch.finalizeBatch(verifyInputs.id, success);
+
+    console.log("verify inputs: ", verifyInputs);
+    for (const t of verifyInputs.trades) {
+        console.log("t: ", t);
+        pool.unlockBalance(t.userX, t.tokenX, t.amountX);
+        pool.unlockBalance(t.userY, t.tokenY, t.amountY);
+    }
     isVerifying = false;
     return verifyInputs.id;
 }
@@ -50,6 +57,6 @@ async function insertNewOutputs(verifyInputs) {
     .flatMap(item => (item.outputs || []).map(o => o.note));
 
     if (outputs.length == 0)
-        return null;
+        return {inputs: null};
     return await tree.insertInShadow(outputs, verifyInputs.id);
 }

@@ -58,7 +58,7 @@ await proofBatch();
 ---
 
 ### 3. Finalize Batch
-
+## ! REMOVED WE JUST WAIT IN PROOF BATCH NO NEED FOR ENVIO
 **When to use:**
 
 * After Envio listens to the `BatchVerified(id, success)` event
