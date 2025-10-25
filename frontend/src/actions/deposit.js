@@ -14,7 +14,7 @@ export default function useDeposit() {
     try {
       setDwStatus("LOADING");
 
-      // === 1️⃣ CONNECT WALLET ===
+      // === CONNECT WALLET ===
       if (!window.ethereum) throw new Error("Please install MetaMask");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -22,7 +22,7 @@ export default function useDeposit() {
 
       console.log("🦊 Connected wallet:", walletAddress);
 
-      // === 2️⃣ BACKEND ACCOUNT CHECK ===
+      // === BACKEND ACCOUNT CHECK ===
       setDwStatus("VERIFY_ACCOUNT");
       const checkRes = await axios.post("http://localhost:4000/account/check", {
         address: walletAddress,
@@ -33,11 +33,11 @@ export default function useDeposit() {
         throw new Error("Account not verified — please complete KYC before deposit.");
       }
 
-      // === 3️⃣ PROOF GENERATION (simulated for now) ===
+      // === PROOF GENERATION (simulated for now) ===
       setDwStatus("PROOF_GEN");
       await new Promise((res) => setTimeout(res, 1200));
 
-      // === 4️⃣ SIGN TRANSACTION ===
+      // === SIGN TRANSACTION ===
       setDwStatus("SIGN");
 
       // Simulate short delay before prompting user in MetaMask
@@ -45,7 +45,7 @@ export default function useDeposit() {
         setDwStatus((prev) => (prev === "SIGN" ? "OPEN_METAMASK" : prev));
       }, 1000);
 
-      // === 5️⃣ CALL SMART CONTRACT ===
+      // === CALL SMART CONTRACT ===
       const vaultAddress = import.meta.env.VITE_VAULT_ADDRESS;
       const pyusd = import.meta.env.VITE_PYUSD_ADDRESS;
       const usdt = import.meta.env.VITE_USDT_ADDRESS;
@@ -77,7 +77,7 @@ export default function useDeposit() {
       setDwStatus("VERIFY_TX");
       await tx.wait();
 
-      // === 6️⃣ SUCCESS ===
+      // ===SUCCESS ===
       console.log("✅ Deposit confirmed:", tx.hash);
       setDwStatus("SUCCESS");
 

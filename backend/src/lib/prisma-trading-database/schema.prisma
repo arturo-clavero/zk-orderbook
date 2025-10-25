@@ -48,6 +48,9 @@ model Order {
   proof         String?
   filled        BigInt    @default(0)
   side          String
+  chartPair     String
+  signature     String
+  tradeType     String
 
   buyTrades     Trade[] @relation("BuyTrades")
   sellTrades    Trade[] @relation("SellTrades")
