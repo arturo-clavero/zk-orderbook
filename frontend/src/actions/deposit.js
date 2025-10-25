@@ -42,15 +42,11 @@ export default function useDeposit() {
       setTimeout(() => setDwStatus("OPEN"), 2500);
 
 
-    }catch(error){
-
-    }
-
+    }catch (err) {
+      console.error("Deposit creation failed:", err);
+      setDwStatus("ERROR");
+      setTimeout(() => setDwStatus("OPEN"), 2500);
   };
   return deposit;
 }
-
-
-async function Call_contract() {
-await new Promise((res) => setTimeout(res, 1500));
 }
