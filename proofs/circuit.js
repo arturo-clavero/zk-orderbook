@@ -11,6 +11,12 @@ let backend;
 
 export async function callCircuit(inputs, path){
   try {
+    if (inputs == null){
+      return {
+        proof: "0x",
+        publicInputs: [],
+      }
+    }
     const compiledCircuit = await compile(createFileManager(
       resolve(dirname(fileURLToPath(import.meta.url)), `${PREPATH}${path}`)
     ));
