@@ -9,7 +9,22 @@ import { _setInputs, _tooManyInputs, getOldOutxoInputs, getToken } from "./actio
 
 export async function queueWithdraw(user, tokenString, targetAmount, signature) {
     //LERA CHECK SIGNATURE
+    const token = getToken(tokenString);
 
+    if (pool.getPendingdBalance(user, token) <  targetAmount) {
+        console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);
+        return false;
+    }
+
+    const data = {
+        type:"withdraw",
+        user,
+        token,
+        targetAmount
+    }
+}
+
+export async function processWithdraw(user, token, targetAmount) {
     const token = getToken(tokenString);
     if (pool.getUnlockedBalance(user, token) <  targetAmount) {
         console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);
@@ -44,6 +59,7 @@ export async function queueWithdraw(user, tokenString, targetAmount, signature) 
         targetAmount,
     }
     batch.addAction("withdraw", circuitData, lastId);
+    return true;
 }
 
 

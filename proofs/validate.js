@@ -1,6 +1,6 @@
-import { proofDeposits } from "./actions/deposit.js";
-import { proofTrades } from "./actions/trade.js";
-import { proofWithdrawals } from "./actions/withdraw.js";
+import { processDeposit, proofDeposits } from "./actions/deposit.js";
+import { processTrade, proofTrades } from "./actions/trade.js";
+import { processWithdraw, proofWithdrawals } from "./actions/withdraw.js";
 import { proofJoins } from "./actions/join.js";
 
 import { callCircuit, verifyLatestProof } from "./circuit.js";
@@ -12,12 +12,15 @@ import { ethers } from "ethers";
 import { pool } from "./utxo/UtxoPool.js";
 import { membersToStrings } from "./tree/tree-utils.js";
 
-let isVerifying = false;
+// let isVerifying = false;
 
 export async function proofBatch(){
-    if (isVerifying == true)
-        return;
-    isVerifying = true;    
+    // if (isVerifying == true)
+    //     return;
+    // isVerifying = true;
+    if (!batch.isFull())
+        await fillBatches();
+
     const verifyInputs = batch.proofNextBatch();
     const subtreeProof = await insertNewOutputs(verifyInputs);
 
@@ -47,7 +50,7 @@ export async function proofBatch(){
         pool.unlockBalance(t.userX, t.tokenX, t.amountX);
         pool.unlockBalance(t.userY, t.tokenY, t.amountY);
     }
-    isVerifying = false;
+    // isVerifying = false;
     return verifyInputs.id;
 }
 
@@ -59,4 +62,26 @@ async function insertNewOutputs(verifyInputs) {
     if (outputs.length == 0)
         return {inputs: null};
     return await tree.insertInShadow(outputs, verifyInputs.id);
+}
+
+async function fillBatches(){
+    const actions = batch.getActionQueue();
+    for (a in actions){
+        let success;
+        if (a.type == "deposit")
+            success = await processDeposit(a.user, a.token, a.amount);
+        else if (a.type == "withdrawal")
+            success = await processTrade(
+                a.userX, 
+                a.tokenX, 
+                a.amountX, 
+                a.userY, 
+                a.tokenY,
+                a.amountY 
+            );
+        else if (a.type == "trade")
+            success = await processWithdraw(a.user, a.token, a.targetAmount);
+        if (success)
+            batch.unqueueAction(a);
+    }
 }

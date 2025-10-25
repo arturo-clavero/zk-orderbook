@@ -1,6 +1,8 @@
 import { tree } from "../tree/balance-tree.js";
 import { maxSubtreeSize } from "../tree/merkle-tree.js";
 import { pool } from "./UtxoPool.js";
+import Redis from "ioredis";
+const redis = new Redis();
 
 function newEmptyBatch(id){
     return {
@@ -21,12 +23,17 @@ class BatchManager {
         this.batches = new Map();
         this.currentBatch = 0;
         this.maxOutputs = maxSubtreeSize;
-        // this.maxPerType = config.maxPerType || { 
-        //     deposit: 2, 
-        //     withdraw: 2, 
-        //     trade: 6, 
-        //     join: 8
-        // };
+    }
+
+    async queueAction(data){
+        await redis.lpush("actionQueue", JSON.stringify(data));
+    }
+    async getActionQueue(){
+        const items = await redis.lrange("actionQueue", 0, -1);
+        return items.map(itemStr => JSON.parse(itemStr));
+    }
+    async unqueueAction(data){
+        await redis.lrem("actionQueue", 1, JSON.stringify(data));
     }
 
     addAction(type, data, lastId = -1) {
