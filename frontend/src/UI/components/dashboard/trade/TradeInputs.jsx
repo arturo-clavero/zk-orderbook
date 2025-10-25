@@ -2,9 +2,9 @@ import { Stack, TextField } from "@mui/material";
 import { textFieldBase } from "./styles.js";
 import TradeAmmFallback from "./TradeAmmFallback.jsx";
 import { handleNumeric } from "../../utils/reusable.jsx";
-import { format } from "../../utils/math.jsx";
+import { displayFormat, format } from "../../utils/math.jsx";
 import { useMyContext } from "../../utils/context.jsx";
-
+import { useState } from "react";
 export default function TradeInputs({
   tradeType,
   mainToken,
@@ -17,13 +17,16 @@ export default function TradeInputs({
   setSlippage,
   publicRouterFallback,
   setPublicRouterFallback,
+  invalidBuy,
+  invalidSell
 }) {
-  const { walletConnected, balance } = useMyContext();
+  const { walletConnected, balance, priceInitialized, setPriceInitialized } = useMyContext();
 
   const totalPrice = price * amount;
   const mainBalance = balance[mainToken.symbol];
-  const invalidSell = mainBalance < amount;
-  const invalidBuy = balance[quoteToken.symbol] < totalPrice;
+  const [inputSlippage, setInputSlippage] = useState(5);
+  // const invalidSell = mainBalance < amount;
+  // const invalidBuy = balance[quoteToken.symbol] < totalPrice;
 
   return (
     <Stack spacing={1.5}>
@@ -32,10 +35,16 @@ export default function TradeInputs({
           label="Max Slippage (%)"
           size="small"
           type="number"
-          value={(slippage * 100).toFixed(2)}
-          onChange={(e) =>
-            handleNumeric(Number(e.target.value) / 100, setSlippage)
-          }
+          value={inputSlippage}
+          onChange={(e) => {
+            const val = e.target.value;
+            handleNumeric(val, null);
+            const num = parseFloat(val);
+            if (!isNaN(num)) {
+              setSlippage(num / 100);
+              setInputSlippage(num);
+            }
+          }}
           slotProps={{ input: { min: 0, step: 0.1 } }}
           sx={textFieldBase}
         />
@@ -44,10 +53,14 @@ export default function TradeInputs({
           label={`Price (${quoteToken?.symbol})`}
           size="small"
           type="number"
-          value={format(price) == 0 ? "" : format(price)}
+          value={price}
           onChange={(e) => {
+            if (!priceInitialized)
+              setPriceInitialized(true);
             const val = e.target.value;
-            handleNumeric(val === "" ? 0 : val, setPrice);
+            handleNumeric(val, null);
+            const num = parseFloat(val);
+            if (!isNaN(num)) setPrice(num);
           }}
           sx={textFieldBase}
         />
@@ -57,10 +70,12 @@ export default function TradeInputs({
         label={`Amount (${mainToken?.symbol})`}
         size="small"
         type="number"
-        value={format(amount) == 0 ? "" : format(amount)}
+        value={amount}
         onChange={(e) => {
           const val = e.target.value;
-          handleNumeric(val === "" ? 0 : val, setAmount);
+          handleNumeric(val, null);
+          const num = parseFloat(val);
+          if (!isNaN(num)) setAmount(num);
         }}
         error={invalidSell}
         helperText={
