@@ -9,7 +9,7 @@ import { pool } from "../utxo/UtxoPool.js";
 import { _setInputs, getOldOutxoInputs, getToken } from "./action-utils.js";
 
 
-export async function checkOrder(order, signature){
+export function checkOrder(order, signature){
     const token = getToken(order.mainToken);
      if (pool.getUnlockedBalance(order.user, token) < order.amount) {
         console.error(`Not enough unlocked funds for ${order.user} to trade ${order.amount} ${token}`);
