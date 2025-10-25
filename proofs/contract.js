@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { JsonRpcProvider, Wallet, Contract } from "ethers";
+import { JsonRpcProvider, Wallet, Contract, ethers } from "ethers";
 
 
 const DarkPool = JSON.parse(
@@ -18,19 +18,12 @@ export async function callSmartContract(id, proof, publicInputs, nullifiers, wit
   const tx = await darkPool.verifyAndWithdraw(id, nullifiers, proof, publicInputs, []);
   const receipt = await tx.wait();
 
-
   console.log("Events:", receipt.logs);
   console.log(" Submitted tx:", tx.hash);
   if (receipt.status === 1) {
     console.log("Transaction succeeded!");
   } else {
     console.log("Transaction failed or reverted!");
-  }
-
-  for (let i = 0; i < nullifiers.length; i++){
-    const key = ethers.keccak256(ethers.toUtf8Bytes(nullifiers[i]));
-    const isNullified = await darkPool.s_nullifiers(key);
-    console.log("Nullifier status:", isNullified); 
   }
   return receipt.status === 1;
 }

@@ -7,7 +7,9 @@ import { createOutput } from "../utxo/utxo-utils.js";
 import { pool } from "../utxo/UtxoPool.js";
 import { _setInputs, _tooManyInputs, getOldOutxoInputs, getToken } from "./action-utils.js";
 
-export async function queueWithdraw(user, tokenString, targetAmount) {
+export async function queueWithdraw(user, tokenString, targetAmount, signature) {
+    //LERA CHECK SIGNATURE
+
     const token = getToken(tokenString);
     if (pool.getUnlockedBalance(user, token) <  targetAmount) {
         console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);

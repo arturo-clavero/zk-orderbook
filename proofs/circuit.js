@@ -9,7 +9,7 @@ const PREPATH = '../circuits/';
 
 let backend;
 
-export async function callCircuit(inputs, path){
+export async function callCircuit(inputs, path, isSolidity=false){
   try {
     if (inputs == null){
       return {
@@ -25,7 +25,7 @@ export async function callCircuit(inputs, path){
     backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: os.cpus().length });
     // const backend = new UltraHonkBackend(compiledCircuit.program.bytecode, { threads: 1});
     const { witness } = await noir.execute(inputs, { showOutputs: true });
-    const { proof, publicInputs } = await backend.generateProof(witness, {keccak: true});
+    const { proof, publicInputs } = await backend.generateProof(witness, {keccak: isSolidity});
     return {proof, publicInputs};
   } catch(error){
     console.error("Verification failed:", error);
