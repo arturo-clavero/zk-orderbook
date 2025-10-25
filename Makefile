@@ -21,7 +21,6 @@ studio:
 
 #########################RUN PROJECT######################
 dev : vm upd runBackend runFrontend
-
 ##########################DOCKER##########################
 vm:
 	colima start

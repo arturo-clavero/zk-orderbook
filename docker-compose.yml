@@ -15,8 +15,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    networks:
-      - backend
     restart: always
   portainer:
     image: portainer/portainer-ce:latest
@@ -36,14 +34,6 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - backend
-
-networks:
-  backend:
-    driver: bridge
-  envio-shared:
-    external: true
 
 volumes:
   trading_data:
