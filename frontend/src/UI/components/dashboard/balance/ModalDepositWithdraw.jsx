@@ -25,13 +25,13 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 export default function ModalDepositWithdraw({
   open,
   close,
-  _type = "deposit",
+  type,
+  setType
 }) {
   const { tokens } = useTokens();
   const { chartPair, switched, balance, dwStatus, setToast, walletAddress } =
     useMyContext();
   const currToken = switched === false ? chartPair.token1 : chartPair.token2;
-  const [type, setType] = useState(_type);
   const [selectedToken, setSelectedToken] = useState(currToken?.symbol || "");
   const [amount, setAmount] = useState(0);
 
@@ -67,7 +67,7 @@ export default function ModalDepositWithdraw({
       setToast({
         open: true,
         type: "error",
-        msg: `❌ $(type) failed. Please try again.`,
+        msg: `❌ ${type} failed. Please try again.`,
       });
   }, [dwStatus]);
 

@@ -45,8 +45,8 @@ export function TokenBalance({ token, balance, style }) {
 }
 
 export function Actions({ direction = "column" }) {
-  const [modalDepositOpen, setModalDepositOpen] = useState(false);
-  const [modalWithdrawOpen, setModalWithdrawOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("deposit");
 
   const spacing = direction == "row" ? 1.5 : 3;
   return (
@@ -61,14 +61,10 @@ export function Actions({ direction = "column" }) {
         variant={"outlined"}
         color="success"
         fullWidth
-        onClick={() => setModalDepositOpen(true)}
+        onClick={() => {setModalOpen(true); setModalType("deposit")}}
       >
         DEPOSIT
       </Button>
-      <ModalDepositWithdraw
-        open={modalDepositOpen}
-        close={() => setModalDepositOpen(false)}
-      />
       <Button
         variant={"outlined"}
         color={"info.main"}
@@ -81,14 +77,15 @@ export function Actions({ direction = "column" }) {
           },
         }}
         fullWidth
-        onClick={() => setModalWithdrawOpen(true)}
+        onClick={() => {setModalOpen(true); setModalType("withdraw")}}
       >
         WITHDRAW
       </Button>{" "}
       <ModalDepositWithdraw
-        open={modalWithdrawOpen}
-        close={() => setModalWithdrawOpen(false)}
-        type="withdraw"
+        open={modalOpen}
+        close={() => setModalOpen(false)}
+        type={modalType}
+        setType={setModalType}
       />
     </Stack>
   );
