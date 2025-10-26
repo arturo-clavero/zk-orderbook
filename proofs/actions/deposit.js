@@ -4,6 +4,7 @@ import { tree } from "../tree/balance-tree.js";
 import { membersToStrings } from "../tree/tree-utils.js";
 import { batch } from "../utxo/BatchManager.js";
 import { createOutput } from "../utxo/utxo-utils.js";
+import { pool } from "../utxo/UtxoPool.js";
 import { getNewOutxoInputs, getToken } from "./action-utils.js";
 
 export async function queueDeposit(user, tokenString, amount){
@@ -15,11 +16,11 @@ export async function queueDeposit(user, tokenString, amount){
         token,
         amount
     }
+    pool.setPendingBalance(user, token, amount);
     await batch.queueAction(data);
 }
 
 export async function processDeposit(user, token, amount){
-    
     const output = await createOutput(user, token, amount);
     const data = {
         outputs: [output],
@@ -27,7 +28,7 @@ export async function processDeposit(user, token, amount){
         token,
         amount
     }
-    log_state("created output");
+    // log_state("created output");
     batch.addAction("deposit", data);
     return true;
 }

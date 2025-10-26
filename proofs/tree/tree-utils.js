@@ -19,6 +19,9 @@ export async function hash(inputs){
 }
 
 export function expandArray(arr, len, fill) {
+  // console.log("len: ",len);
+  // console.log("arr.len: ", arr.length);
+  // console.log("error-> ", len - arr.length);
     return [...arr, ...Array(len - arr.length).fill(fill)];
 }
 

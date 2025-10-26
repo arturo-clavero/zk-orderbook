@@ -8,12 +8,12 @@ class UtxoPool {
         this.balances = new Map();     // user -> token -> { available, pending, locked }
         this.pendingUtxos = {};        // batch id -> pending outputs
     }
-
-    setPendingOutput(user, token, utxo) {
+    
+    setPendingOutput(utxo) {
         // console.log("set pending output");
         utxo.pending = true;
-        const balance = this._ensureBalance(user, token);
-        balance.pending += utxo.amount;
+        // const balance = this._ensureBalance(user, token);
+        // balance.pending += utxo.amount;
     }
     addPendingOutput(utxo, id){
         // console.log("add pending output to ", id);
@@ -32,7 +32,7 @@ class UtxoPool {
         balance.locked -= amount;
         balance.available += amount;
     }
-    setPendingInput(user, token, note, _amount) {
+    setPendingInput(user, token, note) {
         // console.log("set pending input");
         const utxos = this._ensureUserToken(user, token);
         const utxo = utxos.find(u => u.note === note);
@@ -41,9 +41,13 @@ class UtxoPool {
             console.log("error with note?");
             return;
         }
-        const amount = utxo ? utxo.amount : _amount;
+        // const amount = utxo ? utxo.amount : _amount;
+        // const balance = this._ensureBalance(user, token);
+        // balance.pending -= amount;
+    }
+    setPendingBalance(user, token, amount){
         const balance = this._ensureBalance(user, token);
-        balance.pending -= amount;
+        balance.pending += amount;
     }
     addPendingInput(utxo, id){
         // console.log("add pending input to ", id);
@@ -170,7 +174,12 @@ class UtxoPool {
     getUnlockedBalance(user, token){
         return this._ensureBalance(user, token).available;
     }
-
+    getPendingBalance(user, token){
+        return this._ensureBalance(user, token).pending;
+    }
+    getLockedBalance(user, token){
+        return this._ensureBalance(user, token).locked;
+    }
     //HELPERS
     _addUtxo(u){
         const utxos = this._ensureUserToken(u.user, u.token);

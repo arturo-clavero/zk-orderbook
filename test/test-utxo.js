@@ -1,7 +1,8 @@
-import { proofDeposits, queueDeposit } from "../proofs/actions/deposit.js";
-import { checkOrder, queueSettlement } from "../proofs/actions/trade.js";
+import { queueDeposit } from "../proofs/actions/deposit.js";
+import { checkOrder, queueTrade } from "../proofs/actions/trade.js";
 import { queueWithdraw } from "../proofs/actions/withdraw.js";
 import { batch } from "../proofs/utxo/BatchManager.js";
+import { verifier } from "../proofs/utxo/BatchVerifier.js";
 import { pool } from "../proofs/utxo/UtxoPool.js";
 import { proofBatch } from "../proofs/validate.js";
 
@@ -9,6 +10,7 @@ const user = "userA";
 const user2 = "userB";
 const token = "ETH";
 const token2 = "DAI";
+
 
 //-1 : no logs
 // 0 : only state
@@ -19,19 +21,22 @@ let LOGS = 0;
 const d = 10;
 
 async function test(){
-    await queueDeposit(user, token, 1);
-    await queueDeposit(user2, token2, 1);
+    // verifier.start();
+
+    log_order_state("START");
+
+    await queueDeposit(user, token, 5);
+    // await queueDeposit(user2, token2, 10);
+    // await queueWithdraw(user2, token2, 5);
+    log_order_state("AFTER QUEUES");
 
     await proofBatch();
-    await checkOrder(test_new_order(user, token, 1));
-    await checkOrder(test_new_order(user2, token2, 1));
+    log_order_state("AFTER PROOF 1");
+//     await proofBatch();
 
-    log_state();
-    await queueSettlement(user,token, 1, user2, token2, 1);
-
-    await proofBatch();
-    log_order_state();
-    console.log("end");
+// // 
+//     log_order_state("AFTER PROOF 2");
+    console.log("THE END!");
 
 }
 
@@ -66,7 +71,7 @@ async function test_join(){
      log_state("mid proofs after join...");
     await proofBatch();
 
-    console.log("end");
+    // console.log("end");
 }
 export function log_order_state(str=""){
     if (LOGS == 1 || LOGS == -1)
@@ -109,11 +114,9 @@ async function testOrderSettlement(logs=true, preDeposit=true){
         log_batch("settlement start: ");
         log_order_state("settlement start: ");
 
-    await queueSettlement(userX, tokenX,amountX, userY,tokenY, amountY);
+    await queueTrade(userX, tokenX,amountX, userY,tokenY, amountY);
             log_order_state("settlement queued! ");
             log_batch("settlement queued: ");
-
-
 }
 
 async function testSingleDeposit(logs=true, x=1){
@@ -164,7 +167,6 @@ export function log_state(str=""){
     console.log("\n");
 }
 
-await test();
 
 async function testWithdrawal() {
     for (let i =0; i < d; i++)
@@ -184,5 +186,8 @@ async function testWithdrawal() {
     testEndBatch();
     testEndBatch();
 
-    console.log("\nend.");
+    // console.log("\nend.");
 }
+
+
+await test();

@@ -27,15 +27,22 @@ export async function queueTrade(
     tokenYString,
     amountY, 
 ){
+    const tokenX =  getToken(tokenXString);
+    const tokenY =  getToken(tokenYString);
+
     const data = {
         type: "trade",
         userX, 
-        tokenX: getToken(tokenXString), 
+        tokenX, 
         amountX, 
         userY, 
-        tokenY: getToken(tokenYString),
+        tokenY,
         amountY
     }
+    pool.setPendingBalance(userX, tokenX, amountX * -1);
+    pool.setPendingBalance(userY, tokenY, amountY * -1);
+    pool.setPendingBalance(userX, tokenY, amountY);
+    pool.setPendingBalance(userY, tokenX, amountX);
     // if (pool.getLockedBalance(side.user, side.token) < side.amount) {
     //         console.error(`Not enough unlocked funds for ${side.user} to trade ${side.amount} ${side.tokenStr}`);
     //         return false;

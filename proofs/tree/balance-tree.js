@@ -4,12 +4,30 @@ class ProofTree {
     constructor(){
         this.mainTree = new MerkleTree();
         this.shadowTrees = new Map();
+        this.proof = 0;
     }
     async insertInShadow(newCommitments, batchId){
         if (newCommitments.length == 0)
             return;
         const shadow = this._ensureShadowTree(batchId);
-        const proof = await shadow.insertNewSubtree(newCommitments);
+        if (this.proof == 0)
+        {
+            // console.log('new empty....');
+            this.proof = await shadow.insertNewSubtree([]);
+        }
+        // console.log("this proof: ", this.proof);
+        const newProof = await shadow.insertNewSubtree(newCommitments);
+        const proof = {
+            subtreeNotes: newProof.inputs.subtreeNotes,
+            siblings: newProof.inputs.siblings,
+            path: newProof.inputs.path,
+            newRoot: newProof.inputs.newRoot,
+            oldSubtreeNotes: this.proof.inputs.subtreeNotes,
+            oldSiblings: this.proof.inputs.siblings,
+            oldPath: this.proof.inputs.path,
+            oldRoot: this.proof.inputs.newRoot,
+        }
+        this.proof = newProof;
         return (proof);
     }
     async verifyShadowTree(batchId) {

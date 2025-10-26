@@ -10,7 +10,7 @@ const TOKEN_IDS = {
 };
 
 export function _setInputs(utxos){
-    for (const u of utxos) pool.setPendingInput(u.user, u.token, u.note, u.amount);
+    for (const u of utxos) pool.setPendingInput(u.user, u.token, u.note);
     return true;
 }
 

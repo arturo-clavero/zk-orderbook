@@ -11,7 +11,7 @@ export async function queueWithdraw(user, tokenString, targetAmount, signature) 
     //LERA CHECK SIGNATURE
     const token = getToken(tokenString);
 
-    if (pool.getPendingdBalance(user, token) <  targetAmount) {
+    if (pool.getPendingBalance(user, token) <  targetAmount) {
         console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);
         return false;
     }
@@ -22,10 +22,11 @@ export async function queueWithdraw(user, tokenString, targetAmount, signature) 
         token,
         targetAmount
     }
+    pool.setPendingBalance(user, token, targetAmount * -1);
+    await batch.queueAction(data);
 }
 
 export async function processWithdraw(user, token, targetAmount) {
-    const token = getToken(tokenString);
     if (pool.getUnlockedBalance(user, token) <  targetAmount) {
         console.error(`Not enough unlocked funds for ${user} to withdraw ${targetAmount} ${token}`);
         //send error to front end?
