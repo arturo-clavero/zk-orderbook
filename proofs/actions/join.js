@@ -2,6 +2,7 @@ import { callCircuit, verifyLatestProof } from "../circuit.js";
 import { getUserSecret } from "../userSecret.js";
 import { batch } from "../utxo/BatchManager.js";
 import { createOutput } from "../utxo/utxo-utils.js";
+import { pool } from "../utxo/UtxoPool.js";
 import { _setInputs, getNewOutxoInputs, getOldOutxoInputs } from "./action-utils.js";
 
 export async function queueJoin(inputs, covered, isReserved = false, prevId = -1){

@@ -1,9 +1,10 @@
 use std::hash::poseidon2::{self, Poseidon2};
 
-global DEPTH: u32 = 4;
+global DEPTH: u32 = 7;
 // global MAX_LEAFS: u32 = 16;
 global SUBTREE_DEPTH:u32 = 3;
 global SUBTREE_LEAFS:u32 = 8;
+global SUBTREE_SIB_LEN:u32 = DEPTH - SUBTREE_DEPTH;
 //depth ^ 2 = total
 
 struct InputUtxo {
@@ -80,14 +81,14 @@ fn verifyProof(
 
 fn verifySubTree(
     subtreeNotes: [Field; SUBTREE_LEAFS],
-    siblings: [Field; SUBTREE_DEPTH],
-    path: [bool; SUBTREE_DEPTH],
+    siblings: [Field; SUBTREE_SIB_LEN],
+    path: [bool; SUBTREE_SIB_LEN],
     newRoot: Field,
 ) {
     let subtreeRoot = computeSubtreeRoot(subtreeNotes);
     let mut prevHash = subtreeRoot;
 
-    for i in 0..SUBTREE_DEPTH {
+    for i in 0..SUBTREE_SIB_LEN {
         let isRight = path[i];
         if (isRight) {
             prevHash = poseidon2::Poseidon2::hash([siblings[i], prevHash], 2);

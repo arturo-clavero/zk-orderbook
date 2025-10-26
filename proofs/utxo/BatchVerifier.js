@@ -1,5 +1,5 @@
-import { proofBatch } from "../validate";
-import { batch } from "./BatchManager";
+import { proofBatch } from "../validate.js";
+import { batch } from "./BatchManager.js";
 
 class BatchVerifier {
   constructor(intervalMs) {
@@ -34,7 +34,7 @@ class BatchVerifier {
       }
     }
   }
-  
+
   start() {
     if (!this.timer) {
       this.timer = setInterval(() => this.verifyBatch(), this.intervalMs);
@@ -54,6 +54,6 @@ class BatchVerifier {
   }
 }
 
-const verifier = new BatchVerifier(60000); // run every 60 seconds
-verifier.start();
+export const verifier = new BatchVerifier(60000); // run every 60 seconds
+// verifier.start();
 

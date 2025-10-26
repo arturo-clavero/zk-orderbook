@@ -11,6 +11,7 @@ import { callSmartContract } from "./contract.js";
 import { ethers } from "ethers";
 import { pool } from "./utxo/UtxoPool.js";
 import { membersToStrings } from "./tree/tree-utils.js";
+import { maxSubtreeDepth } from "./tree/merkle-tree.js";
 
 // let isVerifying = false;
 
@@ -22,27 +23,36 @@ export async function proofBatch(){
         await fillBatches();
 
     const verifyInputs = batch.proofNextBatch();
+    console.log("verify inputs: ", verifyInputs);
     const subtreeProof = await insertNewOutputs(verifyInputs);
 
-    console.log("subtree proof: ", subtreeProof.inputs);
+    console.log("subtree proof: ", subtreeProof);
     await proofDeposits(verifyInputs.deposits);
     const {w_nulls, w_data} = await proofWithdrawals(verifyInputs.withdrawals);
     const t_nulls = await proofTrades(verifyInputs.trades);
     const j_nulls = await proofJoins(verifyInputs.joins);
-    
-    const {proof, publicInputs} = await callCircuit(subtreeProof.inputs, "batch", true);
+
+    const {proof, publicInputs} = await callCircuit(subtreeProof, "batch", false);
     const nullifiers = [
         ...t_nulls,
         ...w_nulls,
         ...j_nulls,
     ];
+    console.log("proof: ", proof);
     const proofBytes = ethers.hexlify(proof);
+    console.log('after: ', after);
+    console.log("length; ", proofBytes.length);
     const nullifiersBytes32 = nullifiers.map(n => {
         const bn = BigInt(n);
         return "0x" + bn.toString(16).padStart(64, "0");
     });
-    const success = await callSmartContract(verifyInputs.id, proofBytes, publicInputs, nullifiersBytes32, w_data);
+    const pubBytes32 = publicInputs.map(n => {
+        const bn = BigInt(n);
+        return "0x" + bn.toString(16).padStart(64, "0");
+    });
+    const success = await callSmartContract(verifyInputs.id, proofBytes, pubBytes32, nullifiersBytes32, w_data);
     batch.finalizeBatch(verifyInputs.id, success);
+    // batch.finalizeBatch(verifyInputs.id, true);
 
     console.log("verify inputs: ", verifyInputs);
     for (const t of verifyInputs.trades) {
@@ -53,6 +63,7 @@ export async function proofBatch(){
     // isVerifying = false;
     return verifyInputs.id;
 }
+
 
 async function insertNewOutputs(verifyInputs) {
     const outputs = ['deposits', 'withdrawals', 'trades', 'joins']
@@ -65,12 +76,14 @@ async function insertNewOutputs(verifyInputs) {
 }
 
 async function fillBatches(){
-    const actions = batch.getActionQueue();
-    for (a in actions){
+    console.log('fill batches...');
+    const actions = await batch.getActionQueue();
+    console.log("actions: ", actions);
+    for (const a of actions){
         let success;
         if (a.type == "deposit")
             success = await processDeposit(a.user, a.token, a.amount);
-        else if (a.type == "withdrawal")
+        else if (a.type == "trade")
             success = await processTrade(
                 a.userX, 
                 a.tokenX, 
@@ -79,9 +92,12 @@ async function fillBatches(){
                 a.tokenY,
                 a.amountY 
             );
-        else if (a.type == "trade")
+        else if (a.type == "withdraw")
             success = await processWithdraw(a.user, a.token, a.targetAmount);
         if (success)
-            batch.unqueueAction(a);
+            await batch.unqueueAction(a);
     }
+    //TESTING!>
+    const actions2 = await batch.getActionQueue();
+    console.log("actions after: ", actions2);
 }

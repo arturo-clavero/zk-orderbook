@@ -20,6 +20,15 @@ The latest ABI is located at:
 
 ---
 
+## Generate new verifier
+https://noir-lang.org/docs/v1.0.0-beta.12/how_to/how-to-solidity-verifier
+
+nargo compile
+bb write_vk -b ./target/batch.json -o ./target --oracle_hash keccak
+bb write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
+
+
+
 ## Example Usage
 
 ```js

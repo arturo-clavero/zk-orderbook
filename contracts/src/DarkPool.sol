@@ -8,6 +8,8 @@ import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC2
 
 contract DarkPool is ReentrancyGuard {
     error DarkPool__InvalidWithdrawProof();
+    error DarkPool__InvaildCurrentRoot();
+
     error DarkPool__NullifierAlreadySpent(bytes32 nullifier);
     error DarkPool__TransferFailed();
     error DarkPool__InvalidAmount();
@@ -16,11 +18,14 @@ contract DarkPool is ReentrancyGuard {
     event BatchVerified(uint256 indexed id, bool success);
     //event WithdrawExecuted(address indexed user, address indexed token, uint256 amount);
 
-    mapping(bytes32 => bool) private s_nullifiers;
+    // bytes32 private immutable i_empty_root;    
     IVerifier private immutable i_verifier;
+    mapping(bytes32 => bool) private s_nullifiers;
+    bytes32 public root;
 
-    constructor(IVerifier _verifier) {
+    constructor(IVerifier _verifier, bytes32 empty_root) {
         i_verifier = _verifier;
+        root = empty_root;
     }
 
     struct Withdrawal {
@@ -56,7 +61,6 @@ contract DarkPool is ReentrancyGuard {
         emit Deposit(msg.sender, token, amount);
     }
 
-    
     function verifyAndWithdraw(
         uint256 id,
         bytes32[] calldata _nullifiers,
@@ -75,11 +79,15 @@ contract DarkPool is ReentrancyGuard {
     
         // Verify proof
         if (_publicInputs.length > 0 ) {
+            if (_publicInputs[1] != root)
+                revert DarkPool__InvaildCurrentRoot();
+            //should send current root as _proof[0] if root is set...
             bool success = i_verifier.verify(_proof, _publicInputs);
             if (!success) {
                 emit BatchVerified(id, false);
                 revert DarkPool__InvalidWithdrawProof();
             }
+            root = _publicInputs[0];
         }
         emit BatchVerified(id, true);
 

@@ -4,13 +4,13 @@ import { hash, membersToStrings } from "./tree-utils.js";
 //we are storing leaf values already hashed ... 
 //depth depends per tree, default is at 3
 //please await computeRoot() after tree creation...
-const maxSubtreeDepth = 3;
+export const maxSubtreeDepth = 3;
 export const maxSubtreeSize = 2 ** maxSubtreeDepth;
 
 export class MerkleTree{
     #root;
 
-    constructor(_depth = 4){
+    constructor(_depth = 7){
         this.DEPTH = _depth;
         this.TOTAL_LEAFS = 2  ** _depth; 
         this.leafs = new Array(this.TOTAL_LEAFS).fill(0n);
@@ -149,13 +149,13 @@ export class MerkleTree{
                 break;
         }
     }
+
     async insertNewSubtree(subtreeLeaves) {
         if (subtreeLeaves.length < maxSubtreeSize){
             while (subtreeLeaves.length < maxSubtreeSize) {
                 subtreeLeaves.push(0n);
             }
         }
-        
         const subtreeSize = subtreeLeaves.length;
         const subtreeHeight = Math.log2(subtreeSize);
 
@@ -200,12 +200,13 @@ export class MerkleTree{
         const proof = {
             inputs : {
                 subtreeNotes: membersToStrings(subtreeLeaves, maxSubtreeSize),//subtree length
-                siblings: membersToStrings(siblingPath, maxSubtreeDepth),//subtree depth
+                siblings: membersToStrings(siblingPath,  this.DEPTH  - maxSubtreeDepth),//subtree depth
                 path: getPathFromIndex(subtreeIndex, this.DEPTH - maxSubtreeDepth),
                 newRoot: newRoot.toString(10),
             },
             newRoot: newRoot
         }
+        // console.log("prof:", proof);
         return proof;
     }
 
