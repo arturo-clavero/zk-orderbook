@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useMyContext } from "../UI/components/utils/context";
+import axios from "axios";
+import { getChainId } from "./action-utils";
 import { parseUnits, Result } from "ethers";
 // import { uniswapMarketSwap } from "./amm";
 
@@ -92,6 +94,10 @@ export function useCreateOrder() {
         setTradeStatus((prev) => (prev === "SIGN" ? "OPEN_METAMASK" : prev));
       }, 5000);
       const signature = await signOrder(orderStringPriority, walletAddress);
+
+      //proof gen!
+      // setTradeStatus("PROOF_GEN");
+      // await new Promise((res) => setTimeout(res, 1500));
       const payload = {
         ...orderFloatPriority,
         signature,
@@ -133,7 +139,8 @@ export function useCreateOrder() {
       }
 
       setTradeStatus("ORDER_OPEN");
-      setTimeout(() => setTradeStatus("OPEN"), 2000);
+      setTimeout(() => setTradeStatus("OPEN"), 2500);
+      // await backend.send("new_order", { orderFloatPriority, signature });
 
       return response.data;
     } catch (err) {
@@ -168,7 +175,7 @@ async function signOrder(order, userAddress) {
 
     const msgParams = {
       domain: {
-        chainId: 11155111,
+        chainId: await getChainId(),
         name: "MyDapp",
         version: "1",
       },

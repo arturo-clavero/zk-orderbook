@@ -106,34 +106,32 @@ export default function Footer() {
                 </IconButton>
               </Box>
               <Collapse in={showContracts} timeout="auto" unmountOnExit>
-                <Box>
-                  <List dense ref={contractsRef} sx={{ textAlign: "center" }}>
-                    {contracts.map((c, idx) => (
-                      <ListItem key={idx} sx={{ justifyContent: "center" }}>
-                        <ListItemText
-                          primary={
-                            <Link
-                              href={`https://etherscan.io/address/${c.address}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              underline="hover"
-                            >
-                              {c.name}
-                            </Link>
-                          }
-                          secondary={
-                            <Typography
-                              variant="caption"
-                              sx={{ fontFamily: "monospace" }}
-                            >
-                              {c.address}
-                            </Typography>
-                          }
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
+               
+<Box
+  ref={contractsRef}
+  sx={{
+    marginTop: 1,
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 5,
+    justifyContent: "start",
+    alignItems: "center",
+  }}
+>
+  {contracts.map((c, idx) => (
+    <Link
+      key={idx}
+      href={`https://etherscan.io/address/${c.address}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      underline="hover"
+      sx={{ color: "info.main", fontWeight: 500 }}
+    >
+      {c.name}
+    </Link>
+  ))}
+</Box>
               </Collapse>
             </Box>
           </Box>
