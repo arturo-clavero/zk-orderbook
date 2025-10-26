@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useMyContext } from "../UI/components/utils/context";
-import { parseUnits } from "ethers";
+import { parseUnits, Result } from "ethers";
+// import { uniswapMarketSwap } from "./amm";
 
 const TOKEN_DECIMALS = {
   ETH: 18,
@@ -81,8 +82,8 @@ export function useCreateOrder() {
         user: walletAddress,
       };
 
-      console.log("🧾 Order (backend):", orderFloatPriority);
-      console.log("🧾 Order (to sign):", orderStringPriority);
+      console.log(" Order (backend):", orderFloatPriority);
+      console.log(" Order (to sign):", orderStringPriority);
 
 
       // === Sign Order ===
@@ -101,7 +102,36 @@ export function useCreateOrder() {
       // await backend.send("new_order", { orderFloatPiority, signature });
       const response = await axios.post("http://localhost:4000/order/create", payload);
 
-      console.log("✅ Order created:", response.data);
+      console.log("Order created:", response.data);
+
+      //===backend check if need fill form uniswap==//
+      if (response.data.status === "FILLED"){
+        console.log("Everything is fien no need for uniswap", response.data);
+      } else if ((response.data.status === "PENDING" || response.data.status === "PARTIAL")  && ammFallback ) {
+        console.log("Not enough liquidity need amm", response.data);
+        // const receipt = await uniswapMarketSwap(
+        //   side, 
+        //   mainToken.address,
+        //   quoteToken.address,
+        //   amount,
+        //   slippage
+        // );
+
+        //norify backend
+      //   await axios.post("http://localhost:4000/order/market"), {
+      //     side,
+      //     tradeType: "market",
+      //     chartPair,
+      //     mainToken,
+      //     quoteToken,
+      //     amount,
+      //     txHash: receipt.transactionHash,
+      //     wallet: walletAddress,
+      //     timestamp: Date.now(),
+      //   };
+      //   console.log("uniswap executed", receipt.transactionHash);
+      }
+
       setTradeStatus("ORDER_OPEN");
       setTimeout(() => setTradeStatus("OPEN"), 2000);
 

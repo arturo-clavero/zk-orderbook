@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+//////======ADDED MATCHONG LOGIT TO THE FUNCTION SHOULR RETURN PENDNID PARTIALLY OR FILLED====/////
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import { prisma } from '../../lib/prisma-trading-database/prisma-trading';
@@ -47,7 +48,7 @@ export class OrderService {
       throw new Error('Trader not found - need to register first');
     }
     //cooool prisma atomic transaction feature
-    const order = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       if (side.toLowerCase() === 'sell') {
         const sellAccount = await tx.account.findUnique({
@@ -75,7 +76,7 @@ export class OrderService {
         });
       }
       //order creatin
-      return await prisma.order.create({
+      const order = await prisma.order.create({
         data: {
           tradeType,
           chartPair,
@@ -89,14 +90,21 @@ export class OrderService {
           order_status: 'PENDING',
         },
       });
+      await this.matchingService.matchOrder(order.id);
+      console.log('i went through the matchiong service for order: ', order.id);
+      const updatedOrder = await prisma.order.findUnique({
+        where: { id: order.id },
+        select: { id: true, order_status: true, filled: true },
+      });
+      if (!updatedOrder) {
+        throw new Error('Order not found after matching');
+      }
+      return {
+        orderId: updatedOrder.id,
+        status: updatedOrder.order_status,
+        message: 'order created and matched',
+      };
     });
-
-    await this.matchingService.matchOrder(order.id);
-    console.log('i went through the matchiong service for order: ', order.id);
-    return {
-      orderId: order.id,
-      status: order.order_status,
-      message: 'order created and sended for matching',
-    };
+    return result;
   }
 }
