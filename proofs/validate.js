@@ -32,7 +32,10 @@ export async function proofBatch(){
     const t_nulls = await proofTrades(verifyInputs.trades);
     const j_nulls = await proofJoins(verifyInputs.joins);
 
-    const {proof, publicInputs} = await callCircuit(subtreeProof, "batch", false);
+    const test =  await callCircuit(subtreeProof, "batch", false);
+    const testsuc = await verifyLatestProof(test.proof, test.publicInputs);
+    console.log("should work...", testsuc);
+    const {proof, publicInputs} = await callCircuit(subtreeProof, "batch", true);
     const nullifiers = [
         ...t_nulls,
         ...w_nulls,
@@ -40,7 +43,6 @@ export async function proofBatch(){
     ];
     console.log("proof: ", proof);
     const proofBytes = ethers.hexlify(proof);
-    console.log('after: ', after);
     console.log("length; ", proofBytes.length);
     const nullifiersBytes32 = nullifiers.map(n => {
         const bn = BigInt(n);
