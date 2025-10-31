@@ -20,18 +20,33 @@ contract DarkPool is ReentrancyGuard {
 
     // bytes32 private immutable i_empty_root;    
     IVerifier private immutable i_verifier;
-    mapping(bytes32 => bool) private s_nullifiers;
+    mapping(bytes32 => bool) public s_nullifiers;
     bytes32 public root;
+    //only for testing:
+    bool public test_mode;
+    bytes32[] public test_nullifier_keys;
 
-    constructor(IVerifier _verifier, bytes32 empty_root) {
+    constructor(IVerifier _verifier, bytes32 empty_root, bool _test_mode) {
         i_verifier = _verifier;
         root = empty_root;
+        test_mode = _test_mode;
     }
 
     struct Withdrawal {
         address user;
         address token; // address(0) = ETH
         uint256 amount;
+    }
+
+    function testReset() external {
+        if (test_mode == true)
+            revert("Only test mode");
+        root = 0x2d78ed82f93b61ba718b17c2dfe5b52375b4d37cbbed6f1fc98b47614b0cf21b;
+        for (uint256 i = 0; i < test_nullifier_keys.length; i++){
+            bytes32 key = test_nullifier_keys[i];
+            delete s_nullifiers[key];
+        }
+        delete test_nullifier_keys; 
     }
 
     function depositETH() external payable nonReentrant {
@@ -75,6 +90,8 @@ contract DarkPool is ReentrancyGuard {
                 revert DarkPool__NullifierAlreadySpent(_nullifiers[i]);
             }
             s_nullifiers[_nullifiers[i]] = true;
+            if (test_mode)
+                test_nullifier_keys.push(_nullifiers[i]); 
         }
     
         // Verify proof

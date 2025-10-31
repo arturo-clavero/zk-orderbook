@@ -14,7 +14,7 @@ contract DeployDarkPool is Script {
 
         HonkVerifier verifier = new HonkVerifier();
 
-        DarkPool pool = new DarkPool(IVerifier(address(verifier)), emptyRoot, false);
+        DarkPool pool = new DarkPool(IVerifier(address(verifier)), emptyRoot, true);
 
         console.log("DarkPool deployed at:", address(pool));
 
