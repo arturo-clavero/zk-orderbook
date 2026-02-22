@@ -2,9 +2,6 @@ import { hash, randomSalt } from "../tree/tree-utils.js";
 import { getUserSecret } from "../userSecret.js";
 import { pool } from "./UtxoPool.js";
 
-
-
-
 export async function UTXO(user, amount, token){
     const salt = randomSalt();
     const note = await hash([amount, token, salt]);

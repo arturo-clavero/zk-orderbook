@@ -7,18 +7,20 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 contract DarkPool is ReentrancyGuard {
-    error DarkPool__InvalidWithdrawProof();
+    error DarkPool__InvalidProof();
     error DarkPool__InvaildCurrentRoot();
-
+    error DarkPool__ArrayLengthTooLarge();
     error DarkPool__NullifierAlreadySpent(bytes32 nullifier);
     error DarkPool__TransferFailed();
     error DarkPool__InvalidAmount();
+    error DarkPool__InvalidActionOnlyTestMode();
 
     event Deposit(address indexed user, address indexed token, uint256 amount);
     event BatchVerified(uint256 indexed id, bool success);
     //event WithdrawExecuted(address indexed user, address indexed token, uint256 amount);
 
-    // bytes32 private immutable i_empty_root;    
+    // bytes32 private immutable i_empty_root;
+    uint256 private immutable max_array_length; // could be changed to only owner updatable
     IVerifier private immutable i_verifier;
     mapping(bytes32 => bool) public s_nullifiers;
     bytes32 public root;
@@ -26,9 +28,10 @@ contract DarkPool is ReentrancyGuard {
     bool public test_mode;
     bytes32[] public test_nullifier_keys;
 
-    constructor(IVerifier _verifier, bytes32 empty_root, bool _test_mode) {
+    constructor(IVerifier _verifier, bytes32 empty_root, uint256 _max_array_length, bool _test_mode) {
         i_verifier = _verifier;
         root = empty_root;
+        max_array_length = _max_array_length;
         test_mode = _test_mode;
     }
 
@@ -39,14 +42,15 @@ contract DarkPool is ReentrancyGuard {
     }
 
     function testReset() external {
-        if (test_mode == true)
-            revert("Only test mode");
+        if (test_mode == false) {
+            revert DarkPool__InvalidActionOnlyTestMode();
+        }
         root = 0x2d78ed82f93b61ba718b17c2dfe5b52375b4d37cbbed6f1fc98b47614b0cf21b;
-        for (uint256 i = 0; i < test_nullifier_keys.length; i++){
+        for (uint256 i = 0; i < test_nullifier_keys.length; i++) {
             bytes32 key = test_nullifier_keys[i];
             delete s_nullifiers[key];
         }
-        delete test_nullifier_keys; 
+        delete test_nullifier_keys;
     }
 
     function depositETH() external payable nonReentrant {
@@ -61,14 +65,10 @@ contract DarkPool is ReentrancyGuard {
         emit Deposit(msg.sender, token, amount);
     }
 
-    function depositTokenWithPermit(
-        address token,
-        uint256 amount,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external nonReentrant {
+    function depositTokenWithPermit(address token, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external
+        nonReentrant
+    {
         if (amount == 0) revert DarkPool__InvalidAmount();
         IERC20Permit(token).permit(msg.sender, address(this), amount, deadline, v, r, s);
         bool ok = IERC20(token).transferFrom(msg.sender, address(this), amount);
@@ -83,6 +83,10 @@ contract DarkPool is ReentrancyGuard {
         bytes32[] calldata _publicInputs,
         Withdrawal[] calldata withdrawals
     ) external payable nonReentrant {
+        // Prevent infinite array looping
+        if (_nullifiers.length > max_array_length || withdrawals.length > max_array_length)
+            revert DarkPool__ArrayLengthTooLarge();
+        
         // Prevent double-spending
         for (uint256 i = 0; i < _nullifiers.length; i++) {
             if (s_nullifiers[_nullifiers[i]]) {
@@ -90,19 +94,21 @@ contract DarkPool is ReentrancyGuard {
                 revert DarkPool__NullifierAlreadySpent(_nullifiers[i]);
             }
             s_nullifiers[_nullifiers[i]] = true;
-            if (test_mode)
-                test_nullifier_keys.push(_nullifiers[i]); 
+            if (test_mode) {
+                test_nullifier_keys.push(_nullifiers[i]);
+            }
         }
-    
+
         // Verify proof
-        if (_publicInputs.length > 0 ) {
-            if (_publicInputs[1] != root)
+        if (_publicInputs.length > 0) {
+            if (_publicInputs[1] != root) {
                 revert DarkPool__InvaildCurrentRoot();
+            }
             //should send current root as _proof[0] if root is set...
             bool success = i_verifier.verify(_proof, _publicInputs);
             if (!success) {
                 emit BatchVerified(id, false);
-                revert DarkPool__InvalidWithdrawProof();
+                revert DarkPool__InvalidProof();
             }
             root = _publicInputs[0];
         }
@@ -110,11 +116,7 @@ contract DarkPool is ReentrancyGuard {
 
         // Execute withdrawals
         for (uint256 i = 0; i < withdrawals.length; i++) {
-            _executeWithdraw(
-                withdrawals[i].user,
-                withdrawals[i].token,
-                withdrawals[i].amount
-            );
+            _executeWithdraw(withdrawals[i].user, withdrawals[i].token, withdrawals[i].amount);
         }
     }
 
@@ -122,7 +124,7 @@ contract DarkPool is ReentrancyGuard {
         if (amount == 0) return;
 
         if (token == address(0)) {
-            (bool sent, ) = payable(user).call{value: amount}("");
+            (bool sent,) = payable(user).call{value: amount}("");
             if (!sent) revert DarkPool__TransferFailed();
         } else {
             bool ok = IERC20(token).transfer(user, amount);

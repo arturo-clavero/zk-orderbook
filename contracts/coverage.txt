@@ -1,0 +1,204 @@
+Compiling 47 files with Solc 0.8.30
+Solc 0.8.30 finished in 1.94s
+Compiler run successful with warnings:
+Warning (3420): Source file does not specify required compiler version! Consider adding "pragma solidity ^0.8.30;"
+--> script/DeployDarkPool.s.sol
+
+Warning (3420): Source file does not specify required compiler version! Consider adding "pragma solidity ^0.8.30;"
+--> script/DeployTestDarkPoolTest.s.sol
+
+Warning (3420): Source file does not specify required compiler version! Consider adding "pragma solidity ^0.8.30;"
+--> src/Verifier.sol
+
+Analysing contracts...
+Running tests...
+
+Ran 17 tests for test/testPool.t.sol:DarkPoolTest
+[PASS] testFuzz_depositETH_succeeds(uint256) (runs: 257, μ: 21491, ~: 21491)
+[PASS] testFuzz_depositTokenWithPermit_succeeds(uint256) (runs: 257, μ: 68541, ~: 68543)
+[PASS] testFuzz_depositToken_succeeds(uint256) (runs: 257, μ: 65560, ~: 65562)
+[PASS] testFuzz_verifyAndWithdraw_updates_nullifiers(uint256) (runs: 256, μ: 79820, ~: 60616)
+[PASS] testPool() (gas: 2773)
+[PASS] test_depositETH_reverts_on_zero() (gas: 16774)
+[PASS] test_depositToken_reverts_onZero() (gas: 20908)
+[PASS] test_depositToken_reverts_on_zero() (gas: 19575)
+[PASS] test_executeWithdrawals() (gas: 188)
+[PASS] test_reset_reverts_non_test_mode() (gas: 11038)
+[PASS] test_reset_updates_root_and_nullifiers() (gas: 222284)
+[PASS] test_verifyAndWithdraw_reverts_doubleSpending() (gas: 94229)
+[PASS] test_verifyAndWithdraw_reverts_invalid_array_length_nullifiers() (gas: 31541)
+[PASS] test_verifyAndWithdraw_reverts_invalid_array_length_withdrawals() (gas: 31533)
+[PASS] test_verifyAndWithdraw_reverts_invalid_proof() (gas: 60746)
+[PASS] test_verifyAndWithdraw_reverts_invalid_root() (gas: 47320)
+[PASS] test_verifyAndWithdraw_verifiesProof() (gas: 56124)
+Suite result: ok. 17 passed; 0 failed; 0 skipped; finished in 88.09ms (153.34ms CPU time)
+
+Ran 1 test suite in 89.06ms (88.09ms CPU time): 17 tests passed, 0 failed, 0 skipped (17 total tests)
+Uncovered for test/MockTokens.sol:
+
+Uncovered for test/MockVerifier.sol:
+
+Anchors for Contract "IERC20Errors" (solc 0.8.30, source ID 20):
+
+Anchors for Contract "stdStorage" (solc 0.8.30, source ID 9):
+
+Anchors for Contract "IERC20Permit" (solc 0.8.30, source ID 26):
+
+Anchors for Contract "Strings" (solc 0.8.30, source ID 33):
+
+Anchors for Contract "StdUtils" (solc 0.8.30, source ID 12):
+
+Anchors for Contract "ShortStrings" (solc 0.8.30, source ID 31):
+
+Anchors for Contract "VmSafe" (solc 0.8.30, source ID 14):
+
+Anchors for Contract "StdAssertions" (solc 0.8.30, source ID 1):
+
+Anchors for Contract "StorageSlot" (solc 0.8.30, source ID 32):
+
+Anchors for Contract "ReentrancyGuard" (solc 0.8.30, source ID 30):
+
+Anchors for Contract "Vm" (solc 0.8.30, source ID 14):
+
+Anchors for Contract "EIP712" (solc 0.8.30, source ID 35):
+
+Anchors for Contract "IERC20Metadata" (solc 0.8.30, source ID 25):
+
+Anchors for Contract "DarkPoolTest" (solc 0.8.30, source ID 46):
+
+Anchors for Contract "ERC20" (solc 0.8.30, source ID 22):
+
+Anchors for Contract "ERC20Permit" (solc 0.8.30, source ID 24):
+
+Anchors for Contract "MockVerifier" (solc 0.8.30, source ID 45):
+- IC 86 -> Item 8
+- Creation code
+  - Refers to item: Line (location: source ID 45, lines 8..13, bytes 139..358, hits: 261)
+- IC 86 -> Item 9
+- Creation code
+  - Refers to item: Function "verify" (location: source ID 45, lines 8..13, bytes 139..358, hits: 261)
+- IC 275 -> Item 10
+- Creation code
+  - Refers to item: Line (location: source ID 45, lines 9..10, bytes 259..304, hits: 261)
+- IC 275 -> Item 11
+- Creation code
+  - Refers to item: Statement (location: source ID 45, lines 9..10, bytes 259..304, hits: 261)
+- IC 297 -> Item 12
+- Creation code
+  - Refers to item: Statement (location: source ID 45, lines 9..10, bytes 259..276, hits: 261)
+- IC 275 -> Item 13
+- Creation code
+  - Refers to item: Statement (location: source ID 45, lines 9..10, bytes 280..304, hits: 261)
+- IC 334 -> Item 14
+- Creation code
+  - Refers to item: Line (location: source ID 45, lines 11..12, bytes 340..351, hits: 260)
+- IC 334 -> Item 15
+- Creation code
+  - Refers to item: Statement (location: source ID 45, lines 11..12, bytes 340..351, hits: 260)
+
+Anchors for Contract "StdChains" (solc 0.8.30, source ID 2):
+
+Anchors for Contract "DarkPool" (solc 0.8.30, source ID 42):
+
+Anchors for Contract "StdInvariant" (solc 0.8.30, source ID 6):
+
+Anchors for Contract "Panic" (solc 0.8.30, source ID 29):
+
+Anchors for Contract "IVerifier" (solc 0.8.30, source ID 43):
+
+Anchors for Contract "IERC1155Errors" (solc 0.8.30, source ID 20):
+
+Anchors for Contract "StdCheatsSafe" (solc 0.8.30, source ID 3):
+
+Anchors for Contract "SafeCast" (solc 0.8.30, source ID 38):
+
+Anchors for Contract "MockERC20" (solc 0.8.30, source ID 44):
+- IC 1899 -> Item 0
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 10..13, bytes 300..459, hits: 1028)
+- IC 1899 -> Item 1
+- Creation code
+  - Refers to item: Function "_approve" (location: source ID 44, lines 10..13, bytes 300..459, hits: 1028)
+- IC 1900 -> Item 2
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 11..12, bytes 408..452, hits: 1028)
+- IC 1900 -> Item 3
+- Creation code
+  - Refers to item: Statement (location: source ID 44, lines 11..12, bytes 408..452, hits: 1028)
+
+Anchors for Contract "ScriptBase" (solc 0.8.30, source ID 0):
+
+Anchors for Contract "IERC721Errors" (solc 0.8.30, source ID 20):
+
+Anchors for Contract "StdConstants" (solc 0.8.30, source ID 4):
+
+Anchors for Contract "MockERC20Permit" (solc 0.8.30, source ID 44):
+- IC 1958 -> Item 0
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 10..13, bytes 300..459, hits: 1028)
+- IC 1958 -> Item 1
+- Creation code
+  - Refers to item: Function "_approve" (location: source ID 44, lines 10..13, bytes 300..459, hits: 1028)
+- IC 1959 -> Item 2
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 11..12, bytes 408..452, hits: 1028)
+- IC 1959 -> Item 3
+- Creation code
+  - Refers to item: Statement (location: source ID 44, lines 11..12, bytes 408..452, hits: 1028)
+- IC 550 -> Item 4
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 18..24, bytes 541..752, hits: 257)
+- IC 550 -> Item 5
+- Creation code
+  - Refers to item: Function "permit" (location: source ID 44, lines 18..24, bytes 541..752, hits: 257)
+- IC 1143 -> Item 6
+- Creation code
+  - Refers to item: Line (location: source ID 44, lines 22..23, bytes 714..745, hits: 257)
+- IC 1143 -> Item 7
+- Creation code
+  - Refers to item: Statement (location: source ID 44, lines 22..23, bytes 714..745, hits: 257)
+
+Anchors for Contract "Math" (solc 0.8.30, source ID 37):
+
+Anchors for Contract "IERC5267" (solc 0.8.30, source ID 19):
+
+Anchors for Contract "StdStyle" (solc 0.8.30, source ID 10):
+
+Anchors for Contract "TestBase" (solc 0.8.30, source ID 0):
+
+Anchors for Contract "ECDSA" (solc 0.8.30, source ID 34):
+
+Anchors for Contract "stdStorageSafe" (solc 0.8.30, source ID 9):
+
+Anchors for Contract "stdMath" (solc 0.8.30, source ID 8):
+
+Anchors for Contract "stdJson" (solc 0.8.30, source ID 7):
+
+Anchors for Contract "CommonBase" (solc 0.8.30, source ID 0):
+
+Anchors for Contract "IMulticall3" (solc 0.8.30, source ID 17):
+
+Anchors for Contract "stdError" (solc 0.8.30, source ID 5):
+
+Anchors for Contract "StdCheats" (solc 0.8.30, source ID 3):
+
+Anchors for Contract "safeconsole" (solc 0.8.30, source ID 18):
+
+Anchors for Contract "IERC20" (solc 0.8.30, source ID 23):
+
+Anchors for Contract "Test" (solc 0.8.30, source ID 13):
+
+Anchors for Contract "console" (solc 0.8.30, source ID 15):
+
+Anchors for Contract "Context" (solc 0.8.30, source ID 27):
+
+Anchors for Contract "Nonces" (solc 0.8.30, source ID 28):
+
+Anchors for Contract "stdToml" (solc 0.8.30, source ID 11):
+
+Anchors for Contract "SignedMath" (solc 0.8.30, source ID 39):
+
+Anchors for Contract "MessageHashUtils" (solc 0.8.30, source ID 36):
+
+Anchors for Contract "ERC20Mock" (solc 0.8.30, source ID 21):
+

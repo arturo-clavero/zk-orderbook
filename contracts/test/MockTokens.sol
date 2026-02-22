@@ -13,20 +13,12 @@ contract MockERC20 is ERC20Mock {
 }
 
 contract MockERC20Permit is MockERC20 {
-    constructor()
-        MockERC20()
-    {}
-    
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual {
+    constructor() MockERC20() {}
+
+    function permit(address owner, address spender, uint256 value, uint256 /*deadline*/, uint8 /*v*/, bytes32 /*r*/, bytes32 /*s*/)
+        public
+        virtual
+    {
         _approve(owner, spender, value);
     }
-
 }

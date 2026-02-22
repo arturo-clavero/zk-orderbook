@@ -5,7 +5,6 @@ import {Script, console} from "forge-std/Script.sol";
 import {DarkPool} from "../src/DarkPool.sol";
 import {HonkVerifier, IVerifier} from "../src/Verifier.sol";
 
-
 contract DeployDarkPool is Script {
     function run() external {
         bytes32 emptyRoot = 0x2d78ed82f93b61ba718b17c2dfe5b52375b4d37cbbed6f1fc98b47614b0cf21b;
@@ -14,7 +13,7 @@ contract DeployDarkPool is Script {
 
         HonkVerifier verifier = new HonkVerifier();
 
-        DarkPool pool = new DarkPool(IVerifier(address(verifier)), emptyRoot, false);
+        DarkPool pool = new DarkPool(IVerifier(address(verifier)), emptyRoot, 10, false);
 
         console.log("DarkPool deployed at:", address(pool));
 
